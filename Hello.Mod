@@ -1,0 +1,2 @@
+MODULE Hello;
+END Hello.
