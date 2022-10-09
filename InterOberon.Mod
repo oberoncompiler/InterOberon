@@ -13,7 +13,7 @@ END Usage;
 PROCEDURE RunCompiler;
 VAR s: ARRAY 256 OF CHAR;
 BEGIN
-  (*Args.Get(1, s);*) s := 'Hello.Mod';
+  Args.Get(1, s);
   IF Parser.Load(s) THEN
     Parser.Compile
   ELSE
@@ -22,7 +22,7 @@ BEGIN
 END RunCompiler;
 
 BEGIN
-  IF TRUE OR (*!FIXME*) (Args.Count = 1) THEN
+  IF Args.Count = 1 THEN
     RunCompiler
   ELSE
     Usage
