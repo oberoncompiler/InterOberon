@@ -2,6 +2,7 @@
 all: InterOberon
 
 InterOberon: *.Mod
+	clear
 	fob InterOberon.Mod
 
 run: all

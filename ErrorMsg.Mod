@@ -5,6 +5,8 @@ CONST
   expIdent*          = 3;
   expEnd*            = 4;
   expPeriod*         = 5;
+  expBecomes*        = 6;
+  expExpression*     = 7;
 
   modNameMismatch*   = 60;
 
@@ -15,6 +17,8 @@ BEGIN
   ELSIF n = expIdent THEN s := 'Ожидается имя'
   ELSIF n = expEnd THEN s := 'Ожидается END'
   ELSIF n = expPeriod THEN s := 'Ожидается точка'
+  ELSIF n = expBecomes THEN s := 'Ожидается :='
+  ELSIF n = expExpression THEN s := 'Ожидается выражение'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSE s := 'Неопознанная ошибка'
   END

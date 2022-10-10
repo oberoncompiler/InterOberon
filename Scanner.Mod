@@ -8,6 +8,12 @@ CONST
   end*     = 3;
   semicol* = 4;
   period*  = 5;
+  begin*   = 6;
+  becomes* = 7;
+  colon*   = 8;
+  equals*  = 9;
+  times*   = 10;
+  plus*    = 11;
   eot*     = 70;
 
 VAR
@@ -32,6 +38,11 @@ BEGIN
   ELSIF sym = end THEN s := 'end'
   ELSIF sym = semicol THEN s := 'semicol'
   ELSIF sym = period THEN s := 'period'
+  ELSIF sym = begin THEN s := 'begin'
+  ELSIF sym = colon THEN s := 'colon'
+  ELSIF sym = equals THEN s := 'equals'
+  ELSIF sym = times THEN s := 'times'
+  ELSIF sym = plus THEN s := 'plus'
   ELSIF sym = eot THEN s := 'eot'
   ELSE s := 'unknown'
   END
@@ -72,9 +83,14 @@ BEGIN
 
   IF ch = 0X THEN
     sym := eot
+  ELSIF ch = ':' THEN Read;
+    IF ch = '=' THEN sym := becomes; Read ELSE sym := colon END
+  ELSIF ch = '=' THEN sym := equals; Read
   ELSIF ch = ';' THEN sym := semicol; Read
   ELSIF ch = '.' THEN sym := period; Read
-  ELSIF ('a' < ch) & (ch < 'z') OR ('A' < ch) & (ch < 'Z') THEN
+  ELSIF ch = '*' THEN sym := times; Read
+  ELSIF ch = '+' THEN sym := plus; Read
+  ELSIF ('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') THEN
     len := 0;
     REPEAT
       IF len < LEN(id) - 1 THEN
@@ -82,11 +98,13 @@ BEGIN
         INC(len)
       END;
       Read
-    UNTIL ~(('a' < ch) & (ch < 'z') OR ('A' < ch) & (ch < 'Z') OR ('0' < ch) & (ch < '9'));
+    UNTIL ~(('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') OR
+            ('0' <= ch) & (ch <= '9'));
     id[len] := 0X;
 
     IF id = 'MODULE' THEN sym := module
     ELSIF id = 'END' THEN sym := end
+    ELSIF id = 'BEGIN' THEN sym := begin
     ELSE sym := ident
     END
   ELSE
