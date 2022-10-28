@@ -4,6 +4,8 @@ IMPORT S := Scanner, E := ErrorMsg, Out, Strings;
 VAR
   sym: INTEGER;
 
+  Expr: PROCEDURE;
+
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
 RETURN S.Load(fname) END Load;
 
@@ -15,14 +17,23 @@ PROCEDURE DeclSeq;
 BEGIN (*!TODO*)
 END DeclSeq;
 
+(* Factor = Ident | Number | "(" Expr ")". *)
 PROCEDURE Factor;
 BEGIN
-  IF sym = S.ident THEN
+  IF sym = S.lparen THEN
+    S.Get(sym);
+    Expr;
+    IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
+  ELSIF sym = S.int THEN
+    Out.String('Число '); Out.Int(S.ival, 0); Out.Ln;
+    S.Get(sym)
+  ELSIF sym = S.ident THEN
     Out.String(S.id); Out.Ln;
     S.Get(sym)
   END
 END Factor;
 
+(* Term = Factor [MulOperator Factor]. *)
 PROCEDURE Term;
 BEGIN
   Factor;
@@ -33,25 +44,30 @@ BEGIN
   END
 END Term;
 
+(* SimpleExpr = Term [AddOperator Term]. *)
 PROCEDURE SimpleExpr;
 BEGIN
   Term;
-  WHILE sym = S.plus DO
+  WHILE (sym = S.plus) OR (sym = S.minus) DO
+    IF sym = S.plus THEN Out.String('Спецсложение')
+    ELSE Out.String('Спецвычитание')
+    END;
+    Out.Ln;
     S.Get(sym);
-    Out.String('Сложение'); Out.Ln;
     Term
   END
 END SimpleExpr;
 
-PROCEDURE Expr;
+(* Expr = SimpleExpr [relation SimpleExpr]. *)
+PROCEDURE Expr0;
 BEGIN
   SimpleExpr;
-  WHILE sym = S.equals DO
+  IF sym = S.equals THEN
     S.Get(sym);
     Out.String('Проверка на равенство'); Out.Ln;
     SimpleExpr
   END
-END Expr;
+END Expr0;
 
 PROCEDURE Assign(name: ARRAY OF CHAR);
 BEGIN
@@ -61,7 +77,8 @@ BEGIN
   Expr
 END Assign;
 
-PROCEDURE Stat;
+(* Statement = [Assign]. *)
+PROCEDURE Statement;
 VAR name: ARRAY 256 OF CHAR;
 BEGIN
   IF sym = S.ident THEN
@@ -72,16 +89,16 @@ BEGIN
       S.Get(sym);
       Assign(name)
     ELSE S.Mark(E.expBecomes)
-    END;
+    END
   END
-END Stat;
+END Statement;
 
 PROCEDURE StatSeq;
 BEGIN
-  Stat;
+  Statement;
   WHILE sym = S.semicol DO
     S.Get(sym);
-    Stat
+    Statement
   END
 END StatSeq;
 
@@ -133,4 +150,6 @@ BEGIN
   END
 END Compile;
 
+BEGIN
+  Expr := Expr0
 END Parser.

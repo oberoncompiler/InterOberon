@@ -1,4 +1,4 @@
 MODULE Hello;
 BEGIN
-  x := y + z * a + u * abc
+  x := y + 412 * (0 + a) - u * abc
 END Hello.

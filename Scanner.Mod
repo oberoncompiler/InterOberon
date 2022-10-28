@@ -4,16 +4,20 @@ IMPORT Files, Out, ErrorMsg;
 CONST
   null*    = 0;
   ident*   = 1;
-  module*  = 2;
-  end*     = 3;
-  semicol* = 4;
-  period*  = 5;
-  begin*   = 6;
-  becomes* = 7;
-  colon*   = 8;
-  equals*  = 9;
-  times*   = 10;
-  plus*    = 11;
+  int*     = 2;
+  module*  = 12;
+  end*     = 13;
+  semicol* = 14;
+  period*  = 15;
+  begin*   = 16;
+  becomes* = 17;
+  colon*   = 18;
+  equals*  = 19;
+  times*   = 20;
+  plus*    = 21;
+  minus*   = 22;
+  lparen*  = 40; (* "(" *)
+  rparen*  = 41; (* ")" *)
   eot*     = 70;
 
 VAR
@@ -24,6 +28,7 @@ VAR
 
   id*: ARRAY 64 OF CHAR; (* When sym = ident *)
   len*: INTEGER;         (* When sym = ident *)
+  ival*: INTEGER;        (* When sym = int *)
 
   ch: CHAR; (* Used in Get *)
 
@@ -43,6 +48,7 @@ BEGIN
   ELSIF sym = equals THEN s := 'equals'
   ELSIF sym = times THEN s := 'times'
   ELSIF sym = plus THEN s := 'plus'
+  ELSIF sym = minus THEN s := 'minus'
   ELSIF sym = eot THEN s := 'eot'
   ELSE s := 'unknown'
   END
@@ -90,6 +96,16 @@ BEGIN
   ELSIF ch = '.' THEN sym := period; Read
   ELSIF ch = '*' THEN sym := times; Read
   ELSIF ch = '+' THEN sym := plus; Read
+  ELSIF ch = '-' THEN sym := minus; Read
+  ELSIF ch = '(' THEN sym := lparen; Read
+  ELSIF ch = ')' THEN sym := rparen; Read
+  ELSIF ('0' <= ch) & (ch <= '9') THEN
+    ival := 0;
+    REPEAT
+      ival := ival * 10 + (ORD(ch) - ORD('0'));
+      Read
+    UNTIL ~(('0' <= ch) & (ch <= '9'));
+    sym := int
   ELSIF ('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') THEN
     len := 0;
     REPEAT
