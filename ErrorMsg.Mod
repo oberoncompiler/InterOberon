@@ -11,6 +11,8 @@ CONST
 
   modNameMismatch*   = 60;
 
+  longString*        = 100;
+
 PROCEDURE Get*(n: INTEGER; VAR s: ARRAY OF CHAR);
 BEGIN
   IF n = expModule THEN s := 'Ожидается MODULE'
@@ -22,6 +24,7 @@ BEGIN
   ELSIF n = expExpression THEN s := 'Ожидается выражение'
   ELSIF n = expRparen THEN s := 'Ожидается )'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
+  ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSE s := 'Неопознанная ошибка'
   END
 END Get;

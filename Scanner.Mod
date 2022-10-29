@@ -5,6 +5,7 @@ CONST
   null*    = 0;
   ident*   = 1;
   int*     = 2;
+  string*  = 4;
   module*  = 12;
   end*     = 13;
   semicol* = 14;
@@ -26,9 +27,10 @@ VAR
   line, col: INTEGER;
   nextLine: BOOLEAN; (* Used in Read *)
 
-  id*: ARRAY 64 OF CHAR; (* When sym = ident *)
-  len*: INTEGER;         (* When sym = ident *)
-  ival*: INTEGER;        (* When sym = int *)
+  id*: ARRAY 64 OF CHAR;    (* When sym = ident *)
+  len*: INTEGER;            (* When sym = ident or string*)
+  ival*: INTEGER;           (* When sym = int *)
+  sval*: ARRAY 10 OF CHAR; (* When sym = string *)
 
   ch: CHAR; (* Used in Get *)
 
@@ -82,7 +84,19 @@ BEGIN
   END
 RETURN F # NIL END Load;
 
+PROCEDURE Mark*(errCode: INTEGER);
+VAR s: ARRAY 256 OF CHAR;
+BEGIN
+  error := TRUE; errPos := Files.Pos(r);
+  Out.String(moduleFname); Out.Char(':');
+  Out.Int(line, 0); Out.Char(':'); Out.Int(col, 0);
+  Out.String(': error: #'); Out.Int(errCode, 0); Out.Char(' ');
+  ErrorMsg.Get(errCode, s); Out.String(s); Out.Ln
+END Mark;
+
 PROCEDURE Get*(VAR sym: INTEGER);
+VAR quote: CHAR;
+  marked: BOOLEAN;
 BEGIN
   (* Skip whitespaces *)
   WHILE (ch # 0X) & (ch <= ' ') DO Read END;
@@ -99,6 +113,24 @@ BEGIN
   ELSIF ch = '-' THEN sym := minus; Read
   ELSIF ch = '(' THEN sym := lparen; Read
   ELSIF ch = ')' THEN sym := rparen; Read
+  ELSIF (ch = '"') OR (ch = "'") THEN
+    quote := ch;
+    len := 0;
+    marked := FALSE;
+    Read;
+    WHILE (ch # 0X) & (ch # quote) DO
+      IF len < LEN(sval) - 1 THEN
+        sval[len] := ch;
+        INC(len)
+      ELSIF ~marked THEN
+        Mark(ErrorMsg.longString);
+        marked := TRUE
+      END;
+      Read
+    END;
+    sval[len] := 0X;
+    Read;
+    sym := string
   ELSIF ('0' <= ch) & (ch <= '9') THEN
     ival := 0;
     REPEAT
@@ -128,16 +160,6 @@ BEGIN
     Read
   END
 END Get;
-
-PROCEDURE Mark*(errCode: INTEGER);
-VAR s: ARRAY 256 OF CHAR;
-BEGIN
-  error := TRUE; errPos := Files.Pos(r);
-  Out.String(moduleFname); Out.Char(':');
-  Out.Int(line, 0); Out.Char(':'); Out.Int(col, 0);
-  Out.String(': error: #'); Out.Int(errCode, 0); Out.Char(' ');
-  ErrorMsg.Get(errCode, s); Out.String(s); Out.Ln
-END Mark;
 
 PROCEDURE Test*;
 VAR sym: INTEGER;
