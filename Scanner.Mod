@@ -37,25 +37,6 @@ VAR
   error*: BOOLEAN; (* FALSE if ok *)
   errPos: INTEGER; (* Position of last error *)
 
-PROCEDURE SymName*(sym: INTEGER; VAR s: ARRAY OF CHAR);
-BEGIN
-  IF sym = null THEN s := 'null'
-  ELSIF sym = ident THEN s := 'ident'
-  ELSIF sym = module THEN s := 'module'
-  ELSIF sym = end THEN s := 'end'
-  ELSIF sym = semicol THEN s := 'semicol'
-  ELSIF sym = period THEN s := 'period'
-  ELSIF sym = begin THEN s := 'begin'
-  ELSIF sym = colon THEN s := 'colon'
-  ELSIF sym = equals THEN s := 'equals'
-  ELSIF sym = times THEN s := 'times'
-  ELSIF sym = plus THEN s := 'plus'
-  ELSIF sym = minus THEN s := 'minus'
-  ELSIF sym = eot THEN s := 'eot'
-  ELSE s := 'unknown'
-  END
-END SymName;
-
 PROCEDURE Read;
 BEGIN
   Files.ReadChar(r, ch);
@@ -160,19 +141,5 @@ BEGIN
     Read
   END
 END Get;
-
-PROCEDURE Test*;
-VAR sym: INTEGER;
-  s: ARRAY 30 OF CHAR;
-BEGIN
-  Get(sym);
-  WHILE sym # eot DO
-    Out.Int(line, 3); Out.Char(':'); Out.Int(col, 2); Out.String(' - ');
-    SymName(sym, s); Out.String(s);
-    IF sym = ident THEN Out.String(" '"); Out.String(id); Out.Char("'") END;
-    Out.Ln;
-    Get(sym)
-  END
-END Test;
 
 END Scanner.

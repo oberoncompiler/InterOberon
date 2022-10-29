@@ -77,7 +77,7 @@ BEGIN
   Expr
 END Assign;
 
-(* Statement = [Assign | String]. *)
+(* Statement = [Assign]. *)
 PROCEDURE Statement;
 VAR name: ARRAY 256 OF CHAR;
 BEGIN
@@ -90,11 +90,6 @@ BEGIN
       Assign(name)
     ELSE S.Mark(E.expBecomes)
     END
-  ELSIF sym = S.string THEN
-    Out.String('sval='); Out.String(S.sval);
-    Out.String(', len='); Out.Int(S.len, 0);
-    Out.Char(';'); Out.Ln;
-    S.Get(sym)
   END
 END Statement;
 
