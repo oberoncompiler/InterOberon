@@ -17,6 +17,9 @@ CONST
   times*   = 20;
   plus*    = 21;
   minus*   = 22;
+  var*     = 23;
+  import*  = 24;
+
   lparen*  = 40; (* "(" *)
   rparen*  = 41; (* ")" *)
   eot*     = 70;
@@ -134,6 +137,8 @@ BEGIN
     IF id = 'MODULE' THEN sym := module
     ELSIF id = 'END' THEN sym := end
     ELSIF id = 'BEGIN' THEN sym := begin
+    ELSIF id = 'VAR' THEN sym := var
+    ELSIF id = 'IMPORT' THEN sym := import
     ELSE sym := ident
     END
   ELSE

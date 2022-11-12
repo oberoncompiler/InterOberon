@@ -1,5 +1,5 @@
 MODULE Parser;
-IMPORT S := Scanner, E := ErrorMsg, Out, Strings;
+IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings;
 
 VAR
   sym: INTEGER;
@@ -13,8 +13,21 @@ PROCEDURE ImportList;
 BEGIN (*!TODO*)
 END ImportList;
 
+(** VarDecl = IdentList ":" Type. *)
+PROCEDURE VarDecl;
+BEGIN
+END VarDecl;
+
+(** DeclSeq = [VAR {VarDecl ";"}]. *)
 PROCEDURE DeclSeq;
-BEGIN (*!TODO*)
+BEGIN
+  IF sym = S.var THEN
+    S.Get(sym);
+    WHILE sym = S.ident DO
+      VarDecl;
+      IF sym = S.semicol THEN S.Get(sym) ELSE S.Mark(E.expSemicol) END
+    END
+  END
 END DeclSeq;
 
 (* Factor = Ident | Number | "(" Expr ")". *)
@@ -102,6 +115,8 @@ BEGIN
   END
 END StatSeq;
 
+(** Module = MODULE ident ";" [ImportList] DeclSeq
+             [BEGIN StatSeq] END ident ".". *)
 PROCEDURE Module;
 VAR modName: ARRAY 64 OF CHAR;
 BEGIN
@@ -112,7 +127,7 @@ BEGIN
       S.Get(sym);
       IF sym = S.semicol THEN S.Get(sym) ELSE S.Mark(E.expSemicol) END;
 
-      ImportList;
+      IF sym = S.import THEN S.Get(sym); ImportList END;
       DeclSeq;
       IF sym = S.begin THEN S.Get(sym); StatSeq END;
 
