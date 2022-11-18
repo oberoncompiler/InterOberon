@@ -16,6 +16,7 @@ END ImportList;
 (** VarDecl = IdentList ":" Type. *)
 PROCEDURE VarDecl;
 BEGIN
+  Out.String('VAR не реализован.'); Out.Ln; ASSERT(FALSE)(*!TODO*)
 END VarDecl;
 
 (** DeclSeq = [VAR {VarDecl ";"}]. *)
@@ -158,6 +159,7 @@ BEGIN
   (*S.Test*)
 
   S.Get(sym);
+  ST.Init;
   Module;
 
   IF S.error THEN
