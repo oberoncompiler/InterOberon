@@ -1,2 +1,2 @@
 #!/bin/bash
-vim -p Scanner.Mod Parser.Mod SymTable.Mod ErrorMsg.Mod Hello.Mod
+vim -p Scanner.Mod Hello.Mod Parser.Mod SymTable.Mod ErrorMsg.Mod

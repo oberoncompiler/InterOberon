@@ -13,10 +13,49 @@ PROCEDURE ImportList;
 BEGIN (*!TODO*)
 END ImportList;
 
+(** Type = ident. *)
+PROCEDURE Type(VAR T: ST.Type);
+VAR p: ST.Object;
+BEGIN
+  IF sym = S.ident THEN
+    p := ST.ThisObject();
+    S.Get(sym);
+    IF p # NIL THEN
+      IF p.class = ST.Typ THEN
+        T := p.type
+      ELSE S.Mark(E.expType)
+      END
+    ELSE S.Mark(E.undecl)
+    END
+  ELSE S.Mark(E.expIdent)
+  END
+END Type;
+
 (** VarDecl = IdentList ":" Type. *)
 PROCEDURE VarDecl;
+VAR p: ST.Object;
+  T: ST.Type;
 BEGIN
-  Out.String('VAR не реализован.'); Out.Ln; ASSERT(FALSE)(*!TODO*)
+  p := ST.dummy; (* Save pointer to the first object created below *)
+  ST.NewObject(ST.Var, S.id);
+  S.Get(sym);
+  WHILE sym = S.comma DO
+    S.Get(sym);
+    IF sym = S.ident THEN
+      ST.NewObject(ST.Var, S.id);
+      S.Get(sym)
+    ELSE S.Mark(E.expIdent)
+    END
+  END;
+  IF sym = S.colon THEN
+    S.Get(sym);
+    Type(T);
+    WHILE p # ST.dummy DO
+      p.type := T;
+      p := p.next
+    END
+  ELSE S.Mark(E.expColon)
+  END
 END VarDecl;
 
 (** DeclSeq = [VAR {VarDecl ";"}]. *)
@@ -164,6 +203,8 @@ BEGIN
 
   IF S.error THEN
     Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
+  ELSE
+    ST.ShowDebug
   END
 END Compile;
 

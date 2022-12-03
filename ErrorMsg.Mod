@@ -5,13 +5,18 @@ CONST
   expIdent*          = 3;
   expEnd*            = 4;
   expPeriod*         = 5;
-  expBecomes*        = 6;
-  expExpression*     = 7;
+  expColon*          = 6;
+  expBecomes*        = 7;
+  expExpression*     = 8;
+  expType*           = 9;
   expRparen*         = 40;
 
-  modNameMismatch*   = 60;
+  undecl*            = 60;
+  multipleDecl*      = 61;
 
-  longString*        = 100;
+  modNameMismatch*   = 90;
+
+  longString*        = 110;
 
 PROCEDURE Get*(n: INTEGER; VAR s: ARRAY OF CHAR);
 BEGIN
@@ -20,9 +25,13 @@ BEGIN
   ELSIF n = expIdent THEN s := 'Ожидается имя'
   ELSIF n = expEnd THEN s := 'Ожидается END'
   ELSIF n = expPeriod THEN s := 'Ожидается точка'
+  ELSIF n = expColon THEN s := 'Ожидается двоеточие'
   ELSIF n = expBecomes THEN s := 'Ожидается :='
   ELSIF n = expExpression THEN s := 'Ожидается выражение'
+  ELSIF n = expType THEN s := 'Ожидается тип'
   ELSIF n = expRparen THEN s := 'Ожидается )'
+  ELSIF n = undecl THEN s := 'Необъявленное имя'
+  ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSE s := 'Неопознанная ошибка'

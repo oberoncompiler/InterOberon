@@ -10,15 +10,16 @@ CONST
   end*     = 13;
   semicol* = 14;
   period*  = 15;
-  begin*   = 16;
-  becomes* = 17;
-  colon*   = 18;
-  equals*  = 19;
-  times*   = 20;
-  plus*    = 21;
-  minus*   = 22;
-  var*     = 23;
-  import*  = 24;
+  comma*   = 16;
+  begin*   = 17;
+  becomes* = 18;
+  colon*   = 19;
+  equals*  = 20;
+  times*   = 21;
+  plus*    = 22;
+  minus*   = 23;
+  var*     = 24;
+  import*  = 25;
 
   lparen*  = 40; (* "(" *)
   rparen*  = 41; (* ")" *)
@@ -28,12 +29,12 @@ VAR
   moduleFname: ARRAY 128 OF CHAR;
   r: Files.Rider;
   line, col: INTEGER;
-  nextLine: BOOLEAN; (* Used in Read *)
+  nextLine: BOOLEAN; (** Used in Read *)
 
-  id*: ARRAY 64 OF CHAR;    (* When sym = ident *)
-  len*: INTEGER;            (* When sym = ident or string*)
-  ival*: INTEGER;           (* When sym = int *)
-  sval*: ARRAY 10 OF CHAR; (* When sym = string *)
+  id*: ARRAY 64 OF CHAR;    (** When sym = ident *)
+  len*: INTEGER;            (** When sym = ident or string *)
+  ival*: INTEGER;           (** When sym = int *)
+  sval*: ARRAY 10 OF CHAR; (** When sym = string *)
 
   ch: CHAR; (* Used in Get *)
 
@@ -92,6 +93,7 @@ BEGIN
   ELSIF ch = '=' THEN sym := equals; Read
   ELSIF ch = ';' THEN sym := semicol; Read
   ELSIF ch = '.' THEN sym := period; Read
+  ELSIF ch = ',' THEN sym := comma; Read
   ELSIF ch = '*' THEN sym := times; Read
   ELSIF ch = '+' THEN sym := plus; Read
   ELSIF ch = '-' THEN sym := minus; Read

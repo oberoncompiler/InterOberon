@@ -1,10 +1,12 @@
 MODULE Hello;
-VAR x: INTEGER;
+IMPORT Out;
+VAR x, m, t2: INTEGER;
   y, a: INTEGER;
-  x: BOOLEAN;
+  x2: BOOLEAN;
 BEGIN
   a := b;
-  x := y + 412 * (10 + a) - u * abc
+  x := y + 412 * (10 + a) - u * abc;
+  Out.Int(x, 0); Out.Ln
 END Hello.
 
 
