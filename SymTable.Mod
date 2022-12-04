@@ -3,16 +3,18 @@ IMPORT Out, S := Scanner, E := ErrorMsg, Strings, Kernel;
 
 CONST
   (** Object Classes **)
-  Head* = 0;
-  Var*  = 2;
-  Typ*  = 5;
-  Mod*  = 8;
+  Head*  = 0;
+  Const* = 1; (** Non-standard procedures also go here *)
+  Var*   = 2;
+  Typ*   = 5;
+  Mod*   = 8;
 
   (** Type Forms **)
   Bool*  = 2;
   Char*  = 3;
   Int*   = 4;
   NoTyp* = 9;
+  Proc*  = 10;
 
 TYPE
   Object* = POINTER TO ObjectDesc;
@@ -27,12 +29,18 @@ TYPE
   END;
 
   TypeDesc* = RECORD
-    form*: INTEGER
+    form*: INTEGER;
+    nofpar*: INTEGER;
+    dsc*: Object;
+    base*: Type
   END;
 
 VAR
   topScope: Object;
   dummy*: Object;
+
+  (** Standard Types **)
+  boolType*, charType*, intType*, noType*: Type;
 
 PROCEDURE InitUniverse;
 VAR U: Object;
@@ -42,22 +50,19 @@ BEGIN
   U := U.next;
   U.name := 'BOOLEAN';
   U.class := Typ;
-  NEW(U.type);
-  U.type.form := Bool;
+  U.type := boolType;
 
   NEW(U.next);
   U := U.next;
   U.name := 'CHAR';
   U.class := Typ;
-  NEW(U.type);
-  U.type.form := Char;
+  U.type := charType;
 
   NEW(U.next);
   U := U.next;
   U.name := 'INTEGER';
   U.class := Typ;
-  NEW(U.type);
-  U.type.form := Int;
+  U.type := intType;
 
   U.next := dummy
 END InitUniverse;
@@ -117,14 +122,57 @@ BEGIN
   END
 END NewObject;
 
-PROCEDURE ShowDebug*;
-VAR scope, p: Object;
+PROCEDURE ImportOut*(M: Object);
+VAR p: Object;
 BEGIN
-  scope := topScope;
+  NEW(M.dsc); M := M.dsc; M.class := Head;
+
+  (* Out.Char *)
+  NEW(M.next); M := M.next;
+  M.class := Const; M.name := 'Char';
+  NEW(M.type); M.type.form := Proc;
+  M.type.nofpar := 1; M.type.base := noType;
+  (* Parameter of Out.Char *)
+  NEW(M.type.dsc); p := M.type.dsc;
+  p.class := Var; p.name := 'c'; p.type := charType;
+
+  (* Out.Int *)
+  NEW(M.next); M := M.next;
+  M.class := Const; M.name := 'Int';
+  NEW(M.type); M.type.form := Proc;
+  M.type.nofpar := 2; M.type.base := noType;
+  (* Parameters of Out.Int *)
+  NEW(M.type.dsc); p := M.type.dsc;
+  p.class := Var; p.name := 'i'; p.type := intType;
+  NEW(p.next); p := p.next;
+  p.class := Var; p.name := 'n'; p.type := intType;
+
+  (* Out.Ln *)
+  NEW(M.next); M := M.next;
+  M.class := Const; M.name := 'Ln';
+  NEW(M.type); M.type.form := Proc;
+  M.type.nofpar := 0; M.type.base := noType
+END ImportOut;
+
+(** Loads symbol data of module to M by name *)
+PROCEDURE Import*(M: Object; name: ARRAY OF CHAR);
+BEGIN
+  IF name = 'Out' THEN ImportOut(M)
+  ELSE S.Mark(E.noModule)
+  END
+END Import;
+
+PROCEDURE PrintIndent(n: INTEGER);
+BEGIN WHILE n > 0 DO Out.String('  '); DEC(n) END
+END PrintIndent;
+
+PROCEDURE Debug*(scope: Object; indent: INTEGER);
+VAR p: Object;
+BEGIN
   WHILE scope # NIL DO
-    Out.String('--- Область видимости ---'); Out.Ln;
     p := scope;
     WHILE p # NIL DO
+      PrintIndent(indent);
       IF p = dummy THEN Out.String('Болванка')
       ELSIF p.class = Head THEN Out.String('Заголовок')
       ELSIF p.class = Var THEN
@@ -134,13 +182,32 @@ BEGIN
         Out.String('Тип "'); Out.String(p.name);
         Out.String('", ссылается на тип с формой ');
         Out.Int(p.type.form, 0)
+      ELSIF p.class = Const THEN
+        Out.String('Постоянная "'); Out.String(p.name);
+        Out.String('"');
+        IF p.type.form = Proc THEN Out.String(' процедурного типа с ');
+          Out.Int(p.type.nofpar, 0); Out.String(' параметрами'); Out.Ln;
+          Debug(p.type.dsc, indent + 1)
+        ELSE Out.String(' типа с формой'); Out.Int(p.type.form, 0)
+        END
+      ELSIF p.class = Mod THEN
+        Out.String('Модуль "'); Out.String(p.name);
+        Out.String('":'); Out.Ln; Debug(p.dsc, indent + 1)
       ELSE Out.String('Неведома зверушка')
       END;
       Out.Ln;
       p := p.next
     END;
-    scope := scope.dsc
+    scope := scope.dsc;
+    IF scope # NIL THEN
+      PrintIndent(indent);
+      Out.String('--- Следующая область видимости ---'); Out.Ln
+    END
   END
+END Debug;
+
+PROCEDURE ShowDebug*;
+BEGIN Debug(topScope, 0)
 END ShowDebug;
 
 PROCEDURE Init*;
@@ -151,4 +218,14 @@ BEGIN
   OpenScope
 END Init;
 
+PROCEDURE CreateType(form: INTEGER): Type;
+VAR T: Type;
+BEGIN NEW(T); T.form := form
+RETURN T END CreateType;
+
+BEGIN
+  boolType := CreateType(Bool);
+  charType := CreateType(Char);
+  intType  := CreateType(Int);
+  noType   := CreateType(NoTyp)
 END SymTable.

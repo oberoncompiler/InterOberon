@@ -13,6 +13,7 @@ CONST
 
   undecl*            = 60;
   multipleDecl*      = 61;
+  noModule*          = 62;
 
   modNameMismatch*   = 90;
 
@@ -32,6 +33,7 @@ BEGIN
   ELSIF n = expRparen THEN s := 'Ожидается )'
   ELSIF n = undecl THEN s := 'Необъявленное имя'
   ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'
+  ELSIF n = noModule THEN s := 'Модуль не существует'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSE s := 'Неопознанная ошибка'

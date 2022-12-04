@@ -9,8 +9,33 @@ VAR
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
 RETURN S.Load(fname) END Load;
 
+(** Import = [ident ":="] ident. *)
+PROCEDURE Import;
+VAR name: ARRAY 64 OF CHAR;
+  M: ST.Object;
+BEGIN
+  IF sym = S.ident THEN
+    Strings.Copy(S.id, name);
+    M := ST.dummy;
+    ST.NewObject(ST.Mod, name);
+    S.Get(sym);
+    IF sym = S.becomes THEN
+      S.Get(sym);
+      IF sym = S.ident THEN Strings.Copy(S.id, name)
+      ELSE S.Mark(E.expIdent)
+      END
+    END;
+    ST.Import(M, name)
+  ELSE S.Mark(E.expIdent)
+  END
+END Import;
+
+(** ImportList = Import {"," Import} ";". *)
 PROCEDURE ImportList;
-BEGIN (*!TODO*)
+BEGIN
+  Import;
+  WHILE sym = S.comma DO S.Get(sym); Import END;
+  IF sym = S.semicol THEN S.Get(sym) ELSE S.Mark(E.expSemicol) END
 END ImportList;
 
 (** Type = ident. *)
@@ -155,7 +180,7 @@ BEGIN
   END
 END StatSeq;
 
-(** Module = MODULE ident ";" [ImportList] DeclSeq
+(** Module = MODULE ident ";" [IMPORT ImportList] DeclSeq
              [BEGIN StatSeq] END ident ".". *)
 PROCEDURE Module;
 VAR modName: ARRAY 64 OF CHAR;

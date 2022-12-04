@@ -1,12 +1,13 @@
 MODULE Hello;
-IMPORT Out;
+IMPORT o := Out;
 VAR x, m, t2: INTEGER;
   y, a: INTEGER;
   x2: BOOLEAN;
 BEGIN
   a := b;
   x := y + 412 * (10 + a) - u * abc;
-  Out.Int(x, 0); Out.Ln
+  o.Char('>'); o.Char(' ');
+  o.Int(x, 0); o.Ln
 END Hello.
 
 
