@@ -34,7 +34,7 @@ VAR
   id*: ARRAY 64 OF CHAR;   (** When sym = ident *)
   len*: INTEGER;           (** When sym = ident or string *)
   ival*: INTEGER;          (** When sym = int *)
-  sval*: ARRAY 10 OF CHAR; (** When sym = string *)
+  sval*: ARRAY 256 OF CHAR; (** When sym = string *)
 
   ch: CHAR; (* Used in Get *)
 

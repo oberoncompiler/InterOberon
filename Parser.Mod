@@ -3,6 +3,7 @@ IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings;
 
 VAR
   sym: INTEGER;
+  dummy: ST.Object; (** In case of error in QualIdent *)
 
   Expr: PROCEDURE;
 
@@ -16,12 +17,11 @@ VAR name: ARRAY 64 OF CHAR;
 BEGIN
   IF sym = S.ident THEN
     Strings.Copy(S.id, name);
-    M := ST.dummy;
-    ST.NewObject(ST.Mod, name);
+    M := ST.NewObject(ST.Mod, name);
     S.Get(sym);
     IF sym = S.becomes THEN
       S.Get(sym);
-      IF sym = S.ident THEN Strings.Copy(S.id, name)
+      IF sym = S.ident THEN Strings.Copy(S.id, name); S.Get(sym)
       ELSE S.Mark(E.expIdent)
       END
     END;
@@ -58,29 +58,27 @@ END Type;
 
 (** VarDecl = IdentList ":" Type. *)
 PROCEDURE VarDecl;
-VAR p: ST.Object;
+VAR p, q: ST.Object;
   T: ST.Type;
 BEGIN
-  p := ST.dummy; (* Save pointer to the first object created below *)
-  ST.NewObject(ST.Var, S.id);
+  (* Save pointer to the first object created below *)
+  p := ST.NewObject(ST.Var, S.id);
   S.Get(sym);
   WHILE sym = S.comma DO
     S.Get(sym);
     IF sym = S.ident THEN
-      ST.NewObject(ST.Var, S.id);
+      q := ST.NewObject(ST.Var, S.id);
       S.Get(sym)
     ELSE S.Mark(E.expIdent)
     END
   END;
-  IF sym = S.colon THEN
-    S.Get(sym);
-    Type(T);
-    WHILE p # ST.dummy DO
-      p.type := T;
-      p := p.next
-    END
-  ELSE S.Mark(E.expColon)
-  END
+  IF sym = S.colon THEN ELSE S.Mark(E.expColon) END;
+  S.Get(sym);
+  Type(T);
+  REPEAT
+    p.type := T;
+    p := p.next
+  UNTIL p = ST.dummy
 END VarDecl;
 
 (** DeclSeq = [VAR {VarDecl ";"}]. *)
@@ -95,8 +93,36 @@ BEGIN
   END
 END DeclSeq;
 
-(* Factor = Ident | Number | "(" Expr ")". *)
+(** Selector = . *)
+PROCEDURE Selector;
+BEGIN
+END Selector;
+
+(** QualIdent = [ident "."] ident. *)
+PROCEDURE QualIdent(VAR obj: ST.Object);
+BEGIN
+  IF sym = S.ident THEN
+    obj := ST.ThisObject();
+    IF obj = NIL THEN S.Mark(E.undecl); obj := dummy END;
+    S.Get(sym);
+    IF (sym = S.period) & (obj.class = ST.Mod) THEN
+      Out.String('В модуле '); Out.String(obj.name); Out.Ln;
+      S.Get(sym);
+      IF sym = S.ident THEN
+        obj := ST.ThisImport(obj);
+        S.Get(sym);
+        IF obj = NIL THEN S.Mark(E.undecl); obj := dummy END
+      ELSE S.Mark(E.expIdent); obj := dummy
+      END
+    END;
+    Out.String('Уточнённое имя '); Out.String(obj.name); Out.Ln
+  ELSE S.Mark(E.expIdent)
+  END
+END QualIdent;
+
+(* Factor = Designator | Number | "(" Expr ")". *)
 PROCEDURE Factor;
+VAR obj: ST.Object;
 BEGIN
   IF sym = S.lparen THEN
     S.Get(sym);
@@ -106,8 +132,12 @@ BEGIN
     Out.String('Число '); Out.Int(S.ival, 0); Out.Ln;
     S.Get(sym)
   ELSIF sym = S.ident THEN
-    Out.String(S.id); Out.Ln;
+    QualIdent(obj);
+    Out.String('Объект '); Out.String(obj.name); Out.Ln
+  ELSIF sym = S.string THEN
+    Out.String('Строка "'); Out.String(S.sval); Out.Char('"'); Out.Ln;
     S.Get(sym)
+  ELSE S.Mark(E.expValue)
   END
 END Factor;
 
@@ -147,26 +177,68 @@ BEGIN
   END
 END Expr0;
 
-PROCEDURE Assign(name: ARRAY OF CHAR);
+(** Assign = Designator ":=" Expr. *)
+PROCEDURE Assign;
 BEGIN
-  Out.String('Присваивание в '); Out.String(name);
-  Out.String(' следующего выражения:'); Out.Ln;
 
   Expr
 END Assign;
 
-(* Statement = [Assign]. *)
+(** ExprList = Expr {"," Expr}. *)
+PROCEDURE ExprList;
+BEGIN
+  
+END ExprList;
+
+(** Param = Expr. *)
+PROCEDURE Param;
+BEGIN
+  Expr
+END Param;
+
+(** ActualParams = "(" [ExprList] ")". *)
+PROCEDURE ActualParams;
+VAR n: INTEGER;
+BEGIN
+  S.Get(sym);
+  IF sym # S.rparen THEN
+    Param; n := 1;
+    WHILE sym = S.comma DO
+      S.Get(sym);
+      Param;
+      INC(n)
+    END;
+    IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
+  ELSE S.Get(sym); n := 0
+  END;
+  Out.String('Прочитано параметров: '); Out.Int(n, 0); Out.Ln
+END ActualParams;
+
+(** ProcedureCall = Designator [ActualParams]. *)
+PROCEDURE ProcedureCall;
+BEGIN
+  IF sym = S.lparen THEN
+    ActualParams
+  (*!FIXME ELSIF nofpars... *)
+  END
+END ProcedureCall;
+
+(** Statement = [Assign | ProcedureCall]. *)
 PROCEDURE Statement;
-VAR name: ARRAY 256 OF CHAR;
+VAR obj: ST.Object;
 BEGIN
   IF sym = S.ident THEN
-    Strings.Copy(S.id, name);
-    S.Get(sym);
+    QualIdent(obj);
+    Selector;
     IF sym = S.equals THEN S.Mark(E.expBecomes); sym := S.becomes END;
     IF sym = S.becomes THEN
       S.Get(sym);
-      Assign(name)
-    ELSE S.Mark(E.expBecomes)
+      Out.String('Присваивание в '); Out.String(obj.name);
+      Out.String(' следующего выражения:'); Out.Ln;
+      Assign
+    ELSE
+      Out.String('Вызов процедуры '); Out.String(obj.name); Out.Ln;
+      ProcedureCall
     END
   END
 END Statement;
@@ -234,5 +306,6 @@ BEGIN
 END Compile;
 
 BEGIN
-  Expr := Expr0
+  Expr := Expr0;
+  NEW(dummy); dummy.class := ST.Var; dummy.type := ST.intType
 END Parser.

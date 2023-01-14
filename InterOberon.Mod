@@ -5,7 +5,7 @@ PROCEDURE Usage;
 VAR s: ARRAY 256 OF CHAR;
 BEGIN
   Args.Get(0, s);
-  Out.String('InterOberon compiler, 2022'); Out.Ln; Out.Ln;
+  Out.String('InterOberon compiler, 2022-2023'); Out.Ln; Out.Ln;
   Out.String('Usage:'); Out.Ln;
   Out.String('  '); Out.String(s); Out.String(' <module_name>'); Out.Ln
 END Usage;

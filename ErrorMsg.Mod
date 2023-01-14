@@ -9,6 +9,7 @@ CONST
   expBecomes*        = 7;
   expExpression*     = 8;
   expType*           = 9;
+  expValue*          = 10;
   expRparen*         = 40;
 
   undecl*            = 60;
@@ -30,6 +31,7 @@ BEGIN
   ELSIF n = expBecomes THEN s := 'Ожидается :='
   ELSIF n = expExpression THEN s := 'Ожидается выражение'
   ELSIF n = expType THEN s := 'Ожидается тип'
+  ELSIF n = expValue THEN s := 'Ожидается значение'
   ELSIF n = expRparen THEN s := 'Ожидается )'
   ELSIF n = undecl THEN s := 'Необъявленное имя'
   ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'

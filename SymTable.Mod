@@ -107,28 +107,35 @@ BEGIN
   IF p.name # S.id THEN p := NIL END
 RETURN p END ThisObject;
 
-PROCEDURE NewObject*(class: INTEGER; name: ARRAY OF CHAR);
+PROCEDURE ThisImport*(M: Object): Object;
 VAR p: Object;
 BEGIN
-  Strings.Copy(S.id, dummy.name);
-  p := topScope.next;
-  WHILE p.name # S.id DO p := p.next END;
-  IF p = dummy THEN
-    p.class := class;
+  p := M.dsc;
+  WHILE (p # NIL) & (p.name # S.id) DO p := p.next END
+RETURN p END ThisImport;
+
+PROCEDURE NewObject*(class: INTEGER; name: ARRAY OF CHAR): Object;
+VAR p: Object;
+BEGIN
+  Strings.Copy(name, dummy.name);
+  p := topScope;
+  WHILE p.next.name # name DO p := p.next END;
+  IF p.next = dummy THEN
     NEW(p.next);
-    dummy := p.next;
+    p := p.next;
+    p.next := dummy;
+    p.class := class;
+    Strings.Copy(name, p.name);
     dummy.name := ''
-  ELSE S.Mark(E.multipleDecl)
+  ELSE S.Mark(E.multipleDecl); p := p.next
   END
-END NewObject;
+RETURN p END NewObject;
 
 PROCEDURE ImportOut*(M: Object);
 VAR p: Object;
 BEGIN
-  NEW(M.dsc); M := M.dsc; M.class := Head;
-
   (* Out.Char *)
-  NEW(M.next); M := M.next;
+  NEW(M.dsc); M := M.dsc;
   M.class := Const; M.name := 'Char';
   NEW(M.type); M.type.form := Proc;
   M.type.nofpar := 1; M.type.base := noType;
