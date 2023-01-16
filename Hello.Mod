@@ -1,7 +1,9 @@
 MODULE Hello;
 IMPORT o := Out;
-VAR x: INTEGER;
+VAR a, x: INTEGER;
+  f: CHAR;
 BEGIN
+  a := 125125199994362362362366;
   o.Int(x, 0);
   o.Char('>');
   o.Ln

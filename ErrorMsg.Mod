@@ -19,6 +19,7 @@ CONST
   modNameMismatch*   = 90;
 
   longString*        = 110;
+  intOverflow*       = 111;
 
 PROCEDURE Get*(n: INTEGER; VAR s: ARRAY OF CHAR);
 BEGIN
@@ -38,6 +39,7 @@ BEGIN
   ELSIF n = noModule THEN s := 'Модуль не существует'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
+  ELSIF n = intOverflow THEN s := 'Ашипка! ОНО не влезает'
   ELSE s := 'Неопознанная ошибка'
   END
 END Get;

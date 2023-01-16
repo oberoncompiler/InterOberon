@@ -1,5 +1,5 @@
 MODULE Scanner;
-IMPORT Files, Out, ErrorMsg;
+IMPORT Files, Out, E := ErrorMsg;
 
 CONST
   null*    = 0;
@@ -24,6 +24,8 @@ CONST
   lparen*  = 40; (* "(" *)
   rparen*  = 41; (* ")" *)
   eot*     = 70;
+
+  maxint   = 2147483647;
 
 VAR
   moduleFname: ARRAY 128 OF CHAR;
@@ -65,23 +67,30 @@ BEGIN
     line := 1;
     col := 0;
     nextLine := FALSE;
+    error := FALSE;
+    errPos := -10;
     Read
   END
 RETURN F # NIL END Load;
 
 PROCEDURE Mark*(errCode: INTEGER);
 VAR s: ARRAY 256 OF CHAR;
+  pos: INTEGER;
 BEGIN
-  error := TRUE; errPos := Files.Pos(r);
-  Out.String(moduleFname); Out.Char(':');
-  Out.Int(line, 0); Out.Char(':'); Out.Int(col, 0);
-  Out.String(': error: #'); Out.Int(errCode, 0); Out.Char(' ');
-  ErrorMsg.Get(errCode, s); Out.String(s); Out.Ln
+  error := TRUE; pos := Files.Pos(r);
+  IF pos > errPos + 4 THEN
+    errPos := pos;
+    Out.String(moduleFname); Out.Char(':');
+    Out.Int(line, 0); Out.Char(':'); Out.Int(col, 0);
+    Out.String(': error: #'); Out.Int(errCode, 0); Out.Char(' ');
+    E.Get(errCode, s); Out.String(s); Out.Ln
+  END
 END Mark;
 
 PROCEDURE Get*(VAR sym: INTEGER);
 VAR quote: CHAR;
   marked: BOOLEAN;
+  n: INTEGER;
 BEGIN
   (* Skip whitespaces *)
   WHILE (ch # 0X) & (ch <= ' ') DO Read END;
@@ -109,7 +118,7 @@ BEGIN
         sval[len] := ch;
         INC(len)
       ELSIF ~marked THEN
-        Mark(ErrorMsg.longString);
+        Mark(E.longString);
         marked := TRUE
       END;
       Read
@@ -120,7 +129,10 @@ BEGIN
   ELSIF ('0' <= ch) & (ch <= '9') THEN
     ival := 0;
     REPEAT
-      ival := ival * 10 + (ORD(ch) - ORD('0'));
+      n := ORD(ch) - ORD('0');
+      IF ival <= (maxint - n) DIV 10 THEN ival := ival * 10 + n
+      ELSE Mark(E.intOverflow)
+      END;
       Read
     UNTIL ~(('0' <= ch) & (ch <= '9'));
     sym := int
