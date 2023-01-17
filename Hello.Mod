@@ -1,60 +1,30 @@
 MODULE Hello;
-IMPORT o := Out;
-VAR a, x: INTEGER;
-  f: CHAR;
+VAR a, b: INTEGER;
+  x, y, z: CHAR;
+  n: INTEGER;
 BEGIN
-  a := 125125199994362362362366;
-  o.Int(x, 0);
-  o.Char('>');
-  o.Ln
+  a := 5;
+  b := a + 3;
+  n := 512 - a * b DIV (b * b - a)
 END Hello.
 
-MODULE Hello;
-IMPORT o := Out;
-VAR x, m, t2: INTEGER;
-  y, a: INTEGER;
-  x2: BOOLEAN;
-BEGIN
-  a := b;
-  x := y + 412 * (10 + a) - u * abc;
-END Hello.
+     R13=400, a=0, b=4, x=8, y=9, z=10, n=12
 
-
-
-LOAD R0, 8          # R0 := y
-MOV  R1, 412        # R1 := 412
-MOV  R2, 10         # R2 := 10
-LOAD R3, 12         # R3 := a
-ADD  R2, R2, R3     # R2 := R2 + R3
-MUL  R1, R1, R2     # R1 := R1 * R2
-ADD  R0, R0, R1     # R0 := R0 + R1
-LOAD R1, 16         # R1 := u
-LOAD R2, 20         # R2 := abc
-MUL  R1, R1, R2     # R1 := R1 * R2
-SUB  R0, R0, R1     # R0 := R0 - R1
-STOR R0, 4          # x := R0
-
-ADD  R0, R0, 412    # R0 := R0 + 412
-
-  x := y + 412 * (10 + a) - u * abc
-
--4
-1
--8
-1         # load
--412
--10
--12
-1
-2         # +
-3         # 3
-2
--16
-1
--20
-1
-3
-4         # -
-5         # :=
-
+a := 5                            MOV  R0,   5
+                                  STR  R0, R13,   0
+b := a + 3                        LDR  R0, R13,   0
+                                  ADD  R0,  R0,   3
+                                  STR  R0, R13,   4
+n := 512 - a * b DIV (b * b - a)  LDR  R0, R13,   0       R0 := a
+                                  LDR  R1, R13,   4       R1 := b
+                                  MUL  R0,  R0,  R1       R0 := R0 * R1
+                                  LDR  R1, R13,   4       R1 := b
+                                  LDR  R2, R13,   4       R2 := b
+                                  MUL  R1,  R1,  R2       R1 := R1 * R2
+                                  LDR  R2, R13,   0       R2 := a
+                                  SUB  R1,  R1,  R2       R1 := R1 - R2
+                                  DIV  R0,  R0,  R1       R0 := R0 DIV R1
+                                  MOV  R1, 512            R1 := 512
+                                  SUB  R0,  R1,  R0       R0 := R1 - R0
+                                  STR  R0, R13,  12       n := R0
 

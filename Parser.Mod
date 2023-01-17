@@ -4,6 +4,7 @@ IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings;
 VAR
   sym: INTEGER;
   dummy: ST.Object; (** In case of error in QualIdent *)
+  varsize: INTEGER; (** How many bytes do variables occupy *)
 
   Expr: PROCEDURE;
 
@@ -77,6 +78,11 @@ BEGIN
   Type(T);
   REPEAT
     p.type := T;
+    IF T.size > 1 THEN
+      varsize := (varsize + T.size - 1) DIV T.size * T.size
+    END;
+    p.val := varsize;
+    varsize := varsize + T.size;
     p := p.next
   UNTIL p = ST.dummy
 END VarDecl;
@@ -257,6 +263,7 @@ END StatSeq;
 PROCEDURE Module;
 VAR modName: ARRAY 64 OF CHAR;
 BEGIN
+  varsize := 0;
   IF sym = S.module THEN
     S.Get(sym);
     IF sym = S.ident THEN

@@ -25,14 +25,16 @@ TYPE
     class*: INTEGER; (** See Object Classes *)
     dsc*: Object;
     next*: Object;
-    type*: Type
+    type*: Type;
+    val*: INTEGER (** Address for variables *)
   END;
 
   TypeDesc* = RECORD
     form*: INTEGER;
     nofpar*: INTEGER;
     dsc*: Object;
-    base*: Type
+    base*: Type;
+    size*: INTEGER (** In bytes *)
   END;
 
 VAR
@@ -184,7 +186,8 @@ BEGIN
       ELSIF p.class = Head THEN Out.String('Заголовок')
       ELSIF p.class = Var THEN
         Out.String('Переменная "'); Out.String(p.name);
-        Out.String('" типа с формой '); Out.Int(p.type.form, 0)
+        Out.String('" типа с формой '); Out.Int(p.type.form, 0);
+        Out.String(' по адресу '); Out.Int(p.val, 0)
       ELSIF p.class = Typ THEN
         Out.String('Тип "'); Out.String(p.name);
         Out.String('", ссылается на тип с формой ');
@@ -225,14 +228,14 @@ BEGIN
   OpenScope
 END Init;
 
-PROCEDURE CreateType(form: INTEGER): Type;
+PROCEDURE CreateType(form, size: INTEGER): Type;
 VAR T: Type;
-BEGIN NEW(T); T.form := form
+BEGIN NEW(T); T.form := form; T.size := size
 RETURN T END CreateType;
 
 BEGIN
-  boolType := CreateType(Bool);
-  charType := CreateType(Char);
-  intType  := CreateType(Int);
-  noType   := CreateType(NoTyp)
+  boolType := CreateType(Bool, 1);
+  charType := CreateType(Char, 1);
+  intType  := CreateType(Int, 4);
+  noType   := CreateType(NoTyp, 0)
 END SymTable.
