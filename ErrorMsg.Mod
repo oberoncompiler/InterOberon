@@ -15,14 +15,17 @@ CONST
 
   divZero*           = 50;
 
-  undecl*            = 60;
-  multipleDecl*      = 61;
-  noModule*          = 62;
+  assignConst*       = 59;
+  incompatible*      = 60;
+  undecl*            = 61;
+  multipleDecl*      = 62;
+  noModule*          = 63;
 
   modNameMismatch*   = 90;
 
   longString*        = 110;
   intOverflow*       = 111;
+  regOverflow*       = 112;
 
   stringTodo*        = 200;
 
@@ -40,13 +43,16 @@ BEGIN
   ELSIF n = notValue THEN s := 'Это не значение'
   ELSIF n = notInt THEN s := 'Это не целое число'
   ELSIF n = divZero THEN s := 'Деление на ноль'
-  ELSIF n = stringTodo THEN s := 'Строковые литералы не реализованы'
+  ELSIF n = assignConst THEN s := 'Присваивание в константу'
+  ELSIF n = incompatible THEN s := 'Типы несовместимы'
   ELSIF n = undecl THEN s := 'Необъявленное имя'
   ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'
   ELSIF n = noModule THEN s := 'Модуль не существует'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSIF n = intOverflow THEN s := 'Целочисленное переполнение'
+  ELSIF n = regOverflow THEN s := 'Переполнение стека регистров'
+  ELSIF n = stringTodo THEN s := 'Строковые литералы не реализованы'
   ELSE s := 'Неопознанная ошибка'
   END
 END Get;

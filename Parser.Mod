@@ -121,7 +121,6 @@ BEGIN
     IF obj = NIL THEN S.Mark(E.undecl); obj := dummy END;
     S.Get(sym);
     IF (sym = S.period) & (obj.class = ST.Mod) THEN
-      Out.String('В модуле '); Out.String(obj.name); Out.Ln;
       S.Get(sym);
       IF sym = S.ident THEN
         obj := ST.ThisImport(obj);
@@ -129,8 +128,7 @@ BEGIN
         IF obj = NIL THEN S.Mark(E.undecl); obj := dummy END
       ELSE S.Mark(E.expIdent); obj := dummy
       END
-    END;
-    Out.String('Уточнённое имя '); Out.String(obj.name); Out.Ln
+    END
   ELSE S.Mark(E.expIdent)
   END
 END QualIdent;
@@ -213,21 +211,16 @@ BEGIN
     S.Get(sym);
     Out.String('Проверка на равенство'); Out.Ln;
     SimpleExpr(y)
-  END;
-
-  Out.String('Expr видит ');
-  IF x.mode = ST.Const THEN Out.Int(x.a, 0)
-  ELSE Out.String('непонятное')
-  END;
-  Out.Ln
+  END
 END Expr;
 
 (** Assign = Designator ":=" Expr. *)
 PROCEDURE Assign(obj: ST.Object);
 VAR x, y: G.Item;
 BEGIN
-  (* obj -> x *)
-  Expr(y)
+  G.MakeItem(x, obj); 
+  Expr(y);
+  G.Assign(x, y)
 END Assign;
 
 (** ExprList = Expr {"," Expr}. *)
@@ -333,24 +326,22 @@ BEGIN
   END;
 
   IF ~S.error THEN (*!FIXME*)
-    Out.String('Модуль ');
-    Out.String(modName);
+    Out.String('Модуль '); Out.String(modName);
     Out.String(' спецскомпилирован.'); Out.Ln
   END
 END Module;
 
 PROCEDURE Compile*;
 BEGIN
-  (*S.Test*)
-
   S.Get(sym);
   ST.Init;
+  G.Init;
   Module;
 
   IF S.error THEN
     Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
   ELSE
-    ST.ShowDebug
+    (*ST.ShowDebug*)
   END
 END Compile;
 

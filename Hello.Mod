@@ -1,10 +1,9 @@
 MODULE Hello;
 VAR a, b: INTEGER;
-  x, y, z: CHAR;
-  n: INTEGER;
+  x, y: CHAR;
+  n, z: INTEGER;
 BEGIN
-  b := 5;
-  a := b * ((6 + 2 + 1) * 6 - 6) MOD 10
+  b := (-n) * z - n DIV z * 5 + 78 * (a + b) - 51 DIV 2 - 51 DIV z
 END Hello.
 
      R13=400, a=0, b=4, x=8, y=9, z=10, n=12

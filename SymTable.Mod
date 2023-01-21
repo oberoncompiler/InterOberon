@@ -95,6 +95,10 @@ BEGIN
   p.next := dummy
 END CloseScope;
 
+(** Returns TRUE if types t1 and t2 are assignment-compatible (t1 := t2) *)
+PROCEDURE TypesCompatible*(t1, t2: Type): BOOLEAN;
+RETURN t1.form = t2.form END TypesCompatible;
+
 PROCEDURE ThisObject*(): Object;
 VAR scope, p: Object;
 BEGIN
