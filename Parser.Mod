@@ -1,15 +1,24 @@
 MODULE Parser;
-IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings;
+IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings,
+  G := Generator;
 
 VAR
   sym: INTEGER;
   dummy: ST.Object; (** In case of error in QualIdent *)
   varsize: INTEGER; (** How many bytes do variables occupy *)
 
-  Expr: PROCEDURE;
+  Expr0: PROCEDURE(VAR x: G.Item);
 
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
 RETURN S.Load(fname) END Load;
+
+PROCEDURE CheckInt(VAR x: G.Item);
+BEGIN
+  IF x.type.form # ST.Int THEN
+    S.Mark(E.notInt);
+    x.type := ST.intType
+  END
+END CheckInt;
 
 (** Import = [ident ":="] ident. *)
 PROCEDURE Import;
@@ -126,68 +135,99 @@ BEGIN
   END
 END QualIdent;
 
-(* Factor = Designator | Number | "(" Expr ")". *)
-PROCEDURE Factor;
+(* Factor = Designator | Number | String | FALSE | TRUE | "(" Expr ")". *)
+PROCEDURE Factor(VAR x: G.Item);
 VAR obj: ST.Object;
 BEGIN
   IF sym = S.lparen THEN
     S.Get(sym);
-    Expr;
+    Expr0(x);
     IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
   ELSIF sym = S.int THEN
-    Out.String('Число '); Out.Int(S.ival, 0); Out.Ln;
+    G.MakeConstItem(x, ST.intType, S.ival);
     S.Get(sym)
   ELSIF sym = S.ident THEN
     QualIdent(obj);
-    Out.String('Объект '); Out.String(obj.name); Out.Ln
+    G.MakeItem(x, obj)
   ELSIF sym = S.string THEN
-    Out.String('Строка "'); Out.String(S.sval); Out.Char('"'); Out.Ln;
+    IF S.len = 1 THEN G.MakeConstItem(x, ST.charType, ORD(S.sval[0]))
+    ELSE S.Mark(E.stringTodo)
+    END;
     S.Get(sym)
-  ELSE S.Mark(E.expValue)
+  ELSIF (sym = S.false) OR (sym = S.true) THEN
+    G.MakeConstItem(x, ST.boolType, ORD(sym = S.true));
+    S.Get(sym)
+  ELSE S.Mark(E.notValue)
   END
 END Factor;
 
-(* Term = Factor [MulOperator Factor]. *)
-PROCEDURE Term;
+(* Term = Factor [MulOperator Factor].
+   MulOperator = "*" | "DIV" | "MOD". *)
+PROCEDURE Term(VAR x: G.Item);
+VAR op: INTEGER;
+  y: G.Item;
 BEGIN
-  Factor;
-  WHILE sym = S.times DO
+  Factor(x);
+  WHILE (sym = S.times) OR (sym = S.div) OR (sym = S.mod) DO
+    op := sym;
     S.Get(sym);
-    Out.String('Умножение'); Out.Ln;
-    Factor
+    IF x.type.form = ST.Int THEN
+      Factor(y);
+      CheckInt(y);
+      G.MulOp(op, x, y)
+    END
   END
 END Term;
 
-(* SimpleExpr = Term [AddOperator Term]. *)
-PROCEDURE SimpleExpr;
+(* SimpleExpr = ["+" | "-"] Term [AddOperator Term].
+   AddOperator = "+" | "-". *)
+PROCEDURE SimpleExpr(VAR x: G.Item);
+VAR op: INTEGER;
+  y: G.Item;
+  minus: BOOLEAN;
 BEGIN
-  Term;
+  IF sym = S.minus THEN S.Get(sym); minus := TRUE
+  ELSE minus := FALSE;
+    IF sym = S.plus THEN S.Get(sym) END
+  END;
+  Term(x);
+  IF minus THEN G.Neg(x) END;
   WHILE (sym = S.plus) OR (sym = S.minus) DO
-    IF sym = S.plus THEN Out.String('Спецсложение')
-    ELSE Out.String('Спецвычитание')
-    END;
-    Out.Ln;
+    op := sym;
     S.Get(sym);
-    Term
+    IF x.type.form = ST.Int THEN
+      Term(y);
+      CheckInt(y);
+      G.AddOp(op, x, y)
+    END
   END
 END SimpleExpr;
 
 (* Expr = SimpleExpr [relation SimpleExpr]. *)
-PROCEDURE Expr0;
+PROCEDURE Expr(VAR x: G.Item);
+VAR op: INTEGER;
+  y: G.Item;
 BEGIN
-  SimpleExpr;
+  SimpleExpr(x);
   IF sym = S.equals THEN
     S.Get(sym);
     Out.String('Проверка на равенство'); Out.Ln;
-    SimpleExpr
-  END
-END Expr0;
+    SimpleExpr(y)
+  END;
+
+  Out.String('Expr видит ');
+  IF x.mode = ST.Const THEN Out.Int(x.a, 0)
+  ELSE Out.String('непонятное')
+  END;
+  Out.Ln
+END Expr;
 
 (** Assign = Designator ":=" Expr. *)
-PROCEDURE Assign;
+PROCEDURE Assign(obj: ST.Object);
+VAR x, y: G.Item;
 BEGIN
-
-  Expr
+  (* obj -> x *)
+  Expr(y)
 END Assign;
 
 (** ExprList = Expr {"," Expr}. *)
@@ -198,8 +238,9 @@ END ExprList;
 
 (** Param = Expr. *)
 PROCEDURE Param;
+VAR x: G.Item;
 BEGIN
-  Expr
+  Expr(x)
 END Param;
 
 (** ActualParams = "(" [ExprList] ")". *)
@@ -221,7 +262,8 @@ BEGIN
 END ActualParams;
 
 (** ProcedureCall = Designator [ActualParams]. *)
-PROCEDURE ProcedureCall;
+PROCEDURE ProcedureCall(obj: ST.Object);
+VAR x: G.Item;
 BEGIN
   IF sym = S.lparen THEN
     ActualParams
@@ -241,10 +283,10 @@ BEGIN
       S.Get(sym);
       Out.String('Присваивание в '); Out.String(obj.name);
       Out.String(' следующего выражения:'); Out.Ln;
-      Assign
+      Assign(obj)
     ELSE
       Out.String('Вызов процедуры '); Out.String(obj.name); Out.Ln;
-      ProcedureCall
+      ProcedureCall(obj)
     END
   END
 END Statement;
@@ -313,6 +355,6 @@ BEGIN
 END Compile;
 
 BEGIN
-  Expr := Expr0;
+  Expr0 := Expr;
   NEW(dummy); dummy.class := ST.Var; dummy.type := ST.intType
 END Parser.

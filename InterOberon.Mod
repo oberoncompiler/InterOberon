@@ -22,7 +22,7 @@ BEGIN
 END RunCompiler;
 
 BEGIN
-  IF Args.Count = 1 THEN
+  IF Args.Count() = 1 THEN
     RunCompiler
   ELSE
     Usage

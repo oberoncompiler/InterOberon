@@ -3,9 +3,8 @@ VAR a, b: INTEGER;
   x, y, z: CHAR;
   n: INTEGER;
 BEGIN
-  a := 5;
-  b := a + 3;
-  n := 512 - a * b DIV (b * b - a)
+  b := 5;
+  a := b * ((6 + 2 + 1) * 6 - 6) MOD 10
 END Hello.
 
      R13=400, a=0, b=4, x=8, y=9, z=10, n=12
