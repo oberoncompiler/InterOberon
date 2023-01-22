@@ -9,9 +9,12 @@ CONST
   expBecomes*        = 7;
   expType*           = 8;
   expRparen*         = 30;
+  expStatement*      = 31;
 
   notValue*          = 40;
   notInt*            = 41;
+  notUsed*           = 42;
+  notProcedure*      = 43;
 
   divZero*           = 50;
 
@@ -20,6 +23,7 @@ CONST
   undecl*            = 61;
   multipleDecl*      = 62;
   noModule*          = 63;
+  noParams*          = 64;
 
   modNameMismatch*   = 90;
 
@@ -40,14 +44,18 @@ BEGIN
   ELSIF n = expBecomes THEN s := 'Ожидается :='
   ELSIF n = expType THEN s := 'Ожидается тип'
   ELSIF n = expRparen THEN s := 'Ожидается )'
+  ELSIF n = expStatement THEN s := 'Ожидается оператор'
   ELSIF n = notValue THEN s := 'Это не значение'
   ELSIF n = notInt THEN s := 'Это не целое число'
+  ELSIF n = notUsed THEN s := 'Возвращаемое значение не используется'
+  ELSIF n = notProcedure THEN s := 'Это не процедура'
   ELSIF n = divZero THEN s := 'Деление на ноль'
   ELSIF n = assignConst THEN s := 'Присваивание в константу'
   ELSIF n = incompatible THEN s := 'Типы несовместимы'
   ELSIF n = undecl THEN s := 'Необъявленное имя'
   ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'
   ELSIF n = noModule THEN s := 'Модуль не существует'
+  ELSIF n = noParams THEN s := 'Ожидаются параметры процедуры'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSIF n = intOverflow THEN s := 'Целочисленное переполнение'

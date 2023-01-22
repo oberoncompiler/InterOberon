@@ -238,8 +238,8 @@ BEGIN NEW(T); T.form := form; T.size := size
 RETURN T END CreateType;
 
 BEGIN
-  boolType := CreateType(Bool, 1);
-  charType := CreateType(Char, 1);
-  intType  := CreateType(Int, 4);
+  boolType := CreateType(Bool , 1);
+  charType := CreateType(Char , 2);
+  intType  := CreateType(Int  , 4);
   noType   := CreateType(NoTyp, 0)
 END SymTable.

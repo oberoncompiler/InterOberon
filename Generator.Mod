@@ -227,6 +227,20 @@ BEGIN
   END
 END Assign;
 
+(** Procedure Calls *)
+
+(** Called before Actual Parameters *)
+PROCEDURE PrepCall*(VAR x: Item; rx: INTEGER);
+BEGIN
+  Out.String('Подготовка вызова процедуры'); Out.Ln
+END PrepCall;
+
+(** Called after Actual Parameters *)
+PROCEDURE Call*(VAR x: Item; rx: INTEGER);
+BEGIN
+  Out.String('Вызов процедуры'); Out.Ln
+END Call;
+
 PROCEDURE Init*;
 BEGIN
   RH := 0

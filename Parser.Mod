@@ -148,9 +148,8 @@ BEGIN
     QualIdent(obj);
     G.MakeItem(x, obj)
   ELSIF sym = S.string THEN
-    IF S.len = 1 THEN G.MakeConstItem(x, ST.charType, ORD(S.sval[0]))
-    ELSE S.Mark(E.stringTodo)
-    END;
+    G.MakeConstItem(x, ST.charType, ORD(S.sval[0]));
+    IF S.len # 1 THEN S.Mark(E.stringTodo) END;
     S.Get(sym)
   ELSIF (sym = S.false) OR (sym = S.true) THEN
     G.MakeConstItem(x, ST.boolType, ORD(sym = S.true));
@@ -169,10 +168,11 @@ BEGIN
   WHILE (sym = S.times) OR (sym = S.div) OR (sym = S.mod) DO
     op := sym;
     S.Get(sym);
+    Factor(y);
     IF x.type.form = ST.Int THEN
-      Factor(y);
       CheckInt(y);
       G.MulOp(op, x, y)
+    ELSE S.Mark(E.incompatible)
     END
   END
 END Term;
@@ -193,10 +193,11 @@ BEGIN
   WHILE (sym = S.plus) OR (sym = S.minus) DO
     op := sym;
     S.Get(sym);
+    Term(y);
     IF x.type.form = ST.Int THEN
-      Term(y);
       CheckInt(y);
       G.AddOp(op, x, y)
+    ELSE S.Mark(E.incompatible)
     END
   END
 END SimpleExpr;
@@ -209,7 +210,6 @@ BEGIN
   SimpleExpr(x);
   IF sym = S.equals THEN
     S.Get(sym);
-    Out.String('Проверка на равенство'); Out.Ln;
     SimpleExpr(y)
   END
 END Expr;
@@ -237,7 +237,7 @@ BEGIN
 END Param;
 
 (** ActualParams = "(" [ExprList] ")". *)
-PROCEDURE ActualParams;
+PROCEDURE ActualParams(VAR x: G.Item);
 VAR n: INTEGER;
 BEGIN
   S.Get(sym);
@@ -257,10 +257,21 @@ END ActualParams;
 (** ProcedureCall = Designator [ActualParams]. *)
 PROCEDURE ProcedureCall(obj: ST.Object);
 VAR x: G.Item;
+  rx: INTEGER;
 BEGIN
-  IF sym = S.lparen THEN
-    ActualParams
-  (*!FIXME ELSIF nofpars... *)
+  G.MakeItem(x, obj);
+  IF sym = S.lparen THEN (* With parameters *)
+    IF x.type.form # ST.Proc THEN S.Mark(E.notProcedure)
+    ELSE
+      IF x.type.base.form # ST.NoTyp THEN S.Mark(E.notUsed) END;
+      G.PrepCall(x, rx); ActualParams(x); G.Call(x, rx)
+    END
+  ELSIF x.type.form # ST.Proc THEN (* Procedure with no parameters *)
+    IF x.type.nofpar > 0 THEN S.Mark(E.noParams) END;
+    IF x.type.base.form # ST.NoTyp THEN S.Mark(E.notUsed)
+    ELSE G.PrepCall(x, rx); G.Call(x, rx)
+    END
+  ELSE S.Mark(E.expStatement)
   END
 END ProcedureCall;
 

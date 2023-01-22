@@ -1,9 +1,9 @@
 MODULE Hello;
+IMPORT Out;
 VAR a, b: INTEGER;
-  x, y: CHAR;
-  n, z: INTEGER;
+  c: CHAR;
 BEGIN
-  b := (-n) * z - n DIV z * 5 + 78 * (a + b) - 51 DIV 2 - 51 DIV z
+  Out.Int(a, 10)
 END Hello.
 
      R13=400, a=0, b=4, x=8, y=9, z=10, n=12
