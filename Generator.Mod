@@ -229,6 +229,12 @@ END Assign;
 
 (** Procedure Calls *)
 
+(** Parameters are stored in registers before a procedure call *)
+PROCEDURE ValueParam*(VAR x: Item);
+BEGIN
+  Load(x)
+END ValueParam;
+
 (** Called before Actual Parameters *)
 PROCEDURE PrepCall*(VAR x: Item; rx: INTEGER);
 BEGIN

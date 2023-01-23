@@ -31,7 +31,7 @@ TYPE
 
   TypeDesc* = RECORD
     form*: INTEGER;
-    nofpar*: INTEGER;
+    nofpars*: INTEGER;
     dsc*: Object;
     base*: Type;
     size*: INTEGER (** In bytes *)
@@ -144,7 +144,7 @@ BEGIN
   NEW(M.dsc); M := M.dsc;
   M.class := Const; M.name := 'Char';
   NEW(M.type); M.type.form := Proc;
-  M.type.nofpar := 1; M.type.base := noType;
+  M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of Out.Char *)
   NEW(M.type.dsc); p := M.type.dsc;
   p.class := Var; p.name := 'c'; p.type := charType;
@@ -153,7 +153,7 @@ BEGIN
   NEW(M.next); M := M.next;
   M.class := Const; M.name := 'Int';
   NEW(M.type); M.type.form := Proc;
-  M.type.nofpar := 2; M.type.base := noType;
+  M.type.nofpars := 2; M.type.base := noType;
   (* Parameters of Out.Int *)
   NEW(M.type.dsc); p := M.type.dsc;
   p.class := Var; p.name := 'i'; p.type := intType;
@@ -164,7 +164,7 @@ BEGIN
   NEW(M.next); M := M.next;
   M.class := Const; M.name := 'Ln';
   NEW(M.type); M.type.form := Proc;
-  M.type.nofpar := 0; M.type.base := noType
+  M.type.nofpars := 0; M.type.base := noType
 END ImportOut;
 
 (** Loads symbol data of module to M by name *)
@@ -200,7 +200,7 @@ BEGIN
         Out.String('Постоянная "'); Out.String(p.name);
         Out.String('"');
         IF p.type.form = Proc THEN Out.String(' процедурного типа с ');
-          Out.Int(p.type.nofpar, 0); Out.String(' параметрами'); Out.Ln;
+          Out.Int(p.type.nofpars, 0); Out.String(' параметрами'); Out.Ln;
           Debug(p.type.dsc, indent + 1)
         ELSE Out.String(' типа с формой'); Out.Int(p.type.form, 0)
         END

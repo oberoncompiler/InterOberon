@@ -24,6 +24,8 @@ CONST
   multipleDecl*      = 62;
   noModule*          = 63;
   noParams*          = 64;
+  fewerParams*       = 65;
+  moreParams*        = 66;
 
   modNameMismatch*   = 90;
 
@@ -56,6 +58,8 @@ BEGIN
   ELSIF n = multipleDecl THEN s := 'Имя уже объявлено'
   ELSIF n = noModule THEN s := 'Модуль не существует'
   ELSIF n = noParams THEN s := 'Ожидаются параметры процедуры'
+  ELSIF n = fewerParams THEN s := 'Слишком мало параметров'
+  ELSIF n = moreParams THEN s := 'Слишком много параметров'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSIF n = intOverflow THEN s := 'Целочисленное переполнение'

@@ -3,7 +3,7 @@ IMPORT Out;
 VAR a, b: INTEGER;
   c: CHAR;
 BEGIN
-  Out.Int(a, 10)
+  Out.Int(a, b,  10  )
 END Hello.
 
      R13=400, a=0, b=4, x=8, y=9, z=10, n=12
