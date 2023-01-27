@@ -26,7 +26,7 @@ TYPE
     dsc*: Object;
     next*: Object;
     type*: Type;
-    val*: INTEGER (** Address for variables *)
+    val*: INTEGER (** Address for variables, number for procedures *)
   END;
 
   TypeDesc* = RECORD
@@ -142,7 +142,7 @@ VAR p: Object;
 BEGIN
   (* Out.Char *)
   NEW(M.dsc); M := M.dsc;
-  M.class := Const; M.name := 'Char';
+  M.class := Const; M.name := 'Char'; M.val := 1;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of Out.Char *)
@@ -151,7 +151,7 @@ BEGIN
 
   (* Out.Int *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Int';
+  M.class := Const; M.name := 'Int'; M.val := 2;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 2; M.type.base := noType;
   (* Parameters of Out.Int *)
@@ -162,7 +162,7 @@ BEGIN
 
   (* Out.Ln *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Ln';
+  M.class := Const; M.name := 'Ln'; M.val := 3;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 0; M.type.base := noType
 END ImportOut;

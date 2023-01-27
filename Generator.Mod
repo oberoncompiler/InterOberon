@@ -51,6 +51,13 @@ BEGIN
   Out.String(' R'); Out.Int(a, 0); Out.Ln
 END Write1;
 
+(** Write instruction with 1 argument -- immediate *)
+PROCEDURE Write1i(inst: ARRAY OF CHAR; a: INTEGER);
+BEGIN
+  Out.String(inst);
+  Out.String(' '); Out.Int(a, 0); Out.Ln
+END Write1i;
+
 (** Write instruction with 2 arguments, both are registers *)
 PROCEDURE Write2(inst: ARRAY OF CHAR; a, c: INTEGER);
 BEGIN
@@ -238,13 +245,13 @@ END ValueParam;
 (** Called before Actual Parameters *)
 PROCEDURE PrepCall*(VAR x: Item; rx: INTEGER);
 BEGIN
-  Out.String('Подготовка вызова процедуры'); Out.Ln
+  (*!TODO*)
 END PrepCall;
 
 (** Called after Actual Parameters *)
 PROCEDURE Call*(VAR x: Item; rx: INTEGER);
 BEGIN
-  Out.String('Вызов процедуры'); Out.Ln
+  Write1i('BL', x.a)
 END Call;
 
 PROCEDURE Init*;

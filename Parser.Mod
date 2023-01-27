@@ -137,16 +137,13 @@ END QualIdent;
 PROCEDURE Factor(VAR x: G.Item);
 VAR obj: ST.Object;
 BEGIN
-    ;Out.String('0) '); Out.Int(sym, 0);  Out.String(S.id); Out.Ln;
   IF sym = S.lparen THEN
     S.Get(sym);
     Expr0(x);
     IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
   ELSIF sym = S.int THEN
     G.MakeConstItem(x, ST.intType, S.ival);
-    ;Out.String('1) '); Out.Int(sym, 0); Out.Ln;
     S.Get(sym)
-    ;Out.String('2) '); Out.Int(sym, 0); Out.Ln;
   ELSIF sym = S.ident THEN
     QualIdent(obj);
     G.MakeItem(x, obj)
@@ -232,12 +229,13 @@ BEGIN
   
 END ExprList;
 
-(** Param = Expr. par can be NIL *)
+(** Param = Expr.
+     par can be NIL *)
 PROCEDURE Param(par: ST.Object);
 VAR x: G.Item;
 BEGIN
+  Expr(x);
   IF par # NIL THEN
-    Expr(x);
     IF ST.TypesCompatible(par.type, x.type) THEN
       G.ValueParam(x);
     ELSE S.Mark(E.incompatible)
@@ -259,14 +257,13 @@ BEGIN
       IF par # NIL THEN par := par.next END;
       Param(par);
       INC(n)
-    END;
-    Out.Int(sym, 10);Out.Ln;
-    IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
-  ELSE S.Get(sym); n := 0
+    END
+  ELSE n := 0
   END;
   IF n < x.type.nofpars THEN S.Mark(E.fewerParams)
   ELSIF n > x.type.nofpars THEN S.Mark(E.moreParams)
-  END
+  END;
+  IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
 END ActualParams;
 
 (** ProcedureCall = Designator [ActualParams]. *)
@@ -281,7 +278,7 @@ BEGIN
       IF x.type.base.form # ST.NoTyp THEN S.Mark(E.notUsed) END;
       G.PrepCall(x, rx); ActualParams(x); G.Call(x, rx)
     END
-  ELSIF x.type.form # ST.Proc THEN (* Procedure with no parameters *)
+  ELSIF x.type.form = ST.Proc THEN (* Procedure with no parameters *)
     IF x.type.nofpars > 0 THEN S.Mark(E.noParams) END;
     IF x.type.base.form # ST.NoTyp THEN S.Mark(E.notUsed)
     ELSE G.PrepCall(x, rx); G.Call(x, rx)
@@ -304,7 +301,8 @@ BEGIN
       Out.String(' следующего выражения:'); Out.Ln;
       Assign(obj)
     ELSE
-      Out.String('Вызов процедуры '); Out.String(obj.name); Out.Ln;
+      Out.String('    (Вызов процедуры ');
+      Out.String(obj.name); Out.Char(')'); Out.Ln;
       ProcedureCall(obj)
     END
   END
