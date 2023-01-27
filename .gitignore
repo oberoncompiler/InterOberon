@@ -1,3 +1,4 @@
 _Build
 InterOberon
 *.swp
+*.o

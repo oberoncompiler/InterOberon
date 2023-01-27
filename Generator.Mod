@@ -1,5 +1,5 @@
 MODULE Generator;
-IMPORT ST := SymTable, S := Scanner, E := ErrorMsg, Out;
+IMPORT ST := SymTable, S := Scanner, E := ErrorMsg, Out, Files, Strings;
 
 CONST
   (** Values of Item.mode **)
@@ -24,6 +24,8 @@ TYPE
 
 VAR
   RH: INTEGER; (** Number of the highest free register *)
+  F: Files.File;
+  R: Files.Rider;
 
 (** Item Constructors **)
 
@@ -258,5 +260,22 @@ PROCEDURE Init*;
 BEGIN
   RH := 0
 END Init;
+
+PROCEDURE Open*(modName: ARRAY OF CHAR);
+VAR s: ARRAY 256 OF CHAR;
+BEGIN
+  Strings.Copy(modName, s); Strings.Append('.o', s);
+  F := Files.New(s);
+  IF F # NIL THEN
+    Files.Set(R, F, 0)
+  ELSE Out.String('Невозможно создать файл "'); Out.String(s);
+    Out.String('".'); Out.Ln
+  END
+END Open;
+
+PROCEDURE Save*;
+BEGIN
+  Files.Register(F)
+END Save;
 
 END Generator.

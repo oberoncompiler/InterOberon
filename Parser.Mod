@@ -327,6 +327,7 @@ BEGIN
     S.Get(sym);
     IF sym = S.ident THEN
       Strings.Copy(S.id, modName);
+      G.Open(modName);
       S.Get(sym);
       IF sym = S.semicol THEN S.Get(sym) ELSE S.Mark(E.expSemicol) END;
 
@@ -349,7 +350,8 @@ BEGIN
   ELSE S.Mark(E.expModule)
   END;
 
-  IF ~S.error THEN (*!FIXME*)
+  IF ~S.error THEN
+    G.Save;
     Out.String('Модуль '); Out.String(modName);
     Out.String(' спецскомпилирован.'); Out.Ln
   END
