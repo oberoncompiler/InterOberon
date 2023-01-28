@@ -6,8 +6,31 @@ CONST
   (** Some of Object Classes from SymTable are also valid *)
   Reg*  = 10;
 
+  (** Dedicated Registers **)
+  MT  = 12; (** Trap Interrupt *)
+  MP  = 13; (** Module Pointer *)
+  SP  = 14; (** Stack Pointer *)
+  LNK = 15; (** Link (on procedure call) *)
+
   (** - **)
   maxGenReg = 12; (* Number of maximum available general-purpose register *)
+
+  (** Register Instructions **)
+  Mov = 0; Lsl = 1; Asr = 2; Ror= 3; And = 4; Ann = 5; Ior = 6; Xor = 7;
+  Add = 8; Sub = 9; Cmp = 9; Mul = 10; Div = 11;
+  Fad = 12; Fsb = 13; Fml = 14; Fdv = 15;
+  (** Memory Instructions **)
+  Ldr = 8; Str = 10; (* 1 can be added to Ldr or Str *)
+  (** Branch Instructions **)
+  (** B -- branch, R -- register, L -- link *)
+  BR = 0; BLR = 1; BC = 2; BL = 3;
+  (** Condition Codes **)
+  MI = 0; PL = 8; EQ = 1; NE = 9; LT = 5; GE = 13; LE = 6; GT = 14;
+  AL = 7; (** Always *) NV = 15; (** Never *)
+  (** V and U **)
+  (** V and U are added to op to enable the corresponding bit *)
+  V = 1000H;
+  U = 2000H;
 
 TYPE
   (** Item is a generator object.
@@ -23,6 +46,7 @@ TYPE
   END;
 
 VAR
+  pc: INTEGER; (** Program counter, in 4 bytes *)
   RH: INTEGER; (** Number of the highest free register *)
   F: Files.File;
   R: Files.Rider;
@@ -45,6 +69,36 @@ END MakeItem;
 
 
 (** Output **)
+
+PROCEDURE Put(n: INTEGER);
+BEGIN
+  Files.Write(R, ASR(n, 24) MOD 100H);
+  Files.Write(R, ASR(n, 16) MOD 100H);
+  Files.Write(R, ASR(n, 8) MOD 100H);
+  Files.Write(R, n MOD 100H);
+  INC(pc)
+END Put;
+
+PROCEDURE Put0(op, a, b, c: INTEGER);
+BEGIN
+  Put(((a * 10H + b) * 10H + op) * 10000H + c)
+END Put0;
+
+PROCEDURE Put1(op, a, b, im: INTEGER);
+BEGIN
+  Put((((a + 40H) * 10H + b) * 10H + op) * 10000H + im MOD 10000H)
+END Put1;
+
+PROCEDURE Put2(op, a, b, off: INTEGER);
+BEGIN
+  Put(((op * 10H + a) * 10H + b) * 100000H + off MOD 100000H)
+END Put2;
+
+(** Here off is sometimes c *)
+PROCEDURE Put3(op, cond, off: INTEGER);
+BEGIN
+  Put(((op + 12) * 10H + cond) * 1000000H + off MOD 1000000H)
+END Put3;
 
 (** Write instruction with 1 argument -- a register *)
 PROCEDURE Write1(inst: ARRAY OF CHAR; a: INTEGER);
@@ -106,9 +160,11 @@ PROCEDURE Load(VAR x: Item);
 BEGIN
   IF x.mode # Reg THEN
     IF x.mode = ST.Const THEN
-      Write2i('MOV', RH, x.a)
+      Put1(Mov, RH, 0, x.a)
+      ;Write2i('MOV', RH, x.a)
     ELSIF x.mode = ST.Var THEN
-      Write3i('LDR', RH, 13, x.a)
+      Put2(Ldr, RH, MP, x.a)
+      ;Write3i('LDR', RH, MP, x.a)
     END;
     x.mode := Reg;
     x.r := RH;
@@ -127,7 +183,9 @@ BEGIN
     END
   ELSE (* x -- Var or Reg *)
     Load(x);
-    Write1('NEG', x.r)
+    Put1(Mov, RH, 0, 0);
+    Put0(Sub, x.r, RH, x.r);
+    ;Write1('NEG', x.r)
   END
 END Neg;
 
@@ -147,25 +205,26 @@ BEGIN
   ELSIF y.mode = ST.Const THEN (* x -- Reg or Var *)
     Load(x); (* x -- Reg, y -- Const *)
     IF op = S.plus THEN
-      Write3i('ADD', x.r, x.r, y.a)
+      Put1(Add, x.r, x.r, y.a)
+      ;Write3i('ADD', x.r, x.r, y.a)
     ELSE (* op = S.minus *)
-      Write3i('SUB', x.r, x.r, y.a)
+      Put1(Sub, x.r, x.r, y.a)
+      ;Write3i('SUB', x.r, x.r, y.a)
     END
   ELSIF x.mode = ST.Const THEN (* y -- Reg or Var *)
     Load(y); (* x -- Const, y -- Reg *)
-    IF op = S.plus THEN
-      Write3i('ADD', y.r, y.r, x.a)
-    ELSE (* op = S.minus *)
-      Neg(y);
-      Write3i('ADD', y.r, y.r, x.a)
-    END;
+    IF op = S.minus THEN Neg(y) END;
+    Put1(Add, y.r, y.r, x.a);
+    Write3i('ADD', y.r, y.r, x.a);
     x := y
   ELSE
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.plus THEN
-      Write3('ADD', x.r, x.r, y.r)
+      Put0(Add, x.r, x.r, y.r)
+      ;Write3('ADD', x.r, x.r, y.r)
     ELSE (* op = S.minus *)
-      Write3('SUB', x.r, x.r, y.r)
+      Put0(Sub, x.r, x.r, y.r)
+      ;Write3('SUB', x.r, x.r, y.r)
     END;
     DEC(RH)
   END
@@ -191,23 +250,31 @@ BEGIN
   ELSIF y.mode = ST.Const THEN (* x -- Reg or Var *)
     Load(x); (* x -- Reg, y -- Const *)
     IF op = S.times THEN
-      Write3i('MUL', x.r, x.r, y.a)
+      Put1(Mul, x.r, x.r, y.a)
+      ;Write3i('MUL', x.r, x.r, y.a)
     ELSIF y.a = 0 THEN S.Mark(E.divZero)
     ELSIF op = S.div THEN
-      Write3i('DIV', x.r, x.r, y.a)
+      Put1(Div, x.r, x.r, y.a)
+      ;Write3i('DIV', x.r, x.r, y.a)
     ELSE (* op = S.mod *)
-      Write3i('MOD', x.r, x.r, y.a)
+      Put1(Div, x.r, x.r, y.a);
+      Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
+      ;Write3i('MOD', x.r, x.r, y.a)
     END
   ELSIF x.mode = ST.Const THEN (* y -- Reg or Var *)
     Load(y); (* x -- Const, y -- Reg *)
     IF op = S.times THEN
-      Write3i('MUL', y.r, y.r, x.a)
+      Put1(Mul, y.r, y.r, x.a)
+      ;Write3i('MUL', y.r, y.r, x.a)
     ELSE
       Load(x); (* x -- Reg, y -- Reg, y.r < x.r *)
       IF op = S.div THEN
-        Write3('DIV', y.r, x.r, y.r)
+        Put1(Div, y.r, x.r, y.r)
+        ;Write3('DIV', y.r, x.r, y.r)
       ELSE (* op = S.mod *)
-        Write3('MOD', y.r, x.r, y.r)
+        Put1(Div, y.r, x.r, y.r);
+        Put0(Mov + U, y.r, 0, 0) (* R[y.r] := H *)
+        ;Write3('MOD', y.r, x.r, y.r)
       END;
       DEC(RH)
     END;
@@ -215,11 +282,15 @@ BEGIN
   ELSE
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.times THEN
-      Write3('MUL', x.r, x.r, y.r)
+      Put1(Mul, x.r, x.r, y.r)
+      ;Write3('MUL', x.r, x.r, y.r)
     ELSIF op = S.div THEN
-      Write3('DIV', x.r, x.r, y.r)
+      Put1(Div, x.r, x.r, y.r)
+      ;Write3('DIV', x.r, x.r, y.r)
     ELSE (* op = S.mod *)
-      Write3('MOD', x.r, x.r, y.r)
+      Put1(Div, x.r, x.r, y.r);
+      Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
+      ;Write3('MOD', x.r, x.r, y.r)
     END;
     DEC(RH)
   END
@@ -231,7 +302,8 @@ BEGIN
   ELSIF x.mode # ST.Var THEN S.Mark(E.assignConst(*?*))
   ELSE (* x -- Var, y -- Const, Var or Reg *)
     Load(y); (* x -- Var, y -- Reg *)
-    Write3i('STR', y.r, 13, x.a);
+    Put2(Str, y.r, MP, x.a);
+    Write3i('STR', y.r, MP, x.a);
     DEC(RH)
   END
 END Assign;
@@ -253,11 +325,14 @@ END PrepCall;
 (** Called after Actual Parameters *)
 PROCEDURE Call*(VAR x: Item; rx: INTEGER);
 BEGIN
-  Write1i('BL', x.a)
+  Put3(BL, AL, x.a); (*!TODO x.a is a fake call number, not an offset *)
+  Write1i('BL', x.a);
+  RH := 0 (*!TODO Do it only if x is a proper procedure *)
 END Call;
 
 PROCEDURE Init*;
 BEGIN
+  pc := 0;
   RH := 0
 END Init;
 
