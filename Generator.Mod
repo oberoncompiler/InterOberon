@@ -32,6 +32,11 @@ CONST
   V = 1000H;
   U = 2000H;
 
+  (** Output RISC machine code marks **)
+  version = 1;
+  (** Machine code file mark (first 4 bytes of .o file) *)
+  fileMark = ORD('R') + 256 * (ORD('S') + 256 * (ORD('C') + 256 * version));
+
 TYPE
   (** Item is a generator object.
         |  mode |     a     |     b     |      r      |
@@ -194,11 +199,15 @@ PROCEDURE AddOp*(op: INTEGER; VAR x, y: Item);
 BEGIN
   IF (x.mode = ST.Const) & (y.mode = ST.Const) THEN
     IF op = S.plus THEN
-      IF S.maxInt - y.a >= x.a THEN INC(x.a, y.a)
+      IF (y.a >= 0) & (S.maxInt - y.a >= x.a) OR
+         (y.a < 0) & (S.minInt - y.a <= x.a)
+      THEN INC(x.a, y.a)
       ELSE S.Mark(E.intOverflow)
       END
     ELSE (* op = S.minus *)
-      IF S.minInt + y.a <= x.a THEN DEC(x.a, y.a)
+      IF (y.a >= 0) & (S.minInt + y.a <= x.a) OR
+         (y.a < 0) & (S.maxInt + y.a >= x.a)
+      THEN DEC(x.a, y.a)
       ELSE S.Mark(E.intOverflow)
       END
     END
@@ -342,7 +351,8 @@ BEGIN
   Strings.Copy(modName, s); Strings.Append('.o', s);
   F := Files.New(s);
   IF F # NIL THEN
-    Files.Set(R, F, 0)
+    Files.Set(R, F, 0);
+    Files.WriteInt(R, fileMark)
   ELSE Out.String('Невозможно создать файл "'); Out.String(s);
     Out.String('".'); Out.Ln
   END

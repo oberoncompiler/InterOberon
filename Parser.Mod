@@ -9,6 +9,8 @@ VAR
 
   Expr0: PROCEDURE(VAR x: G.Item);
 
+  modName*: ARRAY 64 OF CHAR; (** Name of last compiled module *)
+
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
 RETURN S.Load(fname) END Load;
 
@@ -320,7 +322,6 @@ END StatSeq;
 (** Module = MODULE ident ";" [IMPORT ImportList] DeclSeq
              [BEGIN StatSeq] END ident ".". *)
 PROCEDURE Module;
-VAR modName: ARRAY 64 OF CHAR;
 BEGIN
   varsize := 0;
   IF sym = S.module THEN
@@ -349,27 +350,16 @@ BEGIN
     END
   ELSE S.Mark(E.expModule)
   END;
-
-  IF ~S.error THEN
-    G.Save;
-    Out.String('Модуль '); Out.String(modName);
-    Out.String(' спецскомпилирован.'); Out.Ln
-  END
+  IF ~S.error THEN G.Save END
 END Module;
 
-PROCEDURE Compile*;
+PROCEDURE Compile*(): BOOLEAN;
 BEGIN
   S.Get(sym);
   ST.Init;
   G.Init;
-  Module;
-
-  IF S.error THEN
-    Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
-  ELSE
-    (*ST.ShowDebug*)
-  END
-END Compile;
+  Module
+RETURN ~S.error END Compile;
 
 BEGIN
   Expr0 := Expr;

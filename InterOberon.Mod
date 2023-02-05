@@ -1,5 +1,5 @@
 MODULE InterOberon;
-IMPORT Parser, Args, Out;
+IMPORT Parser, Args, Out, Risc;
 
 PROCEDURE Usage;
 VAR s: ARRAY 256 OF CHAR;
@@ -12,10 +12,26 @@ END Usage;
 
 PROCEDURE RunCompiler;
 VAR s: ARRAY 256 OF CHAR;
+  res: INTEGER;
 BEGIN
   Args.Get(1, s);
   IF Parser.Load(s) THEN
-    Parser.Compile
+    IF Parser.Compile() THEN
+      Out.String('Модуль '); Out.String(Parser.modName);
+      Out.String(' спецскомпилирован.'); Out.Ln; Out.Ln;
+      Out.String('Запускается виртуальная машина.'); Out.Ln;
+      res := Risc.RunFile(Parser.modName);
+      IF res = Risc.noError THEN
+        Out.String('Машина отработала без ошибок.'); Out.Ln
+      ELSIF res = Risc.cantLoad THEN
+        Out.String('Невозможно загрузить модуль.'); Out.Ln
+      ELSE
+        Out.String('Машина остановилась с кодом ошибки ');
+        Out.Int(res, 0); Out.Char('.'); Out.Ln
+      END
+    ELSE
+      Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
+    END
   ELSE
     Out.String('File not found.'); Out.Ln
   END
