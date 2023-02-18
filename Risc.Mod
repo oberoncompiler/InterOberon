@@ -1,5 +1,5 @@
 MODULE Risc;
-IMPORT Out, Files, Strings;
+IMPORT Out, Files, Strings, SYSTEM;
 
 CONST
   version* = 1; (** Machine code file version *)
@@ -8,21 +8,17 @@ CONST
 
   (** Error codes **)
   (**  *)
-  noError*  = 0;
-  noFile*   = -1;
-  cantLoad* = -2;
-  badMark*  = -3;
-  noMemory* = -4;
+  noError*   = 0;
+  noFile*    = -1;
+  cantLoad*  = -2;
+  badMark*   = -3;
+  noMemory*  = -4;
+  divByZero* = -5;
+  unimpl*    = -6;
 
   (** Machine characteristics **)
   memLen* = 4096; (** Size of RAM in words (4 bytes) *)
   regCount* = 16; (** Register count *)
-
-  (** Flags set members **)
-  N = 0;
-  Z = 1;
-  C = 2;
-  V = 3;
 
   (** Register instruction opcodes **)
   mov = 0;
@@ -46,14 +42,14 @@ VAR
   mem: ARRAY memLen OF INTEGER; (** Memory *)
   R: ARRAY regCount OF INTEGER; (** Registers *)
   H: INTEGER; (** Auxiliary regiser. For MUL and DIV *)
-  flags: SET; (** Flag register. Contains N, Z, C, V *)
+  N, Z, C, V: BOOLEAN; (** Flags *)
   PC: INTEGER; (** Program counter (index in mem of next instruction) *)
   IR: INTEGER; (** Instruction register. Holds an instruction *)
 
 PROCEDURE DumpMemory;
 VAR i: INTEGER;
 BEGIN
-  FOR i := 0 TO 31 DO
+  FOR i := 0 TO 15 DO
     Out.String('  ');
     Out.Hex(mem[i], 8);
     IF (i + 1) MOD 8 = 0 THEN Out.Ln END
@@ -65,31 +61,121 @@ PROCEDURE ClearRegisters;
 VAR i: INTEGER;
 BEGIN
   FOR i := 0 TO regCount - 1 DO R[i] := 0 END;
-  H := 0;
-  flags := {};
-  PC := 0; IR := 0;
+  N := FALSE; Z := FALSE; C := FALSE; V := FALSE;
+  H := 0; PC := 0; IR := 0
 END ClearRegisters;
 
-PROCEDURE F1(u, v: BOOLEAN);
-VAR a, b, op, im: INTEGER;
+PROCEDURE ToSet(x: INTEGER): SET;
+RETURN SYSTEM.VAL(SET, x) END ToSet;
+
+PROCEDURE MulHigh(x, y: INTEGER): INTEGER;
+VAR a, b: SYSTEM.INT64;
+BEGIN
+  a := x;
+  b := y;
+  a := a * b DIV 10000H DIV 10000H
+RETURN SYSTEM.VAL(INTEGER, a)
+END MulHigh;
+
+(** Returns -1 if x < 0, or 1 otherwise. Sign(0) = 1 *)
+PROCEDURE Sign(x: INTEGER): INTEGER;
+BEGIN
+  IF x < 0 THEN x := -1 ELSE x := 1 END
+RETURN x END Sign;
+
+(** Register instructions (formats F0 and F1). useIm means F1 *)
+PROCEDURE F01(u, v, useIm: BOOLEAN; VAR res: INTEGER);
+VAR a, b, c, op, n, Rb: INTEGER;
 BEGIN
   a := ASR(IR, 24) MOD 10H;
   b := ASR(IR, 20) MOD 10H;
   op := ASR(IR, 16) MOD 10H;
-  im := IR MOD 10000H;
-  IF op = mov THEN R[a] := im
-    Out.String('R['); Out.Int(a, 0); Out.String('] := '); Out.Int(im, 0); Out.Ln
-    (*!TODO*)
+  IF useIm THEN
+    n := IR MOD 10000H;
+    IF v THEN n := n + LSL(0FFFFH, 16) END
+  ELSE n := R[IR MOD 10H] (* n := R[c] *)
+  END;
+  CASE op OF
+    mov: R[a] := n
+  | lsl: R[a] := LSL(R[b], n)
+  | asr: R[a] := ASR(R[b], n)
+  | ror: R[a] := ROR(R[b], n)
+  | and: R[a] := ORD(ToSet(R[b]) * ToSet(n))
+  | ann: R[a] := ORD(ToSet(R[b]) * (-ToSet(n)))
+  | ior: R[a] := ORD(ToSet(R[b]) + ToSet(n))
+  | xor: R[a] := ORD(ToSet(R[b]) / ToSet(n))
+  | add: Rb := R[b]; R[a] := Rb + n;
+         V := (Sign(Rb) = Sign(n)) & (Sign(R[a]) # Sign(n));
+         C := (Rb < 0) & (n < 0) OR ((Rb < 0) OR (n < 0)) & (R[a] >= 0)
+  | sub: R[a] := R[b] - n;
+         V := (Sign(Rb) # Sign(n)) & (Sign(R[a]) = Sign(n));
+         C := (Rb >= 0) & (n < 0) OR
+              (R[a] < 0) & ((Rb >= 0) & (n >= 0) OR (Rb < 0) & (n < 0))
+  | mul: R[a] := R[b] * n; H := MulHigh(R[b], n)
+  | div:
+    IF n # 0 THEN R[a] := R[b] DIV n; H := R[b] MOD n
+    ELSE res := divByZero
+    END
+  | fad..fdv: res := unimpl (*!TODO*)
+  END;
+  Z := R[a] = 0;
+  N := R[a] < 0;
+END F01;
+
+(** Memory instructions *)
+PROCEDURE F2(u, v: BOOLEAN; VAR res: INTEGER);
+VAR a, b, off, addr, byte, x, t: INTEGER;
+BEGIN
+  a := ASR(IR, 24) MOD 10H;
+  b := ASR(IR, 20) MOD 10H;
+  off := IR MOD 100000H;
+  addr := R[b] + off;
+  IF v THEN (* Byte-access *)
+    x := mem[addr DIV 4]; (* 4 bytes *)
+    byte := addr MOD 4; (* byte number [0; 3] *)
+    IF u THEN (* Store *)
+      t := 8 * byte;
+      mem[addr DIV 4] := ORD(ToSet(x) - {t..t + 7} +
+                             ToSet(LSL(R[a] MOD 100H, t)))
+    ELSE (* Load *)
+      R[a] := ASR(x, 8 * byte) MOD 100H
+    END
+  ELSE (* Word-access *)
+    IF u THEN (* Store*)
+      mem[addr DIV 4] := R[a]
+    ELSE (* Load *)
+      R[a] := mem[addr DIV 4]
+    END
   END
-END F1;
+END F2;
+
+(** Branch instructions *)
+PROCEDURE F3(u, v: BOOLEAN; VAR res: INTEGER);
+VAR cond, addr: INTEGER;
+BEGIN
+  IF v THEN R[15] := PC END;
+  cond := ASR(IR, 24) MOD 10H;
+  IF TRUE(*!TODO cond*) THEN
+    IF u THEN addr := PC + IR MOD 1000000H
+    ELSE addr := R[IR MOD 10H]
+    END;
+    (*PC := addr*) (*!FIXME uncomment*)
+
+    IF addr - PC = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
+    ELSIF addr - PC = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
+    ELSIF addr - PC = 3 THEN Out.Ln
+    END
+
+  END
+END F3;
 
 PROCEDURE Run*(): INTEGER;
 VAR res: INTEGER;
   done: BOOLEAN;
   u, v: BOOLEAN;
 BEGIN
-  res := noError;
   ClearRegisters;
+  res := noError;
   done := FALSE;
   REPEAT
     Out.Int(PC, 5); Out.Ln;
@@ -100,19 +186,23 @@ BEGIN
     Out.String('v='); Out.Int(ORD(v), 0); Out.Char(' ');
     IF ~ODD(ASR(IR, 31)) THEN (* F0, F1 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F0 *)
-        Out.String('F0 '); Out.Hex(IR, 8); Out.Ln
+        Out.String('F0 '); Out.Hex(IR, 8); Out.Ln;
+        F01(u, v, FALSE, res)
       ELSE (** F1 **)
-        F1(u, v)
+        Out.String('F1 '); Out.Hex(IR, 8); Out.Ln;
+        F01(u, v, TRUE, res)
       END
     ELSE (* F2, F3 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F2 *)
-        Out.String('F2 '); Out.Hex(IR, 8); Out.Ln
+        Out.String('----F2 '); Out.Hex(IR, 8); Out.Ln;
+        F2(u, v, res)
       ELSE (** F3 **)
-        Out.String('F3 '); Out.Hex(IR, 8); Out.Ln
+        Out.String('----F3 '); Out.Hex(IR, 8); Out.Ln;
+        F3(u, v, res)
       END
     END;
-    IF PC >= 7 THEN done := TRUE END
-  UNTIL done
+    IF PC >= 13 THEN done := TRUE END;
+  UNTIL done OR (res # noError)
 RETURN res END Run;
 
 PROCEDURE Read(VAR r: Files.Rider; VAR x: INTEGER);
