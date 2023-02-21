@@ -3,11 +3,10 @@ IMPORT Out;
 VAR a, b: INTEGER;
   c: CHAR;
 BEGIN
-  a := 24 + (52 * (63 + a));
-  Out.Char('[');
-  Out.Int(b + 131, 10);
-  Out.Char('Q');
-  Out.Char(']');
+  a := 5;
+  b := 2;
+  a := a * b;
+  Out.Int(a, 0);
   Out.Ln
 END Hello.
 

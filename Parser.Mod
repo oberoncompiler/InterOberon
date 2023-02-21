@@ -350,7 +350,7 @@ BEGIN
     END
   ELSE S.Mark(E.expModule)
   END;
-  IF ~S.error THEN G.Save END
+  IF ~S.error THEN G.Close END
 END Module;
 
 PROCEDURE Compile*(): BOOLEAN;

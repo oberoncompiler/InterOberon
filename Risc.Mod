@@ -7,7 +7,7 @@ CONST
   fileMark* = ORD('R') + 256 * (ORD('S') + 256 * (ORD('C') + 256 * version));
 
   (** Error codes **)
-  (**  *)
+  (** Negative error codes are from VM, positive are from the program *)
   noError*   = 0;
   noFile*    = -1;
   cantLoad*  = -2;
@@ -150,8 +150,8 @@ BEGIN
 END F2;
 
 (** Branch instructions *)
-PROCEDURE F3(u, v: BOOLEAN; VAR res: INTEGER);
-VAR cond, addr: INTEGER;
+PROCEDURE F3(u, v: BOOLEAN; VAR res: INTEGER; VAR done: BOOLEAN);
+VAR cond, addr, x: INTEGER;
 BEGIN
   IF v THEN R[15] := PC END;
   cond := ASR(IR, 24) MOD 10H;
@@ -161,11 +161,12 @@ BEGIN
     END;
     (*PC := addr*) (*!FIXME uncomment*)
 
-    IF addr - PC = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
-    ELSIF addr - PC = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
-    ELSIF addr - PC = 3 THEN Out.Ln
+    x := addr - PC;
+    IF x = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
+    ELSIF x = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
+    ELSIF x = 3 THEN Out.Ln
+    ELSIF x = 100 THEN done := TRUE
     END
-
   END
 END F3;
 
@@ -178,30 +179,29 @@ BEGIN
   res := noError;
   done := FALSE;
   REPEAT
-    Out.Int(PC, 5); Out.Ln;
+    (*Out.Int(PC, 5); Out.Ln;*)
     IR := mem[PC]; INC(PC);
     u := ODD(ASR(IR, 29));
     v := ODD(ASR(IR, 28));
-    Out.String('u='); Out.Int(ORD(u), 0); Out.Char(' ');
-    Out.String('v='); Out.Int(ORD(v), 0); Out.Char(' ');
+    (*Out.String('u='); Out.Int(ORD(u), 0); Out.Char(' ');
+    Out.String('v='); Out.Int(ORD(v), 0); Out.Char(' ');*)
     IF ~ODD(ASR(IR, 31)) THEN (* F0, F1 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F0 *)
-        Out.String('F0 '); Out.Hex(IR, 8); Out.Ln;
+        (*Out.String('F0 '); Out.Hex(IR, 8); Out.Ln;*)
         F01(u, v, FALSE, res)
       ELSE (** F1 **)
-        Out.String('F1 '); Out.Hex(IR, 8); Out.Ln;
+        (*Out.String('F1 '); Out.Hex(IR, 8); Out.Ln;*)
         F01(u, v, TRUE, res)
       END
     ELSE (* F2, F3 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F2 *)
-        Out.String('----F2 '); Out.Hex(IR, 8); Out.Ln;
+        (*Out.String('----F2 '); Out.Hex(IR, 8); Out.Ln;*)
         F2(u, v, res)
       ELSE (** F3 **)
-        Out.String('----F3 '); Out.Hex(IR, 8); Out.Ln;
-        F3(u, v, res)
+        (*Out.String('----F3 '); Out.Hex(IR, 8); Out.Ln;*)
+        F3(u, v, res, done)
       END
-    END;
-    IF PC >= 13 THEN done := TRUE END;
+    END
   UNTIL done OR (res # noError)
 RETURN res END Run;
 

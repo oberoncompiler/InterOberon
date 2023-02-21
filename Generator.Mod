@@ -291,13 +291,13 @@ BEGIN
   ELSE
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.times THEN
-      Put1(Mul, x.r, x.r, y.r)
+      Put0(Mul, x.r, x.r, y.r) (** PUT0 ???????? !FIXME *)
       ;Write3('MUL', x.r, x.r, y.r)
     ELSIF op = S.div THEN
-      Put1(Div, x.r, x.r, y.r)
-      ;Write3('DIV', x.r, x.r, y.r)
+      Put0(Div, x.r, x.r, y.r)
+      ;Write3('DIV', x.r, x.r, y.r) (** PUT0 ???????? !FIXME *)
     ELSE (* op = S.mod *)
-      Put1(Div, x.r, x.r, y.r);
+      Put0(Div, x.r, x.r, y.r); (** PUT0 ???????? !FIXME *)
       Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
       ;Write3('MOD', x.r, x.r, y.r)
     END;
@@ -358,9 +358,11 @@ BEGIN
   END
 END Open;
 
-PROCEDURE Save*;
+PROCEDURE Close*;
 BEGIN
+  Put3(BL, AL, 100); (* Shut down *)
+  Write1i('BL', 100);
   Files.Register(F)
-END Save;
+END Close;
 
 END Generator.

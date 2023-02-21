@@ -21,6 +21,7 @@ BEGIN
       Out.String(' спецскомпилирован.'); Out.Ln; Out.Ln;
       Out.String('Запускается виртуальная машина.'); Out.Ln;
       res := Risc.RunFile(Parser.modName);
+      Out.Ln;
       IF res = Risc.noError THEN
         Out.String('Машина отработала без ошибок.'); Out.Ln
       ELSIF res = Risc.cantLoad THEN
