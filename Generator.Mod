@@ -249,12 +249,12 @@ BEGIN
       ELSE S.Mark(E.intOverflow)
       END
     ELSIF op = S.div THEN
-      IF y.a # 0 THEN x.a := x.a DIV y.a
-      ELSE S.Mark(E.divZero)
+      IF y.a > 0 THEN x.a := x.a DIV y.a
+      ELSE S.Mark(E.badDiv)
       END
     ELSE (* op = S.mod *)
-      IF y.a # 0 THEN x.a := x.a MOD y.a
-      ELSE S.Mark(E.divZero)
+      IF y.a > 0 THEN x.a := x.a MOD y.a
+      ELSE S.Mark(E.badDiv)
       END
     END
   ELSIF y.mode = ST.Const THEN (* x -- Reg or Var *)
@@ -262,7 +262,7 @@ BEGIN
     IF op = S.times THEN
       Put1(Mul, x.r, x.r, y.a)
       ;Write3i('MUL', x.r, x.r, y.a)
-    ELSIF y.a = 0 THEN S.Mark(E.divZero)
+    ELSIF y.a <= 0 THEN S.Mark(E.badDiv)
     ELSIF op = S.div THEN
       Put1(Div, x.r, x.r, y.a)
       ;Write3i('DIV', x.r, x.r, y.a)

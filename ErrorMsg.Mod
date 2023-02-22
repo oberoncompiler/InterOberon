@@ -16,7 +16,7 @@ CONST
   notUsed*           = 42;
   notProcedure*      = 43;
 
-  divZero*           = 50;
+  badDiv*            = 50;
 
   assignConst*       = 59;
   incompatible*      = 60;
@@ -51,7 +51,7 @@ BEGIN
   ELSIF n = notInt THEN s := 'Это не целое число'
   ELSIF n = notUsed THEN s := 'Возвращаемое значение не используется'
   ELSIF n = notProcedure THEN s := 'Это не процедура'
-  ELSIF n = divZero THEN s := 'Деление на ноль'
+  ELSIF n = badDiv THEN s := 'Делитель не положительный'
   ELSIF n = assignConst THEN s := 'Присваивание в константу'
   ELSIF n = incompatible THEN s := 'Типы несовместимы'
   ELSIF n = undecl THEN s := 'Необъявленное имя'

@@ -13,7 +13,7 @@ CONST
   cantLoad*  = -2;
   badMark*   = -3;
   noMemory*  = -4;
-  divByZero* = -5;
+  badDiv*    = -5;
   unimpl*    = -6;
 
   (** Machine characteristics **)
@@ -96,7 +96,7 @@ BEGIN
   ELSE n := R[IR MOD 10H] (* n := R[c] *)
   END;
   CASE op OF
-    mov: R[a] := n
+    mov: IF u THEN R[a] := H ELSE R[a] := n END
   | lsl: R[a] := LSL(R[b], n)
   | asr: R[a] := ASR(R[b], n)
   | ror: R[a] := ROR(R[b], n)
@@ -113,8 +113,8 @@ BEGIN
               (R[a] < 0) & ((Rb >= 0) & (n >= 0) OR (Rb < 0) & (n < 0))
   | mul: R[a] := R[b] * n; H := MulHigh(R[b], n)
   | div:
-    IF n # 0 THEN R[a] := R[b] DIV n; H := R[b] MOD n
-    ELSE res := divByZero
+    IF n # 0 THEN Rb := R[b]; R[a] := Rb DIV n; H := Rb MOD n
+    ELSE res := badDiv
     END
   | fad..fdv: res := unimpl (*!TODO*)
   END;

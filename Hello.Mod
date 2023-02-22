@@ -3,8 +3,11 @@ IMPORT Out;
 VAR a, b: INTEGER;
   c: CHAR;
 BEGIN
-  a := -17;
-  Out.Int(a, 0);
+  a := 623;
+  b := 100;
+  Out.Int(a DIV b, 3);
+  Out.Char(':');
+  Out.Int(a MOD b, 3);
   Out.Ln
 END Hello.
 
