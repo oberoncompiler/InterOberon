@@ -1,11 +1,12 @@
 MODULE Hello;
 IMPORT Out;
-VAR a, b: INTEGER;
+VAR a, b, d: INTEGER;
   c: CHAR;
 BEGIN
   a := 623;
   b := 100;
-  Out.Int(a DIV b, 3);
+  d := 7;
+  Out.Int((d * 45) + (a + d) DIV b, 3);
   Out.Char(':');
   Out.Int(a MOD b, 3);
   Out.Ln
