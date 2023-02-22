@@ -91,7 +91,8 @@ END Put0;
 
 PROCEDURE Put1(op, a, b, im: INTEGER);
 BEGIN
-  Put((((a + 40H) * 10H + b) * 10H + op) * 10000H + im MOD 10000H)
+  IF im < 0 THEN INC(op, V) END;
+  Put((((40H + a) * 10H + b) * 10H + op) * 10000H + im MOD 10000H)
 END Put1;
 
 PROCEDURE Put2(op, a, b, off: INTEGER);

@@ -3,9 +3,7 @@ IMPORT Out;
 VAR a, b: INTEGER;
   c: CHAR;
 BEGIN
-  a := 5;
-  b := 2;
-  a := a * b;
+  a := -17;
   Out.Int(a, 0);
   Out.Ln
 END Hello.
