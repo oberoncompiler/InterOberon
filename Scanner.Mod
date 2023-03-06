@@ -24,6 +24,10 @@ CONST
   import*  = 27;
   false*   = 28;
   true*    = 29;
+  if*      = 30;
+  then*    = 31;
+  elsif*   = 32;
+  else*    = 33;
 
   lparen*  = 40; (** "(" *)
   rparen*  = 41; (** ")" *)
@@ -162,6 +166,10 @@ BEGIN
     ELSIF id = 'MOD' THEN sym := mod
     ELSIF id = 'FALSE' THEN sym := false
     ELSIF id = 'TRUE' THEN sym := true
+    ELSIF id = 'IF' THEN sym := if
+    ELSIF id = 'THEN' THEN sym := then
+    ELSIF id = 'ELSIF' THEN sym := elsif
+    ELSIF id = 'ELSE' THEN sym := else
     ELSE sym := ident
     END
   ELSE

@@ -8,6 +8,7 @@ VAR
   varsize: INTEGER; (** How many bytes do variables occupy *)
 
   Expr0: PROCEDURE(VAR x: G.Item);
+  StatSeq0: PROCEDURE;
 
   modName*: ARRAY 64 OF CHAR; (** Name of last compiled module *)
 
@@ -289,7 +290,56 @@ BEGIN
   END
 END ProcedureCall;
 
-(** Statement = [Assign | ProcedureCall]. *)
+(** IfStatement = IF expression THEN StatementSequence
+    {ELSIF expression THEN StatementSequence}
+    [ELSE StatementSequence] END. *)
+PROCEDURE IfStatement;
+VAR x: G.Item;
+BEGIN
+  S.Get(sym);
+  Expr(x);
+  IF x.type.form = ST.Bool THEN
+    IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
+    
+    CONDITIONAL JUMP
+
+    StatSeq0;
+    WHILE sym = S.elsif DO
+      S.Get(sym);
+
+      UNCONDITIONAL JUMP
+
+      FIXUP CONDITIONAL JUMP
+
+      Expr(x);
+      IF x.type.form = ST.Bool THEN
+        IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
+
+        CONDITIONAL JUMP
+
+        StatSeq0
+      END
+    END;
+
+    IF sym = S.else THEN
+      S.Get(sym);
+
+      UNCONDITIONAL JUMP
+
+      FIXUP CONDITIONAL JUMP
+
+      StatSeq0
+    END;
+
+    IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
+
+    FIXUP CONDITIONAL JUMP
+
+  ELSE S.Mark(E.expBool)
+  END
+END IfStatement;
+
+(** Statement = [Assign | ProcedureCall | IfStatement ]. *)
 PROCEDURE Statement;
 VAR obj: ST.Object;
 BEGIN
@@ -307,6 +357,8 @@ BEGIN
       Out.String(obj.name); Out.Char(')'); Out.Ln;
       ProcedureCall(obj)
     END
+  ELSIF sym = S.if THEN
+    IfStatement
   END
 END Statement;
 
@@ -363,5 +415,6 @@ RETURN ~S.error END Compile;
 
 BEGIN
   Expr0 := Expr;
+  StatSeq0 := StatSeq;
   NEW(dummy); dummy.class := ST.Var; dummy.type := ST.intType
 END Parser.

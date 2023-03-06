@@ -5,6 +5,7 @@ CONST
   (** Values of Item.mode **)
   (** Some of Object Classes from SymTable are also valid *)
   Reg*  = 10;
+  Cond* = 12; (** Condition expression result *)
 
   (** Dedicated Registers **)
   MT  = 12; (** Trap Interrupt *)
