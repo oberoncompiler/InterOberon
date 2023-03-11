@@ -295,6 +295,7 @@ END ProcedureCall;
     [ELSE StatementSequence] END. *)
 PROCEDURE IfStatement;
 VAR x: G.Item;
+  L: INTEGER;
 BEGIN
   S.Get(sym);
   Expr(x);
@@ -333,7 +334,7 @@ BEGIN
 
     IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
 
-    FIXUP CONDITIONAL JUMP
+    FIXUP UNCONDITIONAL JUMP
 
   ELSE S.Mark(E.expBool)
   END

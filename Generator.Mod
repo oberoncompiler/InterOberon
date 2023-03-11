@@ -319,6 +319,28 @@ BEGIN
   END
 END Assign;
 
+(** Jumps *)
+
+PROCEDURE CFJump*(VAR x: Item);
+BEGIN
+
+END CFJump;
+
+PROCEDURE FJump*(VAR L: INTEGER);
+BEGIN
+
+END FJump;
+
+PROCEDURE Fixup*(VAR x: Item);
+BEGIN
+
+END Fixup;
+
+PROCEDURE FixLink*(L: INTEGER);
+BEGIN
+
+END FixLink;
+
 (** Procedure Calls *)
 
 (** Parameters are stored in registers before a procedure call *)
