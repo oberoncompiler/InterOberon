@@ -323,26 +323,29 @@ END Assign;
 
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
-  x.a := 0
+  (*PUT*)
+  x.a := pc - 1
 END CFJump;
 
 PROCEDURE FJump*(VAR L: INTEGER);
 BEGIN
-  L := R
+  (*PUT*)
+  L := pc - 1
 END FJump;
 
 PROCEDURE Fixup*(VAR x: Item);
+VAR tmp: Files.Rider;
 BEGIN
-  x.a := pc - 1
+  Files.Set(tmp, F, x.a * 4)
 END Fixup;
 
 PROCEDURE FixLink*(L: INTEGER);
-VAR tmp: F.Rider;
+VAR tmp: Files.Rider;
 BEGIN
   WHILE L # 0 DO
-    F.Set(tmp, F, L);
-    F.Write(tmp, R);
-    F.Read(tmp, L) 
+    Files.Set(tmp, F, L);
+    Files.Write(tmp, R);
+    Files.Read(tmp, L) 
   END
 END FixLink;
 
