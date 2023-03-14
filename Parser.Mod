@@ -302,21 +302,21 @@ BEGIN
   IF x.type.form = ST.Bool THEN
     IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
     
-    CONDITIONAL JUMP
+    (* CONDITIONAL JUMP *)
 
     StatSeq0;
     WHILE sym = S.elsif DO
       S.Get(sym);
 
-      UNCONDITIONAL JUMP
+      (* UNCONDITIONAL JUMP *)
 
-      FIXUP CONDITIONAL JUMP
+      (* FIXUP CONDITIONAL JUMP *)
 
       Expr(x);
       IF x.type.form = ST.Bool THEN
         IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
 
-        CONDITIONAL JUMP
+        (* CONDITIONAL JUMP *)
 
         StatSeq0
       END
@@ -325,16 +325,16 @@ BEGIN
     IF sym = S.else THEN
       S.Get(sym);
 
-      UNCONDITIONAL JUMP
+      (* UNCONDITIONAL JUMP *)
 
-      FIXUP CONDITIONAL JUMP
+      (* FIXUP CONDITIONAL JUMP *)
 
       StatSeq0
     END;
 
     IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
 
-    FIXUP UNCONDITIONAL JUMP
+    (* FIXUP UNCONDITIONAL JUMP *)
 
   ELSE S.Mark(E.expBool)
   END
