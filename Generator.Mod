@@ -323,22 +323,27 @@ END Assign;
 
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
-
+  x.a := 0
 END CFJump;
 
 PROCEDURE FJump*(VAR L: INTEGER);
 BEGIN
-
+  L := R
 END FJump;
 
 PROCEDURE Fixup*(VAR x: Item);
 BEGIN
-
+  x.a := pc - 1
 END Fixup;
 
 PROCEDURE FixLink*(L: INTEGER);
+VAR tmp: F.Rider;
 BEGIN
-
+  WHILE L # 0 DO
+    F.Set(tmp, F, L);
+    F.Write(tmp, R);
+    F.Read(tmp, L) 
+  END
 END FixLink;
 
 (** Procedure Calls *)
