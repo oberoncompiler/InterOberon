@@ -56,6 +56,7 @@ VAR
   RH: INTEGER; (** Number of the highest free register *)
   F: Files.File;
   R: Files.Rider;
+  codeStart: INTEGER; (** Where actual machine code starts *)
 
 (** Item Constructors **)
 
@@ -323,29 +324,45 @@ END Assign;
 
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
-  (*PUT*)
+  Put3(BC, ..., 0);
   x.a := pc - 1
 END CFJump;
 
 PROCEDURE FJump*(VAR L: INTEGER);
 BEGIN
-  (*PUT*)
+  Put3(BC, AL, L);
   L := pc - 1
 END FJump;
 
 PROCEDURE Fixup*(VAR x: Item);
 VAR tmp: Files.Rider;
+  off: INTEGER;
 BEGIN
-  Files.Set(tmp, F, x.a * 4)
+  off := pc - x.a - 1;
+  Files.Set(tmp, F, x.a * 4 + codeStart + 1);
+  Files.Write(tmp, ASR(off, 16) MOD 100H);
+  Files.Write(tmp, ASR(off, 8) MOD 100H);
+  Files.Write(tmp, off MOD 100H)
 END Fixup;
 
 PROCEDURE FixLink*(L: INTEGER);
 VAR tmp: Files.Rider;
+  pos, off: INTEGER;
+  b: BYTE;
 BEGIN
   WHILE L # 0 DO
-    Files.Set(tmp, F, L);
-    Files.Write(tmp, R);
-    Files.Read(tmp, L) 
+    pos := L * 4 + codeStart + 1;
+    Files.Set(tmp, F, pos);
+    (*!FIXME check negative offset*)
+    Files.Read(tmp, b); L := b;
+    Files.Read(tmp, b); L := L * 100H + b;
+    Files.Read(tmp, b); L := L * 100H + b;
+
+    off := pc - x.a - 1;
+    Files.Set(tmp, F, pos);
+    Files.Write(tmp, ASR(off, 16) MOD 100H);
+    Files.Write(tmp, ASR(off, 8) MOD 100H);
+    Files.Write(tmp, off MOD 100H)
   END
 END FixLink;
 
@@ -384,7 +401,8 @@ BEGIN
   F := Files.New(s);
   IF F # NIL THEN
     Files.Set(R, F, 0);
-    Files.WriteInt(R, fileMark)
+    Files.WriteInt(R, fileMark);
+    codeStart := Files.Pos(R)
   ELSE Out.String('Невозможно создать файл "'); Out.String(s);
     Out.String('".'); Out.Ln
   END

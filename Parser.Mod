@@ -214,6 +214,9 @@ BEGIN
   IF sym = S.equals THEN
     S.Get(sym);
     SimpleExpr(y)
+
+    (*Вызвать процедуру G..., которая*)
+    (*делает в т. ч. x.mode := G.Cond;*)
   END
 END Expr;
 
@@ -303,20 +306,25 @@ BEGIN
     IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
     
     (* CONDITIONAL JUMP *)
+    G.CFJump(x);
 
     StatSeq0;
+    L := 0;
     WHILE sym = S.elsif DO
       S.Get(sym);
 
       (* UNCONDITIONAL JUMP *)
+      G.FJump(L);
 
       (* FIXUP CONDITIONAL JUMP *)
+      G.Fixup(x);
 
       Expr(x);
       IF x.type.form = ST.Bool THEN
         IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
 
         (* CONDITIONAL JUMP *)
+        G.CFJump(x);
 
         StatSeq0
       END
@@ -326,8 +334,10 @@ BEGIN
       S.Get(sym);
 
       (* UNCONDITIONAL JUMP *)
+      G.FJump(L);
 
       (* FIXUP CONDITIONAL JUMP *)
+      G.Fixup(x);
 
       StatSeq0
     END;
@@ -335,6 +345,7 @@ BEGIN
     IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
 
     (* FIXUP UNCONDITIONAL JUMP *)
+    G.FixLink(L)
 
   ELSE S.Mark(E.expBool)
   END
