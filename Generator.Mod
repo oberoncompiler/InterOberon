@@ -57,6 +57,7 @@ VAR
   F: Files.File;
   R: Files.Rider;
   codeStart: INTEGER; (** Where actual machine code starts *)
+  relmap: ARRAY 6 OF INTEGER; (** Relation map for logics operations *)
 
 (** Item Constructors **)
 
@@ -107,6 +108,15 @@ PROCEDURE Put3(op, cond, off: INTEGER);
 BEGIN
   Put(((op + 12) * 10H + cond) * 1000000H + off MOD 1000000H)
 END Put3;
+
+PROCEDURE PutOffset(pos, n: INTEGER);
+VAR tmp: Files.Rider;
+BEGIN
+  Files.Set(tmp, F, pos);
+  Files.Write(tmp, ASR(n, 16) MOD 100H);
+  Files.Write(tmp, ASR(n, 8) MOD 100H);
+  Files.Write(tmp, n MOD 100H)
+END PutOffset;
 
 (** Write instruction with 1 argument -- a register *)
 PROCEDURE Write1(inst: ARRAY OF CHAR; a: INTEGER);
@@ -308,6 +318,25 @@ BEGIN
   END
 END MulOp;
 
+PROCEDURE SetCond(VAR x: Item; code: INTEGER);
+BEGIN
+  x.mode := Cond; x.r := code
+  (*!FIXME Why set x.a and x.b to 0 *)
+END SetCond;
+
+PROCEDURE IntRel*(op: INTEGER; VAR x, y: Item);
+BEGIN
+  IF y.mode = ST.Const THEN
+    Load(x);
+    Put1(Sub, x.r, x.r, y.a)
+  ELSE
+    Load(x);
+    Load(y);
+    Put0(Sub, x.r, x.r, y.r)
+  END;
+  SetCond(x, relmap[op - S.eql])
+END IntRel;
+
 PROCEDURE Assign*(VAR x, y: Item);
 BEGIN
   IF ~ST.TypesCompatible(x.type, y.type) THEN S.Mark(E.incompatible)
@@ -322,9 +351,14 @@ END Assign;
 
 (** Jumps *)
 
+PROCEDURE Negated(code: INTEGER): INTEGER;
+BEGIN
+  IF code < 8 THEN INC(code, 8) ELSE DEC(code, 8) END
+RETURN code END Negated;
+
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
-  Put3(BC, ..., 0);
+  Put3(BC, Negated(x.r), 0);
   x.a := pc - 1
 END CFJump;
 
@@ -335,34 +369,25 @@ BEGIN
 END FJump;
 
 PROCEDURE Fixup*(VAR x: Item);
-VAR tmp: Files.Rider;
-  off: INTEGER;
 BEGIN
-  off := pc - x.a - 1;
-  Files.Set(tmp, F, x.a * 4 + codeStart + 1);
-  Files.Write(tmp, ASR(off, 16) MOD 100H);
-  Files.Write(tmp, ASR(off, 8) MOD 100H);
-  Files.Write(tmp, off MOD 100H)
+  PutOffset(x.a * 4 + codeStart + 1, pc - x.a - 1)
 END Fixup;
 
 PROCEDURE FixLink*(L: INTEGER);
 VAR tmp: Files.Rider;
-  pos, off: INTEGER;
+  pos, prevL: INTEGER;
   b: BYTE;
 BEGIN
   WHILE L # 0 DO
     pos := L * 4 + codeStart + 1;
+    prevL := L;
     Files.Set(tmp, F, pos);
     (*!FIXME check negative offset*)
     Files.Read(tmp, b); L := b;
     Files.Read(tmp, b); L := L * 100H + b;
     Files.Read(tmp, b); L := L * 100H + b;
 
-    off := pc - x.a - 1;
-    Files.Set(tmp, F, pos);
-    Files.Write(tmp, ASR(off, 16) MOD 100H);
-    Files.Write(tmp, ASR(off, 8) MOD 100H);
-    Files.Write(tmp, off MOD 100H)
+    PutOffset(pos, pc - prevL - 1)
   END
 END FixLink;
 
@@ -415,4 +440,7 @@ BEGIN
   Files.Register(F)
 END Close;
 
+BEGIN
+  relmap[0] := 1; relmap[1] :=  9; relmap[2] := 5;
+  relmap[3] := 6; relmap[4] := 14; relmap[5] := 13
 END Generator.

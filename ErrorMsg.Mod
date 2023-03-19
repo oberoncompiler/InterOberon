@@ -28,6 +28,7 @@ CONST
   noParams*          = 64;
   fewerParams*       = 65;
   moreParams*        = 66;
+  onlyEqlNeq*        = 67;
 
   modNameMismatch*   = 90;
 
@@ -64,6 +65,7 @@ BEGIN
   ELSIF n = noParams THEN s := 'Ожидаются параметры процедуры'
   ELSIF n = fewerParams THEN s := 'Слишком мало параметров'
   ELSIF n = moreParams THEN s := 'Слишком много параметров'
+  ELSIF n = onlyEqlNeq THEN s := 'Можно сравнивать только на = и #'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSIF n = intOverflow THEN s := 'Целочисленное переполнение'

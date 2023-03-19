@@ -14,7 +14,7 @@ CONST
   begin*   = 17;
   becomes* = 18;
   colon*   = 19;
-  equals*  = 20;
+
   times*   = 21;
   div*     = 22;
   mod*     = 23;
@@ -31,6 +31,14 @@ CONST
 
   lparen*  = 40; (** "(" *)
   rparen*  = 41; (** ")" *)
+
+  eql*     = 43; (** =  *)
+  neq*     = 44; (** #  *)
+  lss*     = 45; (** <  *)
+  leq*     = 46; (** <= *)
+  gtr*     = 47; (** >  *)
+  geq*     = 48; (** >= *)
+
   eot*     = 70; (** End of text *)
 
   maxInt*  = 2147483647;
@@ -108,7 +116,12 @@ BEGIN
     sym := eot
   ELSIF ch = ':' THEN Read;
     IF ch = '=' THEN sym := becomes; Read ELSE sym := colon END
-  ELSIF ch = '=' THEN sym := equals; Read
+  ELSIF ch = '=' THEN sym := eql; Read
+  ELSIF ch = '#' THEN sym := neq; Read
+  ELSIF ch = '<' THEN Read;
+    IF ch = '=' THEN sym := leq; Read ELSE sym := lss END
+  ELSIF ch = '>' THEN Read;
+    IF ch = '=' THEN sym := geq; Read ELSE sym := gtr END
   ELSIF ch = ';' THEN sym := semicol; Read
   ELSIF ch = '.' THEN sym := period; Read
   ELSIF ch = ',' THEN sym := comma; Read

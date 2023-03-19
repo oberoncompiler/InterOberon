@@ -211,12 +211,19 @@ VAR op: INTEGER;
   y: G.Item;
 BEGIN
   SimpleExpr(x);
-  IF sym = S.equals THEN
+  IF (S.eql <= sym) & (sym <= S.geq) THEN
+    op := sym;
     S.Get(sym);
-    SimpleExpr(y)
-
-    (*Вызвать процедуру G..., которая*)
-    (*делает в т. ч. x.mode := G.Cond;*)
+    SimpleExpr(y);
+    IF (x.type.form IN {ST.Char, ST.Int}) & (x.type = y.type) THEN
+      G.IntRel(op, x, y);
+      x.type := ST.boolType
+    ELSIF x.type.form = ST.Bool THEN
+      IF op <= S.neq THEN G.IntRel(op, x, y)
+      ELSE S.Mark(E.onlyEqlNeq)
+      END
+    ELSE S.Mark(E.incompatible)
+    END
   END
 END Expr;
 
@@ -302,53 +309,51 @@ VAR x: G.Item;
 BEGIN
   S.Get(sym);
   Expr(x);
-  IF x.type.form = ST.Bool THEN
-    IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
-    
-    (* CONDITIONAL JUMP *)
-    G.CFJump(x);
+  IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
 
-    StatSeq0;
-    L := 0;
-    WHILE sym = S.elsif DO
-      S.Get(sym);
+  (* CONDITIONAL JUMP *)
+  G.CFJump(x);
 
-      (* UNCONDITIONAL JUMP *)
-      G.FJump(L);
+  IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
 
-      (* FIXUP CONDITIONAL JUMP *)
-      G.Fixup(x);
+  StatSeq0;
+  L := 0;
+  WHILE sym = S.elsif DO
+    S.Get(sym);
 
-      Expr(x);
-      IF x.type.form = ST.Bool THEN
-        IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
+    (* UNCONDITIONAL JUMP *)
+    G.FJump(L);
 
-        (* CONDITIONAL JUMP *)
-        G.CFJump(x);
+    (* FIXUP CONDITIONAL JUMP *)
+    G.Fixup(x);
 
-        StatSeq0
-      END
-    END;
+    Expr(x);
+    IF x.type.form = ST.Bool THEN
+      IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
 
-    IF sym = S.else THEN
-      S.Get(sym);
-
-      (* UNCONDITIONAL JUMP *)
-      G.FJump(L);
-
-      (* FIXUP CONDITIONAL JUMP *)
-      G.Fixup(x);
+      (* CONDITIONAL JUMP *)
+      G.CFJump(x);
 
       StatSeq0
-    END;
+    END
+  END;
 
-    IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
+  IF sym = S.else THEN
+    S.Get(sym);
 
-    (* FIXUP UNCONDITIONAL JUMP *)
-    G.FixLink(L)
+    (* UNCONDITIONAL JUMP *)
+    G.FJump(L);
 
-  ELSE S.Mark(E.expBool)
-  END
+    (* FIXUP CONDITIONAL JUMP *)
+    G.Fixup(x);
+
+    StatSeq0
+  END;
+
+  IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
+
+  (* FIXUP UNCONDITIONAL JUMP *)
+  G.FixLink(L)
 END IfStatement;
 
 (** Statement = [Assign | ProcedureCall | IfStatement ]. *)
@@ -358,7 +363,7 @@ BEGIN
   IF sym = S.ident THEN
     QualIdent(obj);
     Selector;
-    IF sym = S.equals THEN S.Mark(E.expBecomes); sym := S.becomes END;
+    IF sym = S.eql THEN S.Mark(E.expBecomes); sym := S.becomes END;
     IF sym = S.becomes THEN
       S.Get(sym);
       Out.String('Присваивание в '); Out.String(obj.name);
