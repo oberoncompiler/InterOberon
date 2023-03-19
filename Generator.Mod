@@ -328,11 +328,13 @@ PROCEDURE IntRel*(op: INTEGER; VAR x, y: Item);
 BEGIN
   IF y.mode = ST.Const THEN
     Load(x);
-    Put1(Sub, x.r, x.r, y.a)
+    Put1(Sub, x.r, x.r, y.a);
+    DEC(RH)
   ELSE
     Load(x);
     Load(y);
-    Put0(Sub, x.r, x.r, y.r)
+    Put0(Sub, x.r, x.r, y.r);
+    DEC(RH, 2)
   END;
   SetCond(x, relmap[op - S.eql])
 END IntRel;

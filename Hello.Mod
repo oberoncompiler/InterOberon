@@ -3,14 +3,14 @@ IMPORT Out;
 VAR a, b: INTEGER;
 BEGIN
   a := 130;
-  b := 140;
-  Out.Char('b');
+  b := 140 - 10;
+  Out.Char('A');
   IF a = b THEN
-    Out.Char('D')
+    Out.Char('B')
   ELSE
     Out.Char('C')
   END;
-  Out.Char('a');
+  Out.Char('D');
   Out.Ln
 END Hello.
 

@@ -8,13 +8,14 @@ CONST
 
   (** Error codes **)
   (** Negative error codes are from VM, positive are from the program *)
-  noError*   = 0;
-  noFile*    = -1;
-  cantLoad*  = -2;
-  badMark*   = -3;
-  noMemory*  = -4;
-  badDiv*    = -5;
-  unimpl*    = -6;
+  noError*     = 0;
+  noFile*      = -1;
+  cantLoad*    = -2;
+  badMark*     = -3;
+  noMemory*    = -4;
+  memOverflow* = -5;
+  badDiv*      = -6;
+  unimpl*      = -7;
 
   (** Machine characteristics **)
   memLen* = 4096; (** Size of RAM in words (4 bytes) *)
@@ -38,6 +39,11 @@ CONST
   fml = 14;
   fdv = 15;
 
+  (** Condition Codes **)
+  MI = 0; PL =  8; EQ = 1; NE =  9; CS = 2; CC = 10; VS = 3; VC = 11;
+  LS = 4; HI = 12; LT = 5; GE = 13; LE = 6; GT = 14;
+  AL = 7; (** Always *) NV = 15; (** Never *)
+
 VAR
   mem: ARRAY memLen OF INTEGER; (** Memory *)
   R: ARRAY regCount OF INTEGER; (** Registers *)
@@ -49,12 +55,15 @@ VAR
 PROCEDURE DumpMemory;
 VAR i: INTEGER;
 BEGIN
-  FOR i := 0 TO 15 DO
+  i := 0;
+  REPEAT
     Out.String('  ');
     Out.Hex(mem[i], 8);
-    IF (i + 1) MOD 8 = 0 THEN Out.Ln END
-  END;
-  Out.Ln
+    IF (i + 1) MOD 8 = 0 THEN Out.Ln END;
+    INC(i)
+  UNTIL (i = 32) OR (mem[i] = 0);
+  Out.Ln;
+  Out.String('======='); Out.Ln
 END DumpMemory;
 
 PROCEDURE ClearRegisters;
@@ -119,7 +128,7 @@ BEGIN
   | fad..fdv: res := unimpl (*!TODO*)
   END;
   Z := R[a] = 0;
-  N := R[a] < 0;
+  N := R[a] < 0
 END F01;
 
 (** Memory instructions *)
@@ -149,23 +158,48 @@ BEGIN
   END
 END F2;
 
+PROCEDURE CondTrue(cond: INTEGER): BOOLEAN;
+VAR res: BOOLEAN;
+BEGIN
+  CASE cond OF
+    MI: res := N
+  | EQ: res := Z
+  | CS: res := C
+  | VS: res := V
+  | LS: res := ~C OR Z
+  | LT: res := N # V
+  | LE: res := (N # V) OR Z
+  | AL: res := TRUE
+  | PL: res := ~N
+  | NE: res := ~Z
+  | CC: res := ~C
+  | VC: res := ~V
+  | HI: res := ~(~C OR Z)
+  | GE: res := ~(N # V)
+  | GT: res := ~((N # V) OR Z)
+  | NV: res := FALSE
+  END
+RETURN res END CondTrue;
+
 (** Branch instructions *)
 PROCEDURE F3(u, v: BOOLEAN; VAR res: INTEGER; VAR done: BOOLEAN);
 VAR cond, addr, x: INTEGER;
 BEGIN
   IF v THEN R[15] := PC END;
   cond := ASR(IR, 24) MOD 10H;
-  IF TRUE(*!TODO cond*) THEN
-    IF u THEN addr := PC + IR MOD 1000000H
-    ELSE addr := R[IR MOD 10H]
-    END;
-    (*PC := addr*) (*!FIXME uncomment*)
-
-    x := addr - PC;
-    IF x = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
-    ELSIF x = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
-    ELSIF x = 3 THEN Out.Ln
-    ELSIF x = 100 THEN done := TRUE
+  IF CondTrue(cond) THEN
+    IF u THEN addr := PC + IR MOD 1000000H ELSE addr := R[IR MOD 10H] END;
+    IF v THEN
+      x := addr - PC;
+      IF x = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
+      ELSIF x = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
+      ELSIF x = 3 THEN Out.Ln
+      ELSIF x = 100 THEN done := TRUE
+      END
+    ELSE
+      IF (0 <= addr) & (addr < memLen) THEN PC := addr
+      ELSE res := memOverflow
+      END
     END
   END
 END F3;
@@ -179,7 +213,6 @@ BEGIN
   res := noError;
   done := FALSE;
   REPEAT
-    (*Out.Int(PC, 5); Out.Ln;*)
     IR := mem[PC]; INC(PC);
     u := ODD(ASR(IR, 29));
     v := ODD(ASR(IR, 28));
