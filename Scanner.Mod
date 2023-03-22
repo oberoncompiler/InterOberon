@@ -28,6 +28,8 @@ CONST
   then*    = 31;
   elsif*   = 32;
   else*    = 33;
+  while*   = 34;
+  do*      = 35;
 
   lparen*  = 40; (** "(" *)
   rparen*  = 41; (** ")" *)
@@ -183,6 +185,8 @@ BEGIN
     ELSIF id = 'THEN' THEN sym := then
     ELSIF id = 'ELSIF' THEN sym := elsif
     ELSIF id = 'ELSE' THEN sym := else
+    ELSIF id = 'WHILE' THEN sym := while
+    ELSIF id = 'DO' THEN sym := do
     ELSE sym := ident
     END
   ELSE

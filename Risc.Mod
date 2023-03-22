@@ -188,7 +188,11 @@ BEGIN
   IF v THEN R[15] := PC END;
   cond := ASR(IR, 24) MOD 10H;
   IF CondTrue(cond) THEN
-    IF u THEN addr := PC + IR MOD 1000000H ELSE addr := R[IR MOD 10H] END;
+    IF u THEN addr := IR MOD 1000000H;
+      addr := ORD(ToSet(addr) / {23}) - 800000H;
+      INC(addr, PC)
+    ELSE addr := R[IR MOD 10H]
+    END;
     IF v THEN
       x := addr - PC;
       IF x = 1 THEN Out.Char(CHR(R[0] MOD 10000H))

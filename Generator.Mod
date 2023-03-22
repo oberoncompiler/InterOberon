@@ -353,6 +353,9 @@ END Assign;
 
 (** Jumps *)
 
+PROCEDURE Here*(): INTEGER;
+RETURN pc END Here;
+
 PROCEDURE Negated(code: INTEGER): INTEGER;
 BEGIN
   IF code < 8 THEN INC(code, 8) ELSE DEC(code, 8) END
@@ -369,6 +372,11 @@ BEGIN
   Put3(BC, AL, L);
   L := pc - 1
 END FJump;
+
+PROCEDURE BJump*(L: INTEGER);
+BEGIN
+  Put3(BC, AL, L - pc - 1)
+END BJump;
 
 PROCEDURE Fixup*(VAR x: Item);
 BEGIN

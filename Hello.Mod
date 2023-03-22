@@ -2,15 +2,25 @@ MODULE Hello;
 IMPORT Out;
 VAR a, b: INTEGER;
 BEGIN
-  a := 130;
-  b := 140 - 10;
-  Out.Char('A');
-  IF a = b THEN
-    Out.Char('B')
-  ELSE
-    Out.Char('C')
+  a := 1;
+  b := 20;
+  Out.Char('н'); Out.Char('а'); Out.Char('ч'); Out.Ln;
+  WHILE a > b DO
+    Out.Char('A');
+    a := a - b
+  ELSIF a < b DO
+    Out.Char('B');
+    b := b - a
   END;
-  Out.Char('D');
+  Out.Ln;
+  Out.Char('к'); Out.Char('н'); Out.Char('ц'); Out.Ln;
+  Out.Int(a, 4); Out.Int(b, 4); Out.Ln;
+
+  IF a > 30 THEN
+    Out.Char('>')
+  ELSE
+    Out.Char('<')
+  END;
   Out.Ln
 END Hello.
 

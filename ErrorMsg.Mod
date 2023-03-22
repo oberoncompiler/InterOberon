@@ -10,6 +10,7 @@ CONST
   expType*           = 8;
   expBool*           = 9;
   expThen*           = 10;
+  expDo*             = 11;
   expRparen*         = 30;
   expStatement*      = 31;
 
@@ -50,6 +51,7 @@ BEGIN
   ELSIF n = expType THEN s := 'Ожидается тип'
   ELSIF n = expBool THEN s := 'Ожидается значение булевого типа'
   ELSIF n = expThen THEN s := 'Ожидается THEN'
+  ELSIF n = expDo THEN s := 'Ожидается DO'
   ELSIF n = expRparen THEN s := 'Ожидается )'
   ELSIF n = expStatement THEN s := 'Ожидается оператор'
   ELSIF n = notValue THEN s := 'Это не значение'

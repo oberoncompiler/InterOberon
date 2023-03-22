@@ -328,14 +328,13 @@ BEGIN
     G.Fixup(x);
 
     Expr(x);
-    IF x.type.form = ST.Bool THEN
-      IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
+    IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+    IF sym = S.then THEN S.Get(sym) ELSE S.Mark(E.expThen) END;
 
-      (* CONDITIONAL JUMP *)
-      G.CFJump(x);
+    (* CONDITIONAL JUMP *)
+    G.CFJump(x);
 
-      StatSeq0
-    END
+    StatSeq0
   END;
 
   IF sym = S.else THEN
@@ -355,6 +354,52 @@ BEGIN
   (* FIXUP UNCONDITIONAL JUMP *)
   G.FixLink(L)
 END IfStatement;
+
+(** WhileStatement = WHILE expression DO StatementSequence
+    {ELSIF expression DO StatementSequence} END. *)
+PROCEDURE WhileStatement;
+VAR x: G.Item;
+  L: INTEGER;
+BEGIN
+  L := G.Here();
+  S.Get(sym);
+  Expr(x);
+  IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+
+  (* CONDITIONAL JUMP *)
+  G.CFJump(x);
+
+  IF sym = S.do THEN S.Get(sym) ELSE S.Mark(E.expDo) END;
+
+  StatSeq0;
+
+  (* UNCONDITIONAL BACK JUMP TO START OF LOOP *)
+  G.BJump(L);
+
+  WHILE sym = S.elsif DO
+    S.Get(sym);
+
+    (* FIXUP CONDITIONAL JUMP *)
+    G.Fixup(x);
+
+    Expr(x);
+    IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+    IF sym = S.do THEN S.Get(sym) ELSE S.Mark(E.expDo) END;
+
+    (* CONDITIONAL JUMP *)
+    G.CFJump(x);
+
+    StatSeq0;
+
+    (* UNCONDITIONAL BACK JUMP TO START OF LOOP *)
+    G.BJump(L)
+  END;
+
+  (* FIXUP CONDITIONAL JUMP *)
+  G.Fixup(x);
+
+  IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END
+END WhileStatement;
 
 (** Statement = [Assign | ProcedureCall | IfStatement ]. *)
 PROCEDURE Statement;
@@ -376,6 +421,8 @@ BEGIN
     END
   ELSIF sym = S.if THEN
     IfStatement
+  ELSIF sym = S.while THEN
+    WhileStatement
   END
 END Statement;
 
