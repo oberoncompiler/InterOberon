@@ -30,6 +30,8 @@ CONST
   else*    = 33;
   while*   = 34;
   do*      = 35;
+  repeat*  = 36;
+  until*   = 37;
 
   lparen*  = 40; (** "(" *)
   rparen*  = 41; (** ")" *)
@@ -187,6 +189,8 @@ BEGIN
     ELSIF id = 'ELSE' THEN sym := else
     ELSIF id = 'WHILE' THEN sym := while
     ELSIF id = 'DO' THEN sym := do
+    ELSIF id = 'REPEAT' THEN sym := repeat
+    ELSIF id = 'UNTIL' THEN sym := until
     ELSE sym := ident
     END
   ELSE

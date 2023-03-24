@@ -16,6 +16,12 @@ BEGIN
   Out.Char('к'); Out.Char('н'); Out.Char('ц'); Out.Ln;
   Out.Int(a, 4); Out.Int(b, 4); Out.Ln;
 
+  a := 6;
+  REPEAT
+    Out.Char('+');
+    a := a - 1
+  UNTIL a = 0;
+
   IF a > 30 THEN
     Out.Char('>')
   ELSE

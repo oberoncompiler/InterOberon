@@ -378,6 +378,11 @@ BEGIN
   Put3(BC, AL, L - pc - 1)
 END BJump;
 
+PROCEDURE CBJump*(VAR x: Item; L: INTEGER);
+BEGIN
+  Put3(BC, Negated(x.r), L - pc - 1)
+END CBJump;
+
 PROCEDURE Fixup*(VAR x: Item);
 BEGIN
   PutOffset(x.a * 4 + codeStart + 1, pc - x.a - 1)

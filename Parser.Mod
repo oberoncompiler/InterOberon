@@ -401,7 +401,27 @@ BEGIN
   IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END
 END WhileStatement;
 
-(** Statement = [Assign | ProcedureCall | IfStatement ]. *)
+PROCEDURE RepeatStatement;
+VAR x: G.Item;
+  L: INTEGER;
+BEGIN
+  L := G.Here();
+  S.Get(sym);
+
+  StatSeq0;
+
+  IF sym # S.until THEN S.Mark(E.expUntil)
+  ELSE S.Get(sym);
+    Expr(x);
+    IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+
+    (* CONDITIONAL BACK JUMP TO START OF LOOP *)
+    G.CBJump(x, L)
+  END
+END RepeatStatement;
+
+(** Statement = [Assign | ProcedureCall | IfStatement |
+    WhileStatement | RepeatStatement ]. *)
 PROCEDURE Statement;
 VAR obj: ST.Object;
 BEGIN
@@ -423,6 +443,8 @@ BEGIN
     IfStatement
   ELSIF sym = S.while THEN
     WhileStatement
+  ELSIF sym = S.repeat THEN
+    RepeatStatement
   END
 END Statement;
 
