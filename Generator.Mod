@@ -320,8 +320,8 @@ END MulOp;
 
 PROCEDURE SetCond(VAR x: Item; code: INTEGER);
 BEGIN
-  x.mode := Cond; x.r := code
-  (*!FIXME Why set x.a and x.b to 0 *)
+  x.mode := Cond; x.r := code;
+  x.a := 0; x.b := 0 (* False- and True-lists respectively *)
 END SetCond;
 
 PROCEDURE IntRel*(op: INTEGER; VAR x, y: Item);

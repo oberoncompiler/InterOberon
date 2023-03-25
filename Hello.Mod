@@ -2,9 +2,23 @@ MODULE Hello;
 IMPORT Out;
 VAR a, b: INTEGER;
 BEGIN
-  a := 1;
+  a := 6;
   b := 20;
   Out.Char('н'); Out.Char('а'); Out.Char('ч'); Out.Ln;
+  Out.Char('a'); Out.Char('='); Out.Int(a, 0); Out.Ln;
+  Out.Char('b'); Out.Char('='); Out.Int(b, 0); Out.Ln;
+
+  IF (a < b) & (a >= 3) THEN
+    Out.Char('X')
+  ELSE
+    Out.Char('Y')
+  END;
+  Out.Ln;
+
+  Out.Char('к'); Out.Char('н'); Out.Char('ц'); Out.Ln
+END Hello.
+
+
   WHILE a > b DO
     Out.Char('A');
     a := a - b
@@ -13,22 +27,14 @@ BEGIN
     b := b - a
   END;
   Out.Ln;
-  Out.Char('к'); Out.Char('н'); Out.Char('ц'); Out.Ln;
-  Out.Int(a, 4); Out.Int(b, 4); Out.Ln;
+
 
   a := 6;
   REPEAT
     Out.Char('+');
     a := a - 1
   UNTIL a = 0;
-
-  IF a > 30 THEN
-    Out.Char('>')
-  ELSE
-    Out.Char('<')
-  END;
-  Out.Ln
-END Hello.
+  Out.Ln;
 
      R13=400, a=0, b=4, x=8, y=9, z=10, n=12
 

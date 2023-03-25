@@ -32,9 +32,12 @@ CONST
   do*      = 35;
   repeat*  = 36;
   until*   = 37;
+  not*     = 38; (** ~  *)
+  and*     = 39; (** &  *)
+  or*      = 40;
 
-  lparen*  = 40; (** "(" *)
-  rparen*  = 41; (** ")" *)
+  lparen*  = 41; (** (  *)
+  rparen*  = 42; (** )  *)
 
   eql*     = 43; (** =  *)
   neq*     = 44; (** #  *)
@@ -54,9 +57,9 @@ VAR
   line, col: INTEGER;
   nextLine: BOOLEAN; (** Used in Read *)
 
-  id*: ARRAY 64 OF CHAR;   (** When sym = ident *)
-  len*: INTEGER;           (** When sym = ident or string *)
-  ival*: INTEGER;          (** When sym = int *)
+  id*: ARRAY 64 OF CHAR;    (** When sym = ident *)
+  len*: INTEGER;            (** When sym = ident or string *)
+  ival*: INTEGER;           (** When sym = int *)
   sval*: ARRAY 256 OF CHAR; (** When sym = string *)
 
   ch: CHAR; (* Used in Get *)
@@ -134,6 +137,8 @@ BEGIN
   ELSIF ch = '-' THEN sym := minus; Read
   ELSIF ch = '(' THEN sym := lparen; Read
   ELSIF ch = ')' THEN sym := rparen; Read
+  ELSIF ch = '&' THEN sym := and; Read
+  ELSIF ch = '~' THEN sym := not; Read
   ELSIF (ch = '"') OR (ch = "'") THEN
     quote := ch;
     len := 0;
@@ -181,6 +186,7 @@ BEGIN
     ELSIF id = 'IMPORT' THEN sym := import
     ELSIF id = 'DIV' THEN sym := div
     ELSIF id = 'MOD' THEN sym := mod
+    ELSIF id = 'OR' THEN sym := or
     ELSIF id = 'FALSE' THEN sym := false
     ELSIF id = 'TRUE' THEN sym := true
     ELSIF id = 'IF' THEN sym := if
