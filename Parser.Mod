@@ -1,5 +1,5 @@
 MODULE Parser;
-IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Out, Strings,
+IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Strings,
   G := Generator;
 
 VAR
@@ -136,7 +136,8 @@ BEGIN
   END
 END QualIdent;
 
-(* Factor = Designator | Number | String | FALSE | TRUE | "(" Expr ")". *)
+(* Factor = Designator | Number | String | FALSE | TRUE |
+   "(" Expr ")" | "~" Factor. *)
 PROCEDURE Factor(VAR x: G.Item);
 VAR obj: ST.Object;
 BEGIN
@@ -157,25 +158,38 @@ BEGIN
   ELSIF (sym = S.false) OR (sym = S.true) THEN
     G.MakeConstItem(x, ST.boolType, ORD(sym = S.true));
     S.Get(sym)
+  ELSIF sym = S.not THEN
+    S.Get(sym);
+    Factor(x);
+    IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+    G.Not(x)
   ELSE S.Mark(E.notValue)
   END
 END Factor;
 
 (* Term = Factor [MulOperator Factor].
-   MulOperator = "*" | "DIV" | "MOD". *)
+   MulOperator = "*" | DIV | MOD | "&". *)
 PROCEDURE Term(VAR x: G.Item);
 VAR op: INTEGER;
   y: G.Item;
 BEGIN
   Factor(x);
-  WHILE (sym = S.times) OR (sym = S.div) OR (sym = S.mod) DO
+  WHILE (S.times <= sym) & (sym <= S.and) DO
     op := sym;
     S.Get(sym);
-    Factor(y);
-    IF x.type.form = ST.Int THEN
-      CheckInt(y);
-      G.MulOp(op, x, y)
-    ELSE S.Mark(E.incompatible)
+    IF op = S.and THEN
+      IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+      G.And1(x);
+      Factor(y);
+      IF y.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+      G.And2(x, y)
+    ELSE (* sym = one of mul, div, mod *)
+      Factor(y);
+      IF x.type.form = ST.Int THEN
+        CheckInt(y);
+        G.MulOp(op, x, y)
+      ELSE S.Mark(E.incompatible)
+      END
     END
   END
 END Term;
@@ -193,14 +207,22 @@ BEGIN
   END;
   Term(x);
   IF minus THEN G.Neg(x) END;
-  WHILE (sym = S.plus) OR (sym = S.minus) DO
+  WHILE (S.plus <= sym) & (sym <= S.or) DO
     op := sym;
     S.Get(sym);
-    Term(y);
-    IF x.type.form = ST.Int THEN
-      CheckInt(y);
-      G.AddOp(op, x, y)
-    ELSE S.Mark(E.incompatible)
+    IF op = S.or THEN
+      IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+      G.Or1(x);
+      Term(y);
+      IF y.type.form # ST.Bool THEN S.Mark(E.expBool) END;
+      G.Or2(x, y)
+    ELSE (* sym = plus or minus *)
+      Term(y);
+      IF x.type.form = ST.Int THEN
+        CheckInt(y);
+        G.AddOp(op, x, y)
+      ELSE S.Mark(E.incompatible)
+      END
     END
   END
 END SimpleExpr;
@@ -347,6 +369,9 @@ BEGIN
     G.Fixup(x);
 
     StatSeq0
+  ELSE
+    (* FIXUP CONDITIONAL JUMP *)
+    G.Fixup(x)
   END;
 
   IF sym = S.end THEN S.Get(sym) ELSE S.Mark(E.expEnd) END;
@@ -431,12 +456,8 @@ BEGIN
     IF sym = S.eql THEN S.Mark(E.expBecomes); sym := S.becomes END;
     IF sym = S.becomes THEN
       S.Get(sym);
-      Out.String('Присваивание в '); Out.String(obj.name);
-      Out.String(' следующего выражения:'); Out.Ln;
       Assign(obj)
     ELSE
-      Out.String('    (Вызов процедуры ');
-      Out.String(obj.name); Out.Char(')'); Out.Ln;
       ProcedureCall(obj)
     END
   ELSIF sym = S.if THEN

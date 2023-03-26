@@ -18,7 +18,7 @@ CONST
   unimpl*      = -7;
 
   (** Machine characteristics **)
-  memLen* = 4096; (** Size of RAM in words (4 bytes) *)
+  memLen* = 50(*4096*); (** Size of RAM in words (4 bytes) *)
   regCount* = 16; (** Register count *)
 
   (** Register instruction opcodes **)
@@ -54,14 +54,30 @@ VAR
 
 PROCEDURE DumpMemory;
 VAR i: INTEGER;
+  Z, H: INTEGER;
 BEGIN
   i := 0;
   REPEAT
-    Out.String('  ');
+    Out.Char(' ');
+
+    (* Colors *)
+    Z := mem[i] DIV 10000000H MOD 10H;
+    IF Z = 0EH THEN H := 1 ELSIF Z = 4 THEN H := 4 ELSE H := -1 END;
+    IF H # -1 THEN Out.Char(1BX); Out.String('[4'); Out.Int(H, 0); Out.Char('m') END;
+    Out.Char(' ');
+
     Out.Hex(mem[i], 8);
+
+    (* Undo colors *)
+    Out.Char(' ');
+    IF H # -1 THEN Out.Char(1BX); Out.String('[49m') END;
+
+    Z := mem[i] MOD 256; IF (Z < 32) OR (Z >= 0FFH) THEN Z := 32 END;
+    Out.Char(CHR(Z));
+
     IF (i + 1) MOD 8 = 0 THEN Out.Ln END;
     INC(i)
-  UNTIL (i = 32) OR (mem[i] = 0);
+  UNTIL (i = 256) OR (mem[i] = 0);
   Out.Ln;
   Out.String('======='); Out.Ln
 END DumpMemory;
@@ -201,6 +217,8 @@ BEGIN
       ELSIF x = 100 THEN done := TRUE
       END
     ELSE
+      (*;;;Out.String('   PC = '); Out.Int(PC, 0); Out.Ln;;;*)
+      (*;;;Out.String('JUMP TO '); Out.Int(addr, 0); Out.Ln;;;*)
       IF (0 <= addr) & (addr < memLen) THEN PC := addr
       ELSE res := memOverflow
       END
@@ -217,6 +235,7 @@ BEGIN
   res := noError;
   done := FALSE;
   REPEAT
+    (*;;;Out.String('PC=');Out.Int(PC,0);Out.Ln;;;*)
     IR := mem[PC]; INC(PC);
     u := ODD(ASR(IR, 29));
     v := ODD(ASR(IR, 28));
@@ -272,7 +291,9 @@ RETURN ~r.eof & (n = fileMark) END ReadMark;
 PROCEDURE Load*(fname: ARRAY OF CHAR; VAR err: INTEGER);
 VAR F: Files.File;
   r: Files.Rider;
+  i: INTEGER;
 BEGIN
+  FOR i := 0 TO memLen - 1 DO mem[i] := 0 END;
   F := Files.Old(fname);
   IF F = NIL THEN
     err := noFile

@@ -112,59 +112,11 @@ END Put3;
 PROCEDURE PutOffset(pos, n: INTEGER);
 VAR tmp: Files.Rider;
 BEGIN
-  Files.Set(tmp, F, pos);
+  Files.Set(tmp, F, pos * 4 + codeStart + 1);
   Files.Write(tmp, ASR(n, 16) MOD 100H);
   Files.Write(tmp, ASR(n, 8) MOD 100H);
   Files.Write(tmp, n MOD 100H)
 END PutOffset;
-
-(** Write instruction with 1 argument -- a register *)
-PROCEDURE Write1(inst: ARRAY OF CHAR; a: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' R'); Out.Int(a, 0); Out.Ln
-END Write1;
-
-(** Write instruction with 1 argument -- immediate *)
-PROCEDURE Write1i(inst: ARRAY OF CHAR; a: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' '); Out.Int(a, 0); Out.Ln
-END Write1i;
-
-(** Write instruction with 2 arguments, both are registers *)
-PROCEDURE Write2(inst: ARRAY OF CHAR; a, c: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' R'); Out.Int(a, 0); Out.String(', R');
-  Out.Int(c, 0); Out.Ln
-END Write2;
-
-(** Write instruction with 2 arguments, the 2nd is immediate *)
-PROCEDURE Write2i(inst: ARRAY OF CHAR; a, c: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' R'); Out.Int(a, 0); Out.String(', ');
-  Out.Int(c, 0); Out.Ln
-END Write2i;
-
-(** Write instruction with 3 arguments, the 3rd is a register *)
-PROCEDURE Write3(inst: ARRAY OF CHAR; a, b, c: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' R'); Out.Int(a, 0);
-  Out.String(', R'); Out.Int(b, 0);
-  Out.String(', R'); Out.Int(c, 0); Out.Ln
-END Write3;
-
-(** Write instruction with 3 arguments, the 3rd is immediate *)
-PROCEDURE Write3i(inst: ARRAY OF CHAR; a, b, c: INTEGER);
-BEGIN
-  Out.String(inst);
-  Out.String(' R'); Out.Int(a, 0);
-  Out.String(', R'); Out.Int(b, 0); Out.String(', ');
-  Out.Int(c, 0); Out.Ln
-END Write3i;
 
 (** Load in registers **)
 
@@ -179,10 +131,8 @@ BEGIN
   IF x.mode # Reg THEN
     IF x.mode = ST.Const THEN
       Put1(Mov, RH, 0, x.a)
-      ;Write2i('MOV', RH, x.a)
     ELSIF x.mode = ST.Var THEN
       Put2(Ldr, RH, MP, x.a)
-      ;Write3i('LDR', RH, MP, x.a)
     END;
     x.mode := Reg;
     x.r := RH;
@@ -202,8 +152,7 @@ BEGIN
   ELSE (* x -- Var or Reg *)
     Load(x);
     Put1(Mov, RH, 0, 0);
-    Put0(Sub, x.r, RH, x.r);
-    ;Write1('NEG', x.r)
+    Put0(Sub, x.r, RH, x.r)
   END
 END Neg;
 
@@ -228,29 +177,36 @@ BEGIN
     Load(x); (* x -- Reg, y -- Const *)
     IF op = S.plus THEN
       Put1(Add, x.r, x.r, y.a)
-      ;Write3i('ADD', x.r, x.r, y.a)
     ELSE (* op = S.minus *)
       Put1(Sub, x.r, x.r, y.a)
-      ;Write3i('SUB', x.r, x.r, y.a)
     END
   ELSIF x.mode = ST.Const THEN (* y -- Reg or Var *)
     Load(y); (* x -- Const, y -- Reg *)
     IF op = S.minus THEN Neg(y) END;
     Put1(Add, y.r, y.r, x.a);
-    Write3i('ADD', y.r, y.r, x.a);
     x := y
   ELSE
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.plus THEN
       Put0(Add, x.r, x.r, y.r)
-      ;Write3('ADD', x.r, x.r, y.r)
     ELSE (* op = S.minus *)
       Put0(Sub, x.r, x.r, y.r)
-      ;Write3('SUB', x.r, x.r, y.r)
     END;
     DEC(RH)
   END
 END AddOp;
+
+PROCEDURE Negated(code: INTEGER): INTEGER;
+BEGIN
+  IF code < 8 THEN INC(code, 8) ELSE DEC(code, 8) END
+RETURN code END Negated;
+
+PROCEDURE Not*(VAR x: Item);
+VAR t: INTEGER;
+BEGIN
+  x.r := Negated(x.r);
+  t := x.a; x.a := x.b; x.b := t
+END Not;
 
 (** Multiplication or division (or MOD). x := x op y *)
 PROCEDURE MulOp*(op: INTEGER; VAR x, y: Item);
@@ -273,30 +229,24 @@ BEGIN
     Load(x); (* x -- Reg, y -- Const *)
     IF op = S.times THEN
       Put1(Mul, x.r, x.r, y.a)
-      ;Write3i('MUL', x.r, x.r, y.a)
     ELSIF y.a <= 0 THEN S.Mark(E.badDiv)
     ELSIF op = S.div THEN
       Put1(Div, x.r, x.r, y.a)
-      ;Write3i('DIV', x.r, x.r, y.a)
     ELSE (* op = S.mod *)
       Put1(Div, x.r, x.r, y.a);
       Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
-      ;Write3i('MOD', x.r, x.r, y.a)
     END
   ELSIF x.mode = ST.Const THEN (* y -- Reg or Var *)
     Load(y); (* x -- Const, y -- Reg *)
     IF op = S.times THEN
       Put1(Mul, y.r, y.r, x.a)
-      ;Write3i('MUL', y.r, y.r, x.a)
     ELSE
       Load(x); (* x -- Reg, y -- Reg, y.r < x.r *)
       IF op = S.div THEN
         Put1(Div, y.r, x.r, y.r)
-        ;Write3('DIV', y.r, x.r, y.r)
       ELSE (* op = S.mod *)
         Put1(Div, y.r, x.r, y.r);
         Put0(Mov + U, y.r, 0, 0) (* R[y.r] := H *)
-        ;Write3('MOD', y.r, x.r, y.r)
       END;
       DEC(RH)
     END;
@@ -305,14 +255,11 @@ BEGIN
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.times THEN
       Put0(Mul, x.r, x.r, y.r) (** PUT0 ???????? !FIXME *)
-      ;Write3('MUL', x.r, x.r, y.r)
     ELSIF op = S.div THEN
       Put0(Div, x.r, x.r, y.r)
-      ;Write3('DIV', x.r, x.r, y.r) (** PUT0 ???????? !FIXME *)
     ELSE (* op = S.mod *)
       Put0(Div, x.r, x.r, y.r); (** PUT0 ???????? !FIXME *)
       Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
-      ;Write3('MOD', x.r, x.r, y.r)
     END;
     DEC(RH)
   END
@@ -346,7 +293,6 @@ BEGIN
   ELSE (* x -- Var, y -- Const, Var or Reg *)
     Load(y); (* x -- Var, y -- Reg *)
     Put2(Str, y.r, MP, x.a);
-    Write3i('STR', y.r, MP, x.a);
     DEC(RH)
   END
 END Assign;
@@ -356,14 +302,36 @@ END Assign;
 PROCEDURE Here*(): INTEGER;
 RETURN pc END Here;
 
-PROCEDURE Negated(code: INTEGER): INTEGER;
+PROCEDURE NextL(VAR L: INTEGER);
+VAR tmp: Files.Rider;
+  b: BYTE;
 BEGIN
-  IF code < 8 THEN INC(code, 8) ELSE DEC(code, 8) END
-RETURN code END Negated;
+  Files.Set(tmp, F, L * 4 + codeStart + 1);
+  (*!FIXME check negative offset*)
+  Files.Read(tmp, b); L := b;
+  Files.Read(tmp, b); L := L * 100H + b;
+  Files.Read(tmp, b); L := L * 100H + b
+END NextL;
+
+PROCEDURE FixLink*(L: INTEGER);
+VAR prevL: INTEGER;
+BEGIN
+  WHILE L # 0 DO
+    prevL := L;
+    NextL(L);
+    PutOffset(prevL, pc - prevL - 1)
+  END
+END FixLink;
+
+PROCEDURE Fixup*(VAR x: Item);
+BEGIN FixLink(x.a)
+END Fixup;
 
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
-  Put3(BC, Negated(x.r), 0);
+  Put3(BC, Negated(x.r), x.a);
+  FixLink(x.b);
+  x.b := 0; (* Required because of And1 *)
   x.a := pc - 1
 END CFJump;
 
@@ -380,31 +348,48 @@ END BJump;
 
 PROCEDURE CBJump*(VAR x: Item; L: INTEGER);
 BEGIN
-  Put3(BC, Negated(x.r), L - pc - 1)
+  Put3(BC, Negated(x.r), L - pc - 1);
+  FixLink(x.b); (*FixLinkWith(x.a, L)*)
 END CBJump;
 
-PROCEDURE Fixup*(VAR x: Item);
+PROCEDURE MergeLists(L1, L2: INTEGER): INTEGER;
+VAR L, prevL: INTEGER;
 BEGIN
-  PutOffset(x.a * 4 + codeStart + 1, pc - x.a - 1)
-END Fixup;
-
-PROCEDURE FixLink*(L: INTEGER);
-VAR tmp: Files.Rider;
-  pos, prevL: INTEGER;
-  b: BYTE;
-BEGIN
-  WHILE L # 0 DO
-    pos := L * 4 + codeStart + 1;
-    prevL := L;
-    Files.Set(tmp, F, pos);
-    (*!FIXME check negative offset*)
-    Files.Read(tmp, b); L := b;
-    Files.Read(tmp, b); L := L * 100H + b;
-    Files.Read(tmp, b); L := L * 100H + b;
-
-    PutOffset(pos, pc - prevL - 1)
+  IF L1 = 0 THEN L1 := L2
+  ELSIF L2 # 0 THEN
+    L := L1;
+    REPEAT prevL := L; NextL(L) UNTIL L = 0;
+    PutOffset(prevL, L2)
   END
-END FixLink;
+RETURN L1 END MergeLists;
+
+(** x := x & *)
+PROCEDURE And1*(VAR x: Item);
+BEGIN
+  CFJump(x)
+END And1;
+
+(** x := x & y *)
+PROCEDURE And2*(VAR x, y: Item);
+BEGIN
+  x.a := MergeLists(y.a, x.a);
+  x.b := y.b; x.r := y.r
+END And2;
+
+(** x := x OR *)
+PROCEDURE Or1*(VAR x: Item);
+BEGIN
+  Put3(BC, x.r, x.b);
+  FixLink(x.a); x.a := 0;
+  x.b := pc - 1
+END Or1;
+
+(** x := x OR y *)
+PROCEDURE Or2*(VAR x, y: Item);
+BEGIN
+  x.b := MergeLists(y.b, x.b);
+  x.a := y.a; x.r := y.r
+END Or2;
 
 (** Procedure Calls *)
 
@@ -424,7 +409,6 @@ END PrepCall;
 PROCEDURE Call*(VAR x: Item; rx: INTEGER);
 BEGIN
   Put3(BL, AL, x.a); (*!TODO x.a is a fake call number, not an offset *)
-  Write1i('BL', x.a);
   RH := 0 (*!TODO Do it only if x is a proper procedure *)
 END Call;
 
@@ -451,7 +435,6 @@ END Open;
 PROCEDURE Close*;
 BEGIN
   Put3(BL, AL, 100); (* Shut down *)
-  Write1i('BL', 100);
   Files.Register(F)
 END Close;
 

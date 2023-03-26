@@ -2,51 +2,49 @@ MODULE Scanner;
 IMPORT Files, Out, E := ErrorMsg;
 
 CONST
-  null*    = 0;
-  ident*   = 1;
-  int*     = 2;
-  string*  = 4;
-  module*  = 12;
-  end*     = 13;
-  semicol* = 14;
-  period*  = 15;
-  comma*   = 16;
-  begin*   = 17;
-  becomes* = 18;
-  colon*   = 19;
-
-  times*   = 21;
-  div*     = 22;
-  mod*     = 23;
-  plus*    = 24;
-  minus*   = 25;
-  var*     = 26;
-  import*  = 27;
-  false*   = 28;
-  true*    = 29;
-  if*      = 30;
-  then*    = 31;
-  elsif*   = 32;
-  else*    = 33;
-  while*   = 34;
-  do*      = 35;
-  repeat*  = 36;
-  until*   = 37;
-  not*     = 38; (** ~  *)
-  and*     = 39; (** &  *)
-  or*      = 40;
-
-  lparen*  = 41; (** (  *)
-  rparen*  = 42; (** )  *)
-
-  eql*     = 43; (** =  *)
-  neq*     = 44; (** #  *)
-  lss*     = 45; (** <  *)
-  leq*     = 46; (** <= *)
-  gtr*     = 47; (** >  *)
-  geq*     = 48; (** >= *)
-
-  eot*     = 70; (** End of text *)
+  null       = 0;
+  times*     = 1;  (** *  *)
+  div*       = 3;
+  mod*       = 4;
+  and*       = 5;  (** &  *)
+  plus*      = 6;  (** +  *)
+  minus*     = 7;  (** -  *)
+  or*        = 8;
+  eql*       = 9;  (** =  *)
+  neq*       = 10; (** #  *)
+  lss*       = 11; (** <  *)
+  leq*       = 12; (** <= *)
+  gtr*       = 13; (** >  *)
+  geq*       = 14; (** >= *)
+  period*    = 18;
+(*char*      = 20;*)
+  int*       = 21;
+  false*     = 23; (*!FIXME not used elsewhere*)
+  true*      = 24; (*!FIXME not used elsewhere*)
+  string*    = 26;
+  not*       = 27; (** ~ *)
+  lparen*    = 28; (** ( *)
+  ident*     = 31;
+  if*        = 32;
+  while*     = 34;
+  repeat*    = 35;
+  comma*     = 40;
+  colon*     = 41;
+  becomes*   = 42;
+  rparen*    = 44; (** ) *)
+  then*      = 47;
+  do*        = 49;
+  semicol*   = 52;
+  end*       = 53;
+  else*      = 55;
+  elsif*     = 56;
+  until*     = 57;
+(*const*     = 63;*)
+  var*       = 65;
+  begin*     = 67;
+  import*    = 68;
+  module*    = 69;
+  eot        = 70; (** End of text *)
 
   maxInt*  = 2147483647;
   minInt*  = -maxInt - 1;
