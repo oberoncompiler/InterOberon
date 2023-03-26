@@ -1,5 +1,5 @@
 MODULE Risc;
-IMPORT Out, Files, Strings, SYSTEM;
+IMPORT In, Out, Files, Strings, SYSTEM;
 
 CONST
   version* = 1; (** Machine code file version *)
@@ -200,6 +200,47 @@ RETURN res END CondTrue;
 (** Branch instructions *)
 PROCEDURE F3(u, v: BOOLEAN; VAR res: INTEGER; VAR done: BOOLEAN);
 VAR cond, addr, x: INTEGER;
+
+  PROCEDURE InChar(VAR res: INTEGER);
+  VAR p: INTEGER;
+    c: CHAR;
+  BEGIN
+    p := R[0] MOD 10000H;
+    IF (p < 0) OR (p >= memLen * 4) THEN res := memOverflow
+    ELSE In.Char(c);
+      IF p MOD 4 DIV 2 = 0 THEN (* Left half of word *)
+        p := p DIV 4;
+
+        Out.String('p=');Out.Int(p, 0);Out.Ln;
+        Out.String(' mem[p]=');Out.Hex(mem[p], 8);Out.Ln;
+
+        mem[p] := LSL(ORD(c), 16) + mem[p] MOD 10000H
+
+        ;Out.String('mem[p]`=');Out.Hex(mem[p], 8);Out.Ln;
+      ELSE (* Right half of word *)
+        p := p DIV 4;
+
+        Out.String('p=');Out.Int(p, 0);Out.Ln;
+        Out.String(' mem[p]=');Out.Hex(mem[p], 8);Out.Ln;
+
+        mem[p] := mem[p] DIV 10000H * 10000H + ORD(c)
+
+        ;Out.String('mem[p]`=');Out.Hex(mem[p], 8);Out.Ln;
+      END
+    END
+  END InChar;
+
+  PROCEDURE InInt(VAR res: INTEGER);
+  VAR p: INTEGER;
+  BEGIN
+    p := R[0] MOD 10000H DIV 4;
+    IF (p < 0) OR (p >= memLen) THEN res := memOverflow
+    ELSE
+      (*Out.Char('[');Out.Int(p, 0);Out.Char(']');*)
+      In.Int(mem[p])
+    END
+  END InInt;
+
 BEGIN
   IF v THEN R[15] := PC END;
   cond := ASR(IR, 24) MOD 10H;
@@ -211,9 +252,11 @@ BEGIN
     END;
     IF v THEN
       x := addr - PC;
-      IF x = 1 THEN Out.Char(CHR(R[0] MOD 10000H))
-      ELSIF x = 2 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
-      ELSIF x = 3 THEN Out.Ln
+      IF x = 1 THEN InChar(res)
+      ELSIF x = 2 THEN InInt(res)
+      ELSIF x = 5 THEN Out.Char(CHR(R[0] MOD 10000H))
+      ELSIF x = 6 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
+      ELSIF x = 7 THEN Out.Ln
       ELSIF x = 100 THEN done := TRUE
       END
     ELSE

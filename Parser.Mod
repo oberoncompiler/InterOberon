@@ -1,6 +1,6 @@
 MODULE Parser;
 IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Strings,
-  G := Generator;
+  G := Generator, Out;
 
 VAR
   sym: INTEGER;
@@ -272,7 +272,11 @@ BEGIN
   Expr(x);
   IF par # NIL THEN
     IF ST.TypesCompatible(par.type, x.type) THEN
-      G.ValueParam(x);
+      IF par.class = ST.Var THEN
+        G.ValueParam(x)
+      ELSIF par.class = ST.Par (*!FIXME use just ELSE? *) THEN
+        G.VarParam(x)
+      END
     ELSE S.Mark(E.incompatible)
     END
   END

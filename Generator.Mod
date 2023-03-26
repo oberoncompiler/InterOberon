@@ -140,6 +140,17 @@ BEGIN
   END
 END Load;
 
+PROCEDURE LoadAddr(VAR x: Item);
+BEGIN
+  IF x.mode = ST.Var THEN
+    Put1(Mov, RH, 0, x.a);
+    x.r := RH;
+    IncR
+  ELSE S.Mark(E.badVarPar)
+  END;
+  x.mode := Reg
+END LoadAddr;
+
 (** Operations **)
 
 (** Negation. x := -x *)
@@ -393,11 +404,17 @@ END Or2;
 
 (** Procedure Calls *)
 
-(** Parameters are stored in registers before a procedure call *)
+(** Value of parameters are stored in registers
+    before a procedure call *)
 PROCEDURE ValueParam*(VAR x: Item);
-BEGIN
-  Load(x)
+BEGIN Load(x)
 END ValueParam;
+
+(** VAR-parameters are stored in registers as pointers
+    before a procedure call *)
+PROCEDURE VarParam*(VAR x: Item);
+BEGIN LoadAddr(x)
+END VarParam;
 
 (** Called before Actual Parameters *)
 PROCEDURE PrepCall*(VAR x: Item; rx: INTEGER);

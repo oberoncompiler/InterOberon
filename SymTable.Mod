@@ -5,7 +5,8 @@ CONST
   (** Object Classes **)
   Head*  = 0;
   Const* = 1; (** Non-standard procedures also go here *)
-  Var*   = 2;
+  Var*   = 2; (** Variables and value parameters *)
+  Par*   = 3; (** Var-parameters *)
   Typ*   = 5;
   Mod*   = 8;
 
@@ -137,12 +138,34 @@ BEGIN
   END
 RETURN p END NewObject;
 
+PROCEDURE ImportIn*(M: Object);
+VAR p: Object;
+BEGIN
+  (* In.Char *)
+  NEW(M.dsc); M := M.dsc;
+  M.class := Const; M.name := 'Char'; M.val := 1;
+  NEW(M.type); M.type.form := Proc;
+  M.type.nofpars := 1; M.type.base := noType;
+  (* Parameter of In.Char *)
+  NEW(M.type.dsc); p := M.type.dsc;
+  p.class := Par; p.name := 'c'; p.type := charType;
+
+  (* In.Int *)
+  NEW(M.next); M := M.next;
+  M.class := Const; M.name := 'Int'; M.val := 2;
+  NEW(M.type); M.type.form := Proc;
+  M.type.nofpars := 1; M.type.base := noType;
+  (* Parameter of In.Int *)
+  NEW(M.type.dsc); p := M.type.dsc;
+  p.class := Par; p.name := 'i'; p.type := intType
+END ImportIn;
+
 PROCEDURE ImportOut*(M: Object);
 VAR p: Object;
 BEGIN
   (* Out.Char *)
   NEW(M.dsc); M := M.dsc;
-  M.class := Const; M.name := 'Char'; M.val := 1;
+  M.class := Const; M.name := 'Char'; M.val := 5;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of Out.Char *)
@@ -151,7 +174,7 @@ BEGIN
 
   (* Out.Int *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Int'; M.val := 2;
+  M.class := Const; M.name := 'Int'; M.val := 6;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 2; M.type.base := noType;
   (* Parameters of Out.Int *)
@@ -162,7 +185,7 @@ BEGIN
 
   (* Out.Ln *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Ln'; M.val := 3;
+  M.class := Const; M.name := 'Ln'; M.val := 7;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 0; M.type.base := noType
 END ImportOut;
@@ -170,7 +193,8 @@ END ImportOut;
 (** Loads symbol data of module to M by name *)
 PROCEDURE Import*(M: Object; name: ARRAY OF CHAR);
 BEGIN
-  IF name = 'Out' THEN ImportOut(M)
+  IF name = 'In' THEN ImportIn(M)
+  ELSIF name = 'Out' THEN ImportOut(M)
   ELSE S.Mark(E.noModule)
   END
 END Import;
