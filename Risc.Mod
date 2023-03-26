@@ -18,7 +18,7 @@ CONST
   unimpl*      = -7;
 
   (** Machine characteristics **)
-  memLen* = 50(*4096*); (** Size of RAM in words (4 bytes) *)
+  memLen* = 4096; (** Size of RAM in words (4 bytes) *)
   regCount* = 16; (** Register count *)
 
   (** Register instruction opcodes **)
@@ -77,7 +77,7 @@ BEGIN
 
     IF (i + 1) MOD 8 = 0 THEN Out.Ln END;
     INC(i)
-  UNTIL (i = 256) OR (mem[i] = 0);
+  UNTIL (i = memLen) OR (mem[i] = 0);
   Out.Ln;
   Out.String('======='); Out.Ln
 END DumpMemory;
@@ -219,9 +219,7 @@ BEGIN
     ELSE
       (*;;;Out.String('   PC = '); Out.Int(PC, 0); Out.Ln;;;*)
       (*;;;Out.String('JUMP TO '); Out.Int(addr, 0); Out.Ln;;;*)
-      IF (0 <= addr) & (addr < memLen) THEN PC := addr
-      ELSE res := memOverflow
-      END
+      PC := addr
     END
   END
 END F3;
@@ -257,7 +255,8 @@ BEGIN
         (*Out.String('----F3 '); Out.Hex(IR, 8); Out.Ln;*)
         F3(u, v, res, done)
       END
-    END
+    END;
+    IF (PC < 0) OR (PC >= memLen) THEN res := memOverflow END
   UNTIL done OR (res # noError)
 RETURN res END Run;
 
