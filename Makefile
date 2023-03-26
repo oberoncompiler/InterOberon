@@ -6,7 +6,7 @@ InterOberon: *.Mod
 	fob InterOberon.Mod
 
 run: all
-	./InterOberon Examples/Factorize.Mod
+	./InterOberon Hello.Mod
 
 clean:
 	rm -rf _Build InterOberon
