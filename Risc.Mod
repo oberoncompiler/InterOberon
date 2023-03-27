@@ -17,9 +17,13 @@ CONST
   badDiv*      = -6;
   unimpl*      = -7;
 
+  (** Register Numbers **)
+  MP* = 13; (** Module Pointer *)
+
   (** Machine characteristics **)
-  memLen* = 4096; (** Size of RAM in words (4 bytes) *)
-  regCount* = 16; (** Register count *)
+  memLen*    = 5120; (** Size of RAM in words (4 bytes) *)
+  varOffset* = memLen DIV 5 * 4 * 4; (** Value of R[MP], in bytes *)
+  regCount*  = 16; (** Register count *)
 
   (** Register instruction opcodes **)
   mov = 0;
@@ -86,6 +90,7 @@ PROCEDURE ClearRegisters;
 VAR i: INTEGER;
 BEGIN
   FOR i := 0 TO regCount - 1 DO R[i] := 0 END;
+  R[MP] := varOffset;
   N := FALSE; Z := FALSE; C := FALSE; V := FALSE;
   H := 0; PC := 0; IR := 0
 END ClearRegisters;
@@ -166,7 +171,7 @@ BEGIN
       R[a] := ASR(x, 8 * byte) MOD 100H
     END
   ELSE (* Word-access *)
-    IF u THEN (* Store*)
+    IF u THEN (* Store *)
       mem[addr DIV 4] := R[a]
     ELSE (* Load *)
       R[a] := mem[addr DIV 4]
@@ -210,22 +215,10 @@ VAR cond, addr, x: INTEGER;
     ELSE In.Char(c);
       IF p MOD 4 DIV 2 = 0 THEN (* Left half of word *)
         p := p DIV 4;
-
-        Out.String('p=');Out.Int(p, 0);Out.Ln;
-        Out.String(' mem[p]=');Out.Hex(mem[p], 8);Out.Ln;
-
-        mem[p] := LSL(ORD(c), 16) + mem[p] MOD 10000H
-
-        ;Out.String('mem[p]`=');Out.Hex(mem[p], 8);Out.Ln;
+        mem[p] := mem[p] DIV 10000H * 10000H + ORD(c)
       ELSE (* Right half of word *)
         p := p DIV 4;
-
-        Out.String('p=');Out.Int(p, 0);Out.Ln;
-        Out.String(' mem[p]=');Out.Hex(mem[p], 8);Out.Ln;
-
-        mem[p] := mem[p] DIV 10000H * 10000H + ORD(c)
-
-        ;Out.String('mem[p]`=');Out.Hex(mem[p], 8);Out.Ln;
+        mem[p] := LSL(ORD(c), 16) + mem[p] MOD 10000H
       END
     END
   END InChar;
@@ -235,9 +228,7 @@ VAR cond, addr, x: INTEGER;
   BEGIN
     p := R[0] MOD 10000H DIV 4;
     IF (p < 0) OR (p >= memLen) THEN res := memOverflow
-    ELSE
-      (*Out.Char('[');Out.Int(p, 0);Out.Char(']');*)
-      In.Int(mem[p])
+    ELSE In.Int(mem[p])
     END
   END InInt;
 
@@ -276,26 +267,19 @@ BEGIN
   res := noError;
   done := FALSE;
   REPEAT
-    (*;;;Out.String('PC=');Out.Int(PC,0);Out.Ln;;;*)
     IR := mem[PC]; INC(PC);
     u := ODD(ASR(IR, 29));
     v := ODD(ASR(IR, 28));
-    (*Out.String('u='); Out.Int(ORD(u), 0); Out.Char(' ');
-    Out.String('v='); Out.Int(ORD(v), 0); Out.Char(' ');*)
     IF ~ODD(ASR(IR, 31)) THEN (* F0, F1 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F0 *)
-        (*Out.String('F0 '); Out.Hex(IR, 8); Out.Ln;*)
         F01(u, v, FALSE, res)
       ELSE (** F1 **)
-        (*Out.String('F1 '); Out.Hex(IR, 8); Out.Ln;*)
         F01(u, v, TRUE, res)
       END
     ELSE (* F2, F3 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F2 *)
-        (*Out.String('----F2 '); Out.Hex(IR, 8); Out.Ln;*)
         F2(u, v, res)
       ELSE (** F3 **)
-        (*Out.String('----F3 '); Out.Hex(IR, 8); Out.Ln;*)
         F3(u, v, res, done)
       END
     END;

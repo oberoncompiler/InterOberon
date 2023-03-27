@@ -5,7 +5,7 @@ IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Strings,
 VAR
   sym: INTEGER;
   dummy: ST.Object; (** In case of error in QualIdent *)
-  varsize: INTEGER; (** How many bytes do variables occupy *)
+  varsize: INTEGER; (** How many bytes variables occupy *)
 
   Expr0: PROCEDURE(VAR x: G.Item);
   StatSeq0: PROCEDURE;

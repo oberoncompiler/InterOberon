@@ -132,7 +132,15 @@ BEGIN
     IF x.mode = ST.Const THEN
       Put1(Mov, RH, 0, x.a)
     ELSIF x.mode = ST.Var THEN
-      Put2(Ldr, RH, MP, x.a)
+      Put2(Ldr, RH, MP, x.a DIV 4 * 4);
+      IF x.type.size = 2 THEN (* 2-byte CHARs *)
+        IF x.a MOD 4 DIV 2 = 0 THEN (* Left half of word*)
+          Put1(And, RH, RH, 0FFFFH)
+        ELSE (* Right half of word*)
+          Put1(Ann, RH, RH, 0FFFFH);
+          Put1(Ror, RH, RH, 16)
+        END
+      END
     END;
     x.mode := Reg;
     x.r := RH;
@@ -143,7 +151,7 @@ END Load;
 PROCEDURE LoadAddr(VAR x: Item);
 BEGIN
   IF x.mode = ST.Var THEN
-    Put1(Mov, RH, 0, x.a);
+    Put1(Add, RH, MP, x.a);
     x.r := RH;
     IncR
   ELSE S.Mark(E.badVarPar)

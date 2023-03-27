@@ -1,4 +1,4 @@
-MODULE Hello;
+MODULE InChar;
 IMPORT Out, In;
 VAR
   x, y, n: INTEGER;
@@ -11,4 +11,4 @@ BEGIN
   Out.Char('>');
   In.Int(n);
   Out.Int(n, 0); Out.Ln
-END Hello.
+END InChar.
