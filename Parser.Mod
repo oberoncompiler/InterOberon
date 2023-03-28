@@ -172,7 +172,7 @@ BEGIN
     IF ST.TypesCompatible(par.type, x.type) THEN
       IF par.class = ST.Var THEN
         G.ValueParam(x)
-      ELSIF par.class = ST.Par (*!FIXME use just ELSE? *) THEN
+      ELSE (* par.class = ST.Par *)
         G.VarParam(x)
       END
     ELSE S.Mark(E.incompatible)
@@ -232,6 +232,8 @@ BEGIN
     Factor(x);
     IF x.type.form # ST.Bool THEN S.Mark(E.expBool) END;
     G.Not(x)
+  ELSIF sym = S.false THEN G.MakeConstItem(x, ST.boolType, 0)
+  ELSIF sym = S.true THEN G.MakeConstItem(x, ST.boolType, 1)
   ELSE S.Mark(E.notValue)
   END
 END Factor;

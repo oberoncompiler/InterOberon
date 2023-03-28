@@ -9,13 +9,14 @@ CONST
   (** Error codes **)
   (** Negative error codes are from VM, positive are from the program *)
   noError*     = 0;
-  noFile*      = -1;
-  cantLoad*    = -2;
-  badMark*     = -3;
-  noMemory*    = -4;
-  memOverflow* = -5;
-  badDiv*      = -6;
-  unimpl*      = -7;
+  unimpl*      = -1;
+  noFile*      = -2;
+  cantLoad*    = -3;
+  badMark*     = -4;
+  noMemory*    = -5;
+  memOverflow* = -6;
+  badDiv*      = -7;
+  divByZero*   = -8;
 
   (** Register Numbers **)
   MP* = 13; (** Module Pointer *)
@@ -98,6 +99,9 @@ END ClearRegisters;
 PROCEDURE ToSet(x: INTEGER): SET;
 RETURN SYSTEM.VAL(SET, x) END ToSet;
 
+PROCEDURE ToReal(x: INTEGER): REAL;
+RETURN SYSTEM.VAL(REAL, x) END ToReal;
+
 PROCEDURE MulHigh(x, y: INTEGER): INTEGER;
 VAR a, b: SYSTEM.INT64;
 BEGIN
@@ -116,6 +120,7 @@ RETURN x END Sign;
 (** Register instructions (formats F0 and F1). useIm means F1 *)
 PROCEDURE F01(u, v, useIm: BOOLEAN; VAR res: INTEGER);
 VAR a, b, c, op, n, Rb: INTEGER;
+  r: REAL;
 BEGIN
   a := ASR(IR, 24) MOD 10H;
   b := ASR(IR, 20) MOD 10H;
@@ -146,7 +151,13 @@ BEGIN
     IF n # 0 THEN Rb := R[b]; R[a] := Rb DIV n; H := Rb MOD n
     ELSE res := badDiv
     END
-  | fad..fdv: res := unimpl (*!TODO*)
+  | fad: R[a] := SYSTEM.VAL(INTEGER, ToReal(R[b]) + ToReal(R[a]))
+  | fsb: R[a] := SYSTEM.VAL(INTEGER, ToReal(R[b]) - ToReal(R[a]))
+  | fml: R[a] := SYSTEM.VAL(INTEGER, ToReal(R[b]) * ToReal(R[a]))
+  | fdv: r := ToReal(R[c]);
+    IF r # 0.0 THEN R[a] := SYSTEM.VAL(INTEGER, ToReal(R[b]) / r)
+    ELSE res := divByZero
+    END
   END;
   Z := R[a] = 0;
   N := R[a] < 0
@@ -246,13 +257,11 @@ BEGIN
       IF x = 1 THEN InChar(res)
       ELSIF x = 2 THEN InInt(res)
       ELSIF x = 5 THEN Out.Char(CHR(R[0] MOD 10000H))
-      ELSIF x = 6 THEN Out.Int(R[0], R[1] MOD 40(*!FIXME remove 40*))
+      ELSIF x = 6 THEN Out.Int(R[0], R[1] MOD 512)
       ELSIF x = 7 THEN Out.Ln
       ELSIF x = 100 THEN done := TRUE
       END
     ELSE
-      (*;;;Out.String('   PC = '); Out.Int(PC, 0); Out.Ln;;;*)
-      (*;;;Out.String('JUMP TO '); Out.Int(addr, 0); Out.Ln;;;*)
       PC := addr
     END
   END

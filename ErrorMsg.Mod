@@ -22,7 +22,8 @@ CONST
   notProcedure*      = 43;
 
   badDiv*            = 50;
-  badVarPar*         = 51;
+  divByZero*         = 51;
+  badVarPar*         = 52;
 
   assignConst*       = 59;
   incompatible*      = 60;
@@ -64,6 +65,7 @@ BEGIN
   ELSIF n = notUsed THEN s := 'Возвращаемое значение не используется'
   ELSIF n = notProcedure THEN s := 'Это не процедура'
   ELSIF n = badDiv THEN s := 'Делитель не положительный'
+  ELSIF n = divByZero THEN s := 'Деление на нуль'
   ELSIF n = badVarPar THEN s := 'Некорректный VAR-параметр'
   ELSIF n = assignConst THEN s := 'Присваивание в константу'
   ELSIF n = incompatible THEN s := 'Типы несовместимы'

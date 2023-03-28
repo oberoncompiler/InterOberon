@@ -1,22 +1,14 @@
 MODULE Hello;
 IMPORT Out, In;
 VAR
-  x, y, n: INTEGER;
-  d, c: CHAR;
+  a, b: BOOLEAN;
 BEGIN
-  Out.Char('>');
-  (*)))(()()()(*)))*)))))*)
-  c := 'Ж';
-  (**)
-  (*(**)*)
-  Out.Char(c);
-  Out.Char('='); Out.Int(ORD(c), 0); Out.Ln;
-
-  d := CHR(ORD('Ы') - 1);
-  Out.Char(d); Out.Ln;
-
- (* In.Int(n);*)
-  n := 256;
-  Out.Int(n, 0);
-  Out.Char('='); Out.Char(CHR(n)); Out.Char('.'); Out.Ln
+  a := TRUE;
+  b := FALSE;
+  IF a THEN
+    Out.Int(423, 0)
+  ELSE
+    Out.Int(95, 0)
+  END;
+  Out.Ln
 END Hello.

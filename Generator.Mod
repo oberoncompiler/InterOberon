@@ -18,7 +18,7 @@ CONST
 
   (** Register Instructions **)
   Mov = 0; Lsl = 1; Asr = 2; Ror= 3; And = 4; Ann = 5; Ior = 6; Xor = 7;
-  Add = 8; Sub = 9; Cmp = 9; Mul = 10; Div = 11;
+  Add = 8; Sub = 9; Cmp = Sub; Mul = 10; Div = 11;
   Fad = 12; Fsb = 13; Fml = 14; Fdv = 15;
   (** Memory Instructions **)
   Ldr = 8; Str = 10; (* 1 can be added to Ldr or Str *)
@@ -58,6 +58,8 @@ VAR
   R: Files.Rider;
   codeStart: INTEGER; (** Where actual machine code starts *)
   relmap: ARRAY 6 OF INTEGER; (** Relation map for logics operations *)
+
+  cmpNeeded: BOOLEAN; (** For Load and LoadCond interaction *)
 
 (** Item Constructors **)
 
@@ -126,12 +128,16 @@ BEGIN
 END IncR;
 
 PROCEDURE Load(VAR x: Item);
+VAR op: INTEGER;
 BEGIN
   IF x.mode # Reg THEN
     IF x.mode = ST.Const THEN
       Put1(Mov, RH, 0, x.a)
     ELSIF x.mode = ST.Var THEN
-      Put2(Ldr, RH, MP, x.a DIV 4 * 4);
+      op := Ldr;
+      IF x.type.size = 1 THEN INC(op) END; (* BOOLEAN *)
+      Put2(op, RH, MP, x.a DIV 4 * 4);
+      cmpNeeded := TRUE;
       IF x.type.size = 2 THEN (* 2-byte CHARs *)
         IF x.a MOD 4 DIV 2 = 0 THEN (* Left half of word*)
           Put1(And, RH, RH, 0FFFFH)
@@ -157,6 +163,21 @@ BEGIN
   END;
   x.mode := Reg
 END LoadAddr;
+
+PROCEDURE LoadCond(VAR x: Item);
+BEGIN
+  IF x.mode # Cond THEN
+    IF x.type.form = ST.Bool THEN
+      IF x.mode = ST.Const THEN x.r := NV - x.a * (NV - AL)
+      ELSE Load(x);
+        IF cmpNeeded THEN Put1(Cmp, x.r, x.r, 0) END;
+        x.r := NE; DEC(RH)
+      END
+    ELSE S.Mark(E.expBool)
+    END;
+    x.mode := Cond
+  END
+END LoadCond;
 
 (** Standard Functions **)
 
@@ -232,6 +253,7 @@ RETURN code END Negated;
 PROCEDURE Not*(VAR x: Item);
 VAR t: INTEGER;
 BEGIN
+  LoadCond(x);
   x.r := Negated(x.r);
   t := x.a; x.a := x.b; x.b := t
 END Not;
@@ -282,11 +304,11 @@ BEGIN
   ELSE
     Load(x); Load(y); (* x -- Reg, y -- Reg *)
     IF op = S.times THEN
-      Put0(Mul, x.r, x.r, y.r) (** PUT0 ???????? !FIXME *)
+      Put0(Mul, x.r, x.r, y.r)
     ELSIF op = S.div THEN
       Put0(Div, x.r, x.r, y.r)
     ELSE (* op = S.mod *)
-      Put0(Div, x.r, x.r, y.r); (** PUT0 ???????? !FIXME *)
+      Put0(Div, x.r, x.r, y.r);
       Put0(Mov + U, x.r, 0, 0) (* R[x.r] := H *)
     END;
     DEC(RH)
@@ -315,12 +337,15 @@ BEGIN
 END IntRel;
 
 PROCEDURE Assign*(VAR x, y: Item);
+VAR op: INTEGER;
 BEGIN
   IF ~ST.TypesCompatible(x.type, y.type) THEN S.Mark(E.incompatible)
   ELSIF x.mode # ST.Var THEN S.Mark(E.assignConst(*?*))
   ELSE (* x -- Var, y -- Const, Var or Reg *)
     Load(y); (* x -- Var, y -- Reg *)
-    Put2(Str, y.r, MP, x.a);
+    op := Str;
+    IF x.type.size = 1 THEN INC(op) END; (* BOOLEAN *)
+    Put2(op, y.r, MP, x.a);
     DEC(RH)
   END
 END Assign;
@@ -335,7 +360,6 @@ VAR tmp: Files.Rider;
   b: BYTE;
 BEGIN
   Files.Set(tmp, F, L * 4 + codeStart + 1);
-  (*!FIXME check negative offset*)
   Files.Read(tmp, b); L := b;
   Files.Read(tmp, b); L := L * 100H + b;
   Files.Read(tmp, b); L := L * 100H + b
@@ -357,6 +381,7 @@ END Fixup;
 
 PROCEDURE CFJump*(VAR x: Item);
 BEGIN
+  LoadCond(x);
   Put3(BC, Negated(x.r), x.a);
   FixLink(x.b);
   x.b := 0; (* Required because of And1 *)
@@ -376,6 +401,7 @@ END BJump;
 
 PROCEDURE CBJump*(VAR x: Item; L: INTEGER);
 BEGIN
+  LoadCond(x);
   Put3(BC, Negated(x.r), L - pc - 1);
   FixLink(x.b); (*FixLinkWith(x.a, L)*)
 END CBJump;
@@ -394,12 +420,14 @@ RETURN L1 END MergeLists;
 (** x := x & *)
 PROCEDURE And1*(VAR x: Item);
 BEGIN
+  LoadCond(x);
   CFJump(x)
 END And1;
 
 (** x := x & y *)
 PROCEDURE And2*(VAR x, y: Item);
 BEGIN
+  LoadCond(y);
   x.a := MergeLists(y.a, x.a);
   x.b := y.b; x.r := y.r
 END And2;
@@ -407,6 +435,7 @@ END And2;
 (** x := x OR *)
 PROCEDURE Or1*(VAR x: Item);
 BEGIN
+  LoadCond(x);
   Put3(BC, x.r, x.b);
   FixLink(x.a); x.a := 0;
   x.b := pc - 1
@@ -415,6 +444,7 @@ END Or1;
 (** x := x OR y *)
 PROCEDURE Or2*(VAR x, y: Item);
 BEGIN
+  LoadCond(y);
   x.b := MergeLists(y.b, x.b);
   x.a := y.a; x.r := y.r
 END Or2;
@@ -433,17 +463,16 @@ PROCEDURE VarParam*(VAR x: Item);
 BEGIN LoadAddr(x)
 END VarParam;
 
-(** Called before Actual Parameters *)
-PROCEDURE PrepCall*(VAR x: Item; rx: INTEGER);
-BEGIN
-  (*!TODO*)
+(** Called before Actual Parameters.
+    Does nothing on our implementation of RISC-5. *)
+PROCEDURE PrepCall*(VAR x: Item; VAR rx: INTEGER);
 END PrepCall;
 
 (** Called after Actual Parameters *)
 PROCEDURE Call*(VAR x: Item; rx: INTEGER);
 BEGIN
-  Put3(BL, AL, x.a); (*!TODO x.a is a fake call number, not an offset *)
-  RH := 0 (*!TODO Do it only if x is a proper procedure *)
+  Put3(BL, AL, x.a); (* x.a is a fake call number, not an offset *)
+  RH := 0 (* Do it only if x is a proper procedure *)
 END Call;
 
 PROCEDURE Init*;
