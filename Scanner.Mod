@@ -109,98 +109,119 @@ BEGIN
   END
 END Mark;
 
+(** Skips a possibly nested comment. Begins on ch = '*' after '(',
+    ends with a character after ')'. *)
+PROCEDURE Comment;
+VAR end: BOOLEAN;
+BEGIN
+  Read;
+  end := FALSE;
+  REPEAT
+    IF ch = '(' THEN 
+      Read;
+      IF ch = '*' THEN Comment END
+    ELSIF ch = '*' THEN
+      Read;
+      IF ch = ')' THEN Read; end := TRUE END
+    ELSIF ch = 0X THEN end := TRUE
+    ELSE Read
+    END
+  UNTIL end
+END Comment;
+
 PROCEDURE Get*(VAR sym: INTEGER);
 VAR quote: CHAR;
   marked: BOOLEAN;
   n: INTEGER;
 BEGIN
-  (* Skip whitespaces *)
-  WHILE (ch # 0X) & (ch <= ' ') DO Read END;
+  REPEAT
+    (* Skip whitespaces *)
+    WHILE (ch # 0X) & (ch <= ' ') DO Read END;
 
-  IF ch = 0X THEN
-    sym := eot
-  ELSIF ch = ':' THEN Read;
-    IF ch = '=' THEN sym := becomes; Read ELSE sym := colon END
-  ELSIF ch = '=' THEN sym := eql; Read
-  ELSIF ch = '#' THEN sym := neq; Read
-  ELSIF ch = '<' THEN Read;
-    IF ch = '=' THEN sym := leq; Read ELSE sym := lss END
-  ELSIF ch = '>' THEN Read;
-    IF ch = '=' THEN sym := geq; Read ELSE sym := gtr END
-  ELSIF ch = ';' THEN sym := semicol; Read
-  ELSIF ch = '.' THEN sym := period; Read
-  ELSIF ch = ',' THEN sym := comma; Read
-  ELSIF ch = '*' THEN sym := times; Read
-  ELSIF ch = '+' THEN sym := plus; Read
-  ELSIF ch = '-' THEN sym := minus; Read
-  ELSIF ch = '(' THEN sym := lparen; Read
-  ELSIF ch = ')' THEN sym := rparen; Read
-  ELSIF ch = '&' THEN sym := and; Read
-  ELSIF ch = '~' THEN sym := not; Read
-  ELSIF (ch = '"') OR (ch = "'") THEN
-    quote := ch;
-    len := 0;
-    marked := FALSE;
-    Read;
-    WHILE (ch # 0X) & (ch # quote) DO
-      IF len < LEN(sval) - 1 THEN
-        sval[len] := ch;
-        INC(len)
-      ELSIF ~marked THEN
-        Mark(E.longString);
-        marked := TRUE
+    IF ch = 0X THEN
+      sym := eot
+    ELSIF ch = ':' THEN Read;
+      IF ch = '=' THEN sym := becomes; Read ELSE sym := colon END
+    ELSIF ch = '=' THEN sym := eql; Read
+    ELSIF ch = '#' THEN sym := neq; Read
+    ELSIF ch = '<' THEN Read;
+      IF ch = '=' THEN sym := leq; Read ELSE sym := lss END
+    ELSIF ch = '>' THEN Read;
+      IF ch = '=' THEN sym := geq; Read ELSE sym := gtr END
+    ELSIF ch = ';' THEN sym := semicol; Read
+    ELSIF ch = '.' THEN sym := period; Read
+    ELSIF ch = ',' THEN sym := comma; Read
+    ELSIF ch = '*' THEN sym := times; Read
+    ELSIF ch = '+' THEN sym := plus; Read
+    ELSIF ch = '-' THEN sym := minus; Read
+    ELSIF ch = '(' THEN Read;
+      IF ch = '*' THEN Comment; sym := null ELSE sym := lparen END
+    ELSIF ch = ')' THEN sym := rparen; Read
+    ELSIF ch = '&' THEN sym := and; Read
+    ELSIF ch = '~' THEN sym := not; Read
+    ELSIF (ch = '"') OR (ch = "'") THEN
+      quote := ch;
+      len := 0;
+      marked := FALSE;
+      Read;
+      WHILE (ch # 0X) & (ch # quote) DO
+        IF len < LEN(sval) - 1 THEN
+          sval[len] := ch;
+          INC(len)
+        ELSIF ~marked THEN
+          Mark(E.longString);
+          marked := TRUE
+        END;
+        Read
       END;
-      Read
-    END;
-    sval[len] := 0X;
-    Read;
-    sym := string
-  ELSIF ('0' <= ch) & (ch <= '9') THEN
-    ival := 0;
-    REPEAT
-      n := ORD(ch) - ORD('0');
-      IF ival <= (maxInt - n) DIV 10 THEN ival := ival * 10 + n
-      ELSE Mark(E.intOverflow)
-      END;
-      Read
-    UNTIL ~(('0' <= ch) & (ch <= '9'));
-    sym := int
-  ELSIF ('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') THEN
-    len := 0;
-    REPEAT
-      IF len < LEN(id) - 1 THEN
-        id[len] := ch;
-        INC(len)
-      END;
-      Read
-    UNTIL ~(('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') OR
-            ('0' <= ch) & (ch <= '9'));
-    id[len] := 0X;
+      sval[len] := 0X;
+      Read;
+      sym := string
+    ELSIF ('0' <= ch) & (ch <= '9') THEN
+      ival := 0;
+      REPEAT
+        n := ORD(ch) - ORD('0');
+        IF ival <= (maxInt - n) DIV 10 THEN ival := ival * 10 + n
+        ELSE Mark(E.intOverflow)
+        END;
+        Read
+      UNTIL ~(('0' <= ch) & (ch <= '9'));
+      sym := int
+    ELSIF ('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') THEN
+      len := 0;
+      REPEAT
+        IF len < LEN(id) - 1 THEN
+          id[len] := ch;
+          INC(len)
+        END;
+        Read
+      UNTIL ~(('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') OR
+              ('0' <= ch) & (ch <= '9'));
+      id[len] := 0X;
 
-    IF id = 'MODULE' THEN sym := module
-    ELSIF id = 'END' THEN sym := end
-    ELSIF id = 'BEGIN' THEN sym := begin
-    ELSIF id = 'VAR' THEN sym := var
-    ELSIF id = 'IMPORT' THEN sym := import
-    ELSIF id = 'DIV' THEN sym := div
-    ELSIF id = 'MOD' THEN sym := mod
-    ELSIF id = 'OR' THEN sym := or
-    ELSIF id = 'FALSE' THEN sym := false
-    ELSIF id = 'TRUE' THEN sym := true
-    ELSIF id = 'IF' THEN sym := if
-    ELSIF id = 'THEN' THEN sym := then
-    ELSIF id = 'ELSIF' THEN sym := elsif
-    ELSIF id = 'ELSE' THEN sym := else
-    ELSIF id = 'WHILE' THEN sym := while
-    ELSIF id = 'DO' THEN sym := do
-    ELSIF id = 'REPEAT' THEN sym := repeat
-    ELSIF id = 'UNTIL' THEN sym := until
-    ELSE sym := ident
+      IF id = 'MODULE' THEN sym := module
+      ELSIF id = 'END' THEN sym := end
+      ELSIF id = 'BEGIN' THEN sym := begin
+      ELSIF id = 'VAR' THEN sym := var
+      ELSIF id = 'IMPORT' THEN sym := import
+      ELSIF id = 'DIV' THEN sym := div
+      ELSIF id = 'MOD' THEN sym := mod
+      ELSIF id = 'OR' THEN sym := or
+      ELSIF id = 'FALSE' THEN sym := false
+      ELSIF id = 'TRUE' THEN sym := true
+      ELSIF id = 'IF' THEN sym := if
+      ELSIF id = 'THEN' THEN sym := then
+      ELSIF id = 'ELSIF' THEN sym := elsif
+      ELSIF id = 'ELSE' THEN sym := else
+      ELSIF id = 'WHILE' THEN sym := while
+      ELSIF id = 'DO' THEN sym := do
+      ELSIF id = 'REPEAT' THEN sym := repeat
+      ELSIF id = 'UNTIL' THEN sym := until
+      ELSE sym := ident
+      END
+    ELSE sym := null; Read
     END
-  ELSE
-    sym := null;
-    Read
-  END
+  UNTIL sym # null
 END Get;
 
 END Scanner.
