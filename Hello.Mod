@@ -6,9 +6,13 @@ VAR
 BEGIN
   Out.Char('>');
   In.Char(c);
-  Out.Char(c); Out.Ln;
+  Out.Char(c);
+  Out.Char('='); Out.Int(ORD(c), 0); Out.Ln;
 
-  Out.Char('>');
+  d := CHR(ORD('Ы') - 1);
+  Out.Char(d); Out.Ln;
+
   In.Int(n);
-  Out.Int(n, 0); Out.Ln
+  Out.Int(n, 0);
+  Out.Char('='); Out.Char(CHR(n)); Out.Char('.'); Out.Ln
 END Hello.

@@ -75,7 +75,6 @@ BEGIN
   x.a := obj.val
 END MakeItem;
 
-
 (** Output **)
 
 PROCEDURE Put(n: INTEGER);
@@ -158,6 +157,16 @@ BEGIN
   END;
   x.mode := Reg
 END LoadAddr;
+
+(** Standard Functions **)
+
+(** Ordinal number. x := ORD(x) *)
+PROCEDURE Ord*(VAR x: Item);
+BEGIN
+  IF x.mode IN {ST.Var, ST.Const, Reg} THEN Load(x)
+  ELSE S.Mark(E.incompatible)
+  END
+END Ord;
 
 (** Operations **)
 

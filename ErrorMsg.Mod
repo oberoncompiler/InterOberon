@@ -12,8 +12,9 @@ CONST
   expThen*           = 10;
   expDo*             = 11;
   expUntil*          = 12;
-  expRparen*         = 30;
-  expStatement*      = 31;
+  expLparen*         = 30;
+  expRparen*         = 31;
+  expStatement*      = 32;
 
   notValue*          = 40;
   notInt*            = 41;
@@ -55,6 +56,7 @@ BEGIN
   ELSIF n = expThen THEN s := 'Ожидается THEN'
   ELSIF n = expDo THEN s := 'Ожидается DO'
   ELSIF n = expUntil THEN s := 'Ожидается UNTIL'
+  ELSIF n = expLparen THEN s := 'Ожидается ('
   ELSIF n = expRparen THEN s := 'Ожидается )'
   ELSIF n = expStatement THEN s := 'Ожидается оператор'
   ELSIF n = notValue THEN s := 'Это не значение'

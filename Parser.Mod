@@ -136,8 +136,75 @@ BEGIN
   END
 END QualIdent;
 
-(* Factor = Designator | Number | String | FALSE | TRUE |
-   "(" Expr ")" | "~" Factor. *)
+PROCEDURE StandFunc(VAR x: G.Item; func: INTEGER; resType: ST.Type);
+VAR y: G.Item;
+  n: INTEGER;
+BEGIN
+  IF sym = S.lparen THEN
+    S.Get(sym);
+    Expr0(x);
+    n := 1;
+    WHILE sym = S.comma DO (* Max 2 params, but skip all *)
+      S.Get(sym);
+      Expr0(y);
+      INC(n)
+    END;
+    IF n # 1 THEN S.Mark(E.moreParams) END;
+    IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END;
+    IF func = 31 (*ORD*) THEN
+      IF x.type.form = ST.Char THEN G.Ord(x) END
+    ELSIF func = 32 (*CHR*) THEN
+      IF x.type.form = ST.Int THEN G.Ord(x) END
+    ELSE ASSERT(FALSE)
+    END;
+    x.type := resType
+  ELSE S.Mark(E.expLparen)
+  END
+END StandFunc;
+
+(** Param = Expr.
+     par can be NIL *)
+PROCEDURE Param(par: ST.Object);
+VAR x: G.Item;
+BEGIN
+  Expr0(x);
+  IF par # NIL THEN
+    IF ST.TypesCompatible(par.type, x.type) THEN
+      IF par.class = ST.Var THEN
+        G.ValueParam(x)
+      ELSIF par.class = ST.Par (*!FIXME use just ELSE? *) THEN
+        G.VarParam(x)
+      END
+    ELSE S.Mark(E.incompatible)
+    END
+  END
+END Param;
+
+(** ActualParams = "(" [Expr {"," Expr}] ")". *)
+PROCEDURE ActualParams(VAR x: G.Item);
+VAR n: INTEGER;
+  par: ST.Object;
+BEGIN
+  S.Get(sym);
+  IF sym # S.rparen THEN
+    par := x.type.dsc;
+    Param(par); n := 1;
+    WHILE sym = S.comma DO
+      S.Get(sym);
+      IF par # NIL THEN par := par.next END;
+      Param(par);
+      INC(n)
+    END
+  ELSE n := 0
+  END;
+  IF n < x.type.nofpars THEN S.Mark(E.fewerParams)
+  ELSIF n > x.type.nofpars THEN S.Mark(E.moreParams)
+  END;
+  IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
+END ActualParams;
+
+(* Factor = Designator [ActualParams] | Number | String |
+   FALSE | TRUE | "(" Expr ")" | "~" Factor. *)
 PROCEDURE Factor(VAR x: G.Item);
 VAR obj: ST.Object;
 BEGIN
@@ -150,7 +217,9 @@ BEGIN
     S.Get(sym)
   ELSIF sym = S.ident THEN
     QualIdent(obj);
-    G.MakeItem(x, obj)
+    IF obj.class = ST.SFunc THEN StandFunc(x, obj.val, obj.type)
+    ELSE G.MakeItem(x, obj)
+    END
   ELSIF sym = S.string THEN
     G.MakeConstItem(x, ST.charType, ORD(S.sval[0]));
     IF S.len # 1 THEN S.Mark(E.stringTodo) END;
@@ -257,53 +326,6 @@ BEGIN
   Expr(y);
   G.Assign(x, y)
 END Assign;
-
-(** ExprList = Expr {"," Expr}. *)
-PROCEDURE ExprList;
-BEGIN
-  
-END ExprList;
-
-(** Param = Expr.
-     par can be NIL *)
-PROCEDURE Param(par: ST.Object);
-VAR x: G.Item;
-BEGIN
-  Expr(x);
-  IF par # NIL THEN
-    IF ST.TypesCompatible(par.type, x.type) THEN
-      IF par.class = ST.Var THEN
-        G.ValueParam(x)
-      ELSIF par.class = ST.Par (*!FIXME use just ELSE? *) THEN
-        G.VarParam(x)
-      END
-    ELSE S.Mark(E.incompatible)
-    END
-  END
-END Param;
-
-(** ActualParams = "(" [ExprList] ")". *)
-PROCEDURE ActualParams(VAR x: G.Item);
-VAR n: INTEGER;
-  par: ST.Object;
-BEGIN
-  S.Get(sym);
-  IF sym # S.rparen THEN
-    par := x.type.dsc;
-    Param(par); n := 1;
-    WHILE sym = S.comma DO
-      S.Get(sym);
-      IF par # NIL THEN par := par.next END;
-      Param(par);
-      INC(n)
-    END
-  ELSE n := 0
-  END;
-  IF n < x.type.nofpars THEN S.Mark(E.fewerParams)
-  ELSIF n > x.type.nofpars THEN S.Mark(E.moreParams)
-  END;
-  IF sym = S.rparen THEN S.Get(sym) ELSE S.Mark(E.expRparen) END
-END ActualParams;
 
 (** ProcedureCall = Designator [ActualParams]. *)
 PROCEDURE ProcedureCall(obj: ST.Object);

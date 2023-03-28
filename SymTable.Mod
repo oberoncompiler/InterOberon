@@ -14,6 +14,7 @@ CONST
   Bool*  = 2;
   Char*  = 3;
   Int*   = 4;
+  SFunc* = 7;
   NoTyp* = 9;
   Proc*  = 10;
 
@@ -66,6 +67,20 @@ BEGIN
   U.name := 'INTEGER';
   U.class := Typ;
   U.type := intType;
+
+  NEW(U.next);
+  U := U.next;
+  U.name := 'ORD';
+  U.class := SFunc;
+  U.val := 31;
+  U.type := intType;
+
+  NEW(U.next);
+  U := U.next;
+  U.name := 'CHR';
+  U.class := SFunc;
+  U.val := 32;
+  U.type := charType;
 
   U.next := dummy
 END InitUniverse;
