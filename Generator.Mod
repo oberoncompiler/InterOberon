@@ -135,8 +135,10 @@ BEGIN
       Put1(Mov, RH, 0, x.a)
     ELSIF x.mode = ST.Var THEN
       op := Ldr;
-      IF x.type.size = 1 THEN INC(op) END; (* BOOLEAN *)
-      Put2(op, RH, MP, x.a DIV 4 * 4);
+      IF x.type.size = 1 THEN INC(op) (* BOOLEAN *)
+      ELSE x.a := x.a DIV 4 * 4
+      END;
+      Put2(op, RH, MP, x.a);
       cmpNeeded := TRUE;
       IF x.type.size = 2 THEN (* 2-byte CHARs *)
         IF x.a MOD 4 DIV 2 = 0 THEN (* Left half of word*)
@@ -175,7 +177,8 @@ BEGIN
       END
     ELSE S.Mark(E.expBool)
     END;
-    x.mode := Cond
+    x.mode := Cond;
+    x.a := 0; x.b := 0 (* For FixLink to work properly in IF/ELSE *)
   END
 END LoadCond;
 
