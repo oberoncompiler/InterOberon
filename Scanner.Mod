@@ -130,6 +130,21 @@ BEGIN
   UNTIL end
 END Comment;
 
+PROCEDURE IsLetter(c: CHAR): BOOLEAN;
+RETURN ( 'a' <= c) & (c <=  'z') OR
+       ( 'A' <= c) & (c <=  'Z') OR
+       (0C0X <= c) & (c <= 2AFX) & ~((1C0X <= c) & (c <= 1C3X)) &
+         (c # 0D7X) & (c # 0F7X) OR (* Latin *)
+       ( 388X <= c) & (c <=  3FFX) OR (* Greek *)
+       ( 400X <= c) & (c <=  481X) OR (* Cyrillic *)
+       ( 48AX <= c) & (c <=  52FX) OR (* Cyrillic Extended *)
+       ( 531X <= c) & (c <=  556X) OR (* Armenian *)
+       ( 560X <= c) & (c <=  588X) OR (* Armenian *)
+       ( 5D0X <= c) & (c <=  5EAX) OR (* Hebrew *)
+       ( 710X <= c) & (c <=  74FX) OR (* Sirian *)
+       (10A0X <= c) & (c <= 10FFX)    (* Georgian *)
+END IsLetter;
+
 PROCEDURE Get*(VAR sym: INTEGER);
 VAR quote: CHAR;
   marked: BOOLEAN;
@@ -188,7 +203,7 @@ BEGIN
         Read
       UNTIL ~(('0' <= ch) & (ch <= '9'));
       sym := int
-    ELSIF ('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') THEN
+    ELSIF IsLetter(ch) THEN
       len := 0;
       REPEAT
         IF len < LEN(id) - 1 THEN
@@ -196,28 +211,27 @@ BEGIN
           INC(len)
         END;
         Read
-      UNTIL ~(('a' <= ch) & (ch <= 'z') OR ('A' <= ch) & (ch <= 'Z') OR
-              ('0' <= ch) & (ch <= '9'));
+      UNTIL ~(IsLetter(ch) OR ('0' <= ch) & (ch <= '9'));
       id[len] := 0X;
 
-      IF    id = 'MODULE' THEN sym := module
-      ELSIF id = 'END'    THEN sym := end
-      ELSIF id = 'BEGIN'  THEN sym := begin
-      ELSIF id = 'VAR'    THEN sym := var
-      ELSIF id = 'IMPORT' THEN sym := import
-      ELSIF id = 'DIV'    THEN sym := div
-      ELSIF id = 'MOD'    THEN sym := mod
-      ELSIF id = 'OR'     THEN sym := or
-      ELSIF id = 'FALSE'  THEN sym := false
-      ELSIF id = 'TRUE'   THEN sym := true
-      ELSIF id = 'IF'     THEN sym := if
-      ELSIF id = 'THEN'   THEN sym := then
-      ELSIF id = 'ELSIF'  THEN sym := elsif
-      ELSIF id = 'ELSE'   THEN sym := else
-      ELSIF id = 'WHILE'  THEN sym := while
-      ELSIF id = 'DO'     THEN sym := do
-      ELSIF id = 'REPEAT' THEN sym := repeat
-      ELSIF id = 'UNTIL'  THEN sym := until
+      IF    id = 'module' THEN sym := module
+      ELSIF id = 'end'    THEN sym := end
+      ELSIF id = 'begin'  THEN sym := begin
+      ELSIF id = 'var'    THEN sym := var
+      ELSIF id = 'import' THEN sym := import
+      ELSIF id = 'div'    THEN sym := div
+      ELSIF id = 'mod'    THEN sym := mod
+      ELSIF id = 'or'     THEN sym := or
+      ELSIF id = 'false'  THEN sym := false
+      ELSIF id = 'true'   THEN sym := true
+      ELSIF id = 'if'     THEN sym := if
+      ELSIF id = 'then'   THEN sym := then
+      ELSIF id = 'elsif'  THEN sym := elsif
+      ELSIF id = 'else'   THEN sym := else
+      ELSIF id = 'while'  THEN sym := while
+      ELSIF id = 'do'     THEN sym := do
+      ELSIF id = 'repeat' THEN sym := repeat
+      ELSIF id = 'until'  THEN sym := until
       ELSE sym := ident
       END
     ELSE sym := null; Read

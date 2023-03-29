@@ -116,7 +116,7 @@ PROCEDURE ReadFile(): BOOLEAN;
 VAR ok: BOOLEAN;
 BEGIN
   ok := FALSE;
-
+  ok := TRUE;
 RETURN ok END ReadFile;
 
 PROCEDURE Load*(lang: ARRAY OF CHAR): BOOLEAN;
