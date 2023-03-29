@@ -21,7 +21,7 @@ BEGIN
     IF (sym = S.ident) & Lang.Identify(S.id) THEN ok := TRUE END;
     S.Rewind
   END;
-  IF ~ ok THEN S.Mark(E.unknownLang) END
+  IF ~ok THEN S.Mark(E.unknownLang) END
 RETURN ok END Load;
 
 PROCEDURE CheckInt(VAR x: G.Item);

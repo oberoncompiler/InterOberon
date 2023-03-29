@@ -7,7 +7,7 @@ BEGIN
   Args.Get(0, s);
   Out.String('InterOberon compiler, 2022-2023'); Out.Ln; Out.Ln;
   Out.String('Usage:'); Out.Ln;
-  Out.String('  '); Out.String(s); Out.String(' <module_name>'); Out.Ln
+  Out.String('  '); Out.String(s); Out.String(' <moduleName>'); Out.Ln
 END Usage;
 
 PROCEDURE RunCompiler;
@@ -17,21 +17,22 @@ BEGIN
   Args.Get(1, s);
   IF Parser.Load(s) THEN
     IF Parser.Compile() THEN
-      Out.String('Модуль '); Out.String(Parser.modName);
-      Out.String(' спецскомпилирован.'); Out.Ln; Out.Ln;
-      Out.String('Запускается виртуальная машина.'); Out.Ln;
+      Lang.Write(Lang.compileOk1); Out.Char(' ');
+      Out.String(Parser.modName); Out.Char(' ');
+      Lang.Write(Lang.compileOk2); Out.Ln; Out.Ln;
+      Lang.Write(Lang.vmStarting); Out.Ln;
       res := Risc.RunFile(Parser.modName);
       Out.Ln;
       IF res = Risc.noError THEN
-        Out.String('Машина отработала без ошибок.'); Out.Ln
+        Lang.Write(Lang.vmOk); Out.Ln
       ELSIF res = Risc.cantLoad THEN
-        Out.String('Невозможно загрузить модуль.'); Out.Ln
+        Lang.Write(Lang.cantLoadMod); Out.Ln
       ELSE
-        Out.String('Машина остановилась с кодом ошибки ');
+        Lang.Write(Lang.vmHalt);
         Out.Int(res, 0); Out.Char('.'); Out.Ln
       END
     ELSE
-      Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
+      Lang.Write(Lang.compileFail); Out.Ln
     END
   ELSE
     Out.String('File not loaded.'); Out.Ln

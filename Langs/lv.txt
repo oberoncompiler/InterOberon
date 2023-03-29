@@ -3,7 +3,7 @@ MODULE=MODULIS
 END=BEIGAS
 BEGIN=SĀKUMS
 VAR=MAINĪGIE
-IMPORT=IMPORTS
+IMPORT=IMPORTĒ
 DIV=DAL
 MOD=ATL
 OR=VAI
@@ -39,8 +39,49 @@ Int=Veselais
 [errors]
 1=Tiek gaidīts MODULIS
 2=Tiek gaidīts semikols
+3=Tiek gaidīts vārds
+4=Tiek gaidīts BEIGAS
+5=Tiek gaidīts punkts
+6=Tiek gaidīts kols
+7=Tiek gaidīts :=
+8=Tiek gaidīts tips
+9=Tiek gaidīts būla tipa vērtība
+10=Tiek gaidīts TAD
+11=Tiek gaidīts DARĪT
+12=Tiek gaidīts LĪDZ
+30=Tiek gaidīts (
+31=Tiek gaidīts )
+32=Tiek gaidīts operators
+40=Это не значение
+41=Это не целое число
+42=Возвращаемое значение не используется
+43=Это не процедура
+50=Делитель не положительный
+51=Деление на нуль
+52=Некорректный вар-параметр
+59=Присваивание в константу
+60=Типы несовместимы
+61=Необъявленное имя
+62=Имя уже объявлено
+63=Модуль не существует
+64=Ожидаются параметры процедуры
+65=Слишком мало параметров
+66=Слишком много параметров
+67=Можно сравнивать только на = и #
+90=Имя модуля не совпадает
+91=Невозможно определить язык
+110=Строка слишком длинная
+111=Целочисленное переполнение
+112=Переполнение стека регистров
+114=Неизвестное ключевое слово (ошибка в языковом файле)
+115=Строковые литералы не реализованы
 
 [risc]
-1=Tiek gaidīts MODULIS
-2=Tiek gaidīts semikols
+1=Modulis
+2=veiksmīgi kompilēts.
+3=Kompilācija neveiksmīga.
+5=Tiek palaista virtuālā mašīna.
+6=Mašīna nostrādājusi bez kļūdām.
+7=Nav iespējams ielādēt moduli.
+8=Mašīna apstājusies ar kļūdas kodu
 

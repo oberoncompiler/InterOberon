@@ -21,6 +21,15 @@ CONST
   unexpEot   = 7;
   rangeError = 8;
 
+  (** RISC Message Codes **)
+  compileOk1*  = 1;
+  compileOk2*  = 2;
+  compileFail* = 3;
+  vmStarting*  = 5;
+  vmOk*        = 6;
+  cantLoadMod* = 7;
+  vmHalt*      = 8;
+
   (** - **)
   maxInt = 2147483647;
 
@@ -318,6 +327,14 @@ BEGIN
     num := i
   END
 END FindModule;
+
+PROCEDURE GetErrorText*(n: INTEGER; VAR s: ARRAY OF CHAR);
+BEGIN Strings.Copy(errors[n], s)
+END GetErrorText;
+
+PROCEDURE Write*(msg: INTEGER);
+BEGIN Out.String(risc[msg])
+END Write;
 
 BEGIN
   error := TRUE
