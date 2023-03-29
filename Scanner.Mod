@@ -1,26 +1,26 @@
 MODULE Scanner;
-IMPORT Files, Out, E := ErrorMsg;
+IMPORT Files, Out, E := ErrorMsg, Lang;
 
 CONST
-  null       = 0;
-  times*     = 1;  (** *  *)
-  div*       = 3;
-  mod*       = 4;
-  and*       = 5;  (** &  *)
-  plus*      = 6;  (** +  *)
-  minus*     = 7;  (** -  *)
-  or*        = 8;
-  eql*       = 9;  (** =  *)
-  neq*       = 10; (** #  *)
-  lss*       = 11; (** <  *)
-  leq*       = 12; (** <= *)
-  gtr*       = 13; (** >  *)
-  geq*       = 14; (** >= *)
-  period*    = 18;
+  null       = 0;  (** Bad character *)
+  times*     = 1;  (** *   *)
+  div*       = 3;  (** DIV *)
+  mod*       = 4;  (** MOD *)
+  and*       = 5;  (** &   *)
+  plus*      = 6;  (** +   *)
+  minus*     = 7;  (** -   *)
+  or*        = 8;  (** OR  *)
+  eql*       = 9;  (** =   *)
+  neq*       = 10; (** #   *)
+  lss*       = 11; (** <   *)
+  leq*       = 12; (** <=  *)
+  gtr*       = 13; (** >   *)
+  geq*       = 14; (** >=  *)
+  period*    = 18; (** .   *)
 (*char*      = 20;*)
   int*       = 21;
-  false*     = 23; (*!FIXME not used elsewhere*)
-  true*      = 24; (*!FIXME not used elsewhere*)
+  false*     = 23; (** FALSE *)
+  true*      = 24; (** TRUE  *)
   string*    = 26;
   not*       = 27; (** ~ *)
   lparen*    = 28; (** ( *)
@@ -30,7 +30,7 @@ CONST
   repeat*    = 35;
   comma*     = 40;
   colon*     = 41;
-  becomes*   = 42;
+  becomes*   = 42; (** := *)
   rparen*    = 44; (** ) *)
   then*      = 47;
   do*        = 49;
@@ -40,12 +40,13 @@ CONST
   elsif*     = 56;
   until*     = 57;
 (*const*     = 63;*)
-  var*       = 65;
+  var*       = 65; (** VAR *)
   begin*     = 67;
   import*    = 68;
   module*    = 69;
   eot        = 70; (** End of text *)
 
+  (** - **)
   maxInt*  = 2147483647;
   minInt*  = -maxInt - 1;
 
@@ -199,24 +200,24 @@ BEGIN
               ('0' <= ch) & (ch <= '9'));
       id[len] := 0X;
 
-      IF id = 'MODULE' THEN sym := module
-      ELSIF id = 'END' THEN sym := end
-      ELSIF id = 'BEGIN' THEN sym := begin
-      ELSIF id = 'VAR' THEN sym := var
+      IF    id = 'MODULE' THEN sym := module
+      ELSIF id = 'END'    THEN sym := end
+      ELSIF id = 'BEGIN'  THEN sym := begin
+      ELSIF id = 'VAR'    THEN sym := var
       ELSIF id = 'IMPORT' THEN sym := import
-      ELSIF id = 'DIV' THEN sym := div
-      ELSIF id = 'MOD' THEN sym := mod
-      ELSIF id = 'OR' THEN sym := or
-      ELSIF id = 'FALSE' THEN sym := false
-      ELSIF id = 'TRUE' THEN sym := true
-      ELSIF id = 'IF' THEN sym := if
-      ELSIF id = 'THEN' THEN sym := then
-      ELSIF id = 'ELSIF' THEN sym := elsif
-      ELSIF id = 'ELSE' THEN sym := else
-      ELSIF id = 'WHILE' THEN sym := while
-      ELSIF id = 'DO' THEN sym := do
+      ELSIF id = 'DIV'    THEN sym := div
+      ELSIF id = 'MOD'    THEN sym := mod
+      ELSIF id = 'OR'     THEN sym := or
+      ELSIF id = 'FALSE'  THEN sym := false
+      ELSIF id = 'TRUE'   THEN sym := true
+      ELSIF id = 'IF'     THEN sym := if
+      ELSIF id = 'THEN'   THEN sym := then
+      ELSIF id = 'ELSIF'  THEN sym := elsif
+      ELSIF id = 'ELSE'   THEN sym := else
+      ELSIF id = 'WHILE'  THEN sym := while
+      ELSIF id = 'DO'     THEN sym := do
       ELSIF id = 'REPEAT' THEN sym := repeat
-      ELSIF id = 'UNTIL' THEN sym := until
+      ELSIF id = 'UNTIL'  THEN sym := until
       ELSE sym := ident
       END
     ELSE sym := null; Read

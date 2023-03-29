@@ -1,5 +1,5 @@
 MODULE InterOberon;
-IMPORT Parser, Args, Out, Risc;
+IMPORT Parser, Args, Out, Risc, Lang;
 
 PROCEDURE Usage;
 VAR s: ARRAY 256 OF CHAR;
@@ -34,7 +34,7 @@ BEGIN
       Out.String('Спецкомпиляция полностью провалена!'); Out.Ln
     END
   ELSE
-    Out.String('File not found.'); Out.Ln
+    Out.String('File not loaded.'); Out.Ln
   END
 END RunCompiler;
 

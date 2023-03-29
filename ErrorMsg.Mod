@@ -36,6 +36,7 @@ CONST
   onlyEqlNeq*        = 67;
 
   modNameMismatch*   = 90;
+  unknownLang*       = 91;
 
   longString*        = 110;
   intOverflow*       = 111;
@@ -77,6 +78,7 @@ BEGIN
   ELSIF n = moreParams THEN s := 'Слишком много параметров'
   ELSIF n = onlyEqlNeq THEN s := 'Можно сравнивать только на = и #'
   ELSIF n = modNameMismatch THEN s := 'Имя модуля не совпадает'
+  ELSIF n = unknownLang THEN s := 'Невозможно определить язык'
   ELSIF n = longString THEN s := 'Строка слишком длинная'
   ELSIF n = intOverflow THEN s := 'Целочисленное переполнение'
   ELSIF n = regOverflow THEN s := 'Переполнение стека регистров'

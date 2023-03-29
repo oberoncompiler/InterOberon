@@ -1,2 +1,2 @@
 #!/bin/bash
-vim -p Risc.Mod Scanner.Mod Hello.Mod Parser.Mod Generator.Mod SymTable.Mod ErrorMsg.Mod
+vim -p Langs/ru.txt Lang.Mod Risc.Mod Scanner.Mod Parser.Mod SymTable.Mod ErrorMsg.Mod

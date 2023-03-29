@@ -1,6 +1,6 @@
 MODULE Parser;
 IMPORT S := Scanner, ST := SymTable, E := ErrorMsg, Strings,
-  G := Generator, Out;
+  G := Generator, Out, Lang;
 
 VAR
   sym: INTEGER;
@@ -13,7 +13,15 @@ VAR
   modName*: ARRAY 64 OF CHAR; (** Name of last compiled module *)
 
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
-RETURN S.Load(fname) END Load;
+VAR ok: BOOLEAN;
+BEGIN
+  ok := FALSE;
+  IF S.Load(fname) THEN
+    S.Get(sym);
+    IF (sym = S.ident) & Lang.Identify(S.id) THEN ok := TRUE END
+  END;
+  IF ~ ok THEN S.Mark(E.unknownLang) END
+RETURN ok END Load;
 
 PROCEDURE CheckInt(VAR x: G.Item);
 BEGIN
