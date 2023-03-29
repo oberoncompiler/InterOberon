@@ -219,24 +219,24 @@ BEGIN
       id[len] := 0X;
       Lang.FindKeyword(id, kw);
       IF    kw = ''       THEN sym := ident
-      ELSIF kw = 'module' THEN sym := module
-      ELSIF kw = 'end'    THEN sym := end
-      ELSIF kw = 'begin'  THEN sym := begin
-      ELSIF kw = 'var'    THEN sym := var
-      ELSIF kw = 'import' THEN sym := import
-      ELSIF kw = 'div'    THEN sym := div
-      ELSIF kw = 'mod'    THEN sym := mod
-      ELSIF kw = 'or'     THEN sym := or
-      ELSIF kw = 'false'  THEN sym := false
-      ELSIF kw = 'true'   THEN sym := true
-      ELSIF kw = 'if'     THEN sym := if
-      ELSIF kw = 'then'   THEN sym := then
-      ELSIF kw = 'elsif'  THEN sym := elsif
-      ELSIF kw = 'else'   THEN sym := else
-      ELSIF kw = 'while'  THEN sym := while
-      ELSIF kw = 'do'     THEN sym := do
-      ELSIF kw = 'repeat' THEN sym := repeat
-      ELSIF kw = 'until'  THEN sym := until
+      ELSIF kw = 'MODULE' THEN sym := module
+      ELSIF kw = 'END'    THEN sym := end
+      ELSIF kw = 'BEGIN'  THEN sym := begin
+      ELSIF kw = 'VAR'    THEN sym := var
+      ELSIF kw = 'IMPORT' THEN sym := import
+      ELSIF kw = 'DIV'    THEN sym := div
+      ELSIF kw = 'MOD'    THEN sym := mod
+      ELSIF kw = 'OR'     THEN sym := or
+      ELSIF kw = 'FALSE'  THEN sym := false
+      ELSIF kw = 'TRUE'   THEN sym := true
+      ELSIF kw = 'IF'     THEN sym := if
+      ELSIF kw = 'THEN'   THEN sym := then
+      ELSIF kw = 'ELSIF'  THEN sym := elsif
+      ELSIF kw = 'ELSE'   THEN sym := else
+      ELSIF kw = 'WHILE'  THEN sym := while
+      ELSIF kw = 'DO'     THEN sym := do
+      ELSIF kw = 'REPEAT' THEN sym := repeat
+      ELSIF kw = 'UNTIL'  THEN sym := until
       ELSE Mark(E.unknownKW)
       END
     ELSE sym := null; Read

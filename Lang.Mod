@@ -54,8 +54,9 @@ VAR
   (** Loaded strings **)
   errors: ARRAY 128, 80 OF CHAR; (** error code < 128, error length < 80 *)
   risc: ARRAY 10, 80 OF CHAR; (** 10 RISC messages, length < 80 *)
-  kw: ARRAY 32 OF Pair; (** 32 keywords *)
-  mods: ARRAY 2 OF Module; (** 2 modules *)
+  kw: ARRAY 32 OF Pair; (** 32 keywords like BEGIN *)
+  uni: ARRAY 5 OF Pair; (** 5 universe objects like INTEGER *)
+  mods: ARRAY 2 OF Module; (** 2 modules like Out *)
   modCount: INTEGER; (** Actual length of mods *)
 
 PROCEDURE GetError(code: INTEGER; VAR s: ARRAY OF CHAR);
@@ -226,6 +227,7 @@ BEGIN
       IF sval = 'errors' THEN GetSym; CheckRbrak; ReadIntSection(errors)
       ELSIF sval = 'risc' THEN GetSym; CheckRbrak; ReadIntSection(risc)
       ELSIF sval = 'keywords' THEN GetSym; CheckRbrak; ReadStrSection(kw)
+      ELSIF sval = 'universe' THEN GetSym; CheckRbrak; ReadStrSection(uni)
       ELSE ReadModuleSection
       END
     ELSE Mark(expString)
@@ -265,15 +267,41 @@ BEGIN
   END
 RETURN ok END Identify;
 
-PROCEDURE FindKeyword*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR);
+PROCEDURE FindByValue*(m: ARRAY OF Pair; s: ARRAY OF CHAR;
+    VAR res: ARRAY OF CHAR);
 VAR i: INTEGER;
 BEGIN
   res := ''; i := 0;
   IF ~error THEN
-    WHILE (i # LEN(kw)) & (kw[i].value # '') & (kw[i].value # s) DO INC(i) END;
-    IF (i # LEN(kw)) & (kw[i].value # '') THEN Strings.Copy(kw[i].key, res) END
+    WHILE (i # LEN(m)) & (m[i].key # '') & (m[i].value # s) DO INC(i) END;
+    IF (i # LEN(m)) & (m[i].key # '') THEN Strings.Copy(m[i].key, res) END
   END
+END FindByValue;
+
+PROCEDURE FindByKey*(m: ARRAY OF Pair; s: ARRAY OF CHAR;
+    VAR res: ARRAY OF CHAR);
+VAR i: INTEGER;
+BEGIN
+  res := ''; i := 0;
+  IF ~error THEN
+    WHILE (i # LEN(m)) & (m[i].key # '') & (m[i].key # s) DO INC(i) END;
+    IF (i # LEN(m)) & (m[i].key # '') THEN Strings.Copy(m[i].value, res) END
+  END
+END FindByKey;
+
+PROCEDURE FindKeyword*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR);
+BEGIN FindByValue(kw, s, res)
 END FindKeyword;
+
+PROCEDURE FindUniObj*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR);
+BEGIN FindByKey(uni, s, res)
+END FindUniObj;
+
+(** num is Lang-internal number of module M *)
+PROCEDURE FindModObj*(num: INTEGER; s: ARRAY OF CHAR;
+    VAR res: ARRAY OF CHAR);
+BEGIN FindByKey(mods[num].objs, s, res)
+END FindModObj;
 
 (** num is Lang-internal number of module M *)
 PROCEDURE FindModule*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR;
@@ -290,26 +318,6 @@ BEGIN
     num := i
   END
 END FindModule;
-
-(** num is Lang-internal number of module M *)
-PROCEDURE FindModObj*(num: INTEGER; s: ARRAY OF CHAR;
-    VAR res: ARRAY OF CHAR);
-
-  PROCEDURE Find(m: ARRAY OF Pair; s: ARRAY OF CHAR;
-      VAR res: ARRAY OF CHAR);
-  VAR i: INTEGER;
-  BEGIN
-    res := ''; i := 0;
-    WHILE (i # LEN(m)) & (m[i].key # '') & (m[i].key # s) DO INC(i) END;
-    IF (i # LEN(m)) & (m[i].key # '') THEN
-      Strings.Copy(m[i].value, res);
-      num := i
-    END
-  END Find;
-
-BEGIN
-  Find(mods[num].objs, s, res)
-END FindModObj;
 
 BEGIN
   error := TRUE

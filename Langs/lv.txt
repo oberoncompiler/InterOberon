@@ -1,0 +1,46 @@
+[keywords]
+MODULE=MODULIS
+END=BEIGAS
+BEGIN=SĀKUMS
+VAR=MAINĪGIE
+IMPORT=IMPORTS
+DIV=DAL
+MOD=ATL
+OR=VAI
+FALSE=APLAMS
+TRUE=PATIESS
+IF=JA
+THEN=TAD
+ELSIF=BETJA
+ELSE=CITĀDI
+WHILE=KAMĒR
+DO=DARĪT
+REPEAT=ATKĀRTOT
+UNTIL=LĪDZ
+
+[universe]
+CHAR=LITERA
+INTEGER=VESELAIS
+BOOLEAN=BŪLA
+CHR=LIT
+ORD=ORD
+
+[Out]
+=Izvade
+Char=Litera
+Int=Veselais
+Ln=Pārnese
+
+[In]
+=Ievade
+Char=Litera
+Int=Veselais
+
+[errors]
+1=Tiek gaidīts MODULIS
+2=Tiek gaidīts semikols
+
+[risc]
+1=Tiek gaidīts MODULIS
+2=Tiek gaidīts semikols
+

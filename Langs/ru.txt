@@ -1,10 +1,29 @@
 [keywords]
-module=МОДУЛЬ
-import=ИМПОРТ
-begin=НАЧАЛО
-end=КОНЕЦ
-var=ПЕРЕМЕННЫЕ
-char=ЛИТЕРА
+MODULE=МОДУЛЬ
+END=КОНЕЦ
+BEGIN=НАЧАЛО
+VAR=ПЕРЕМЕННЫЕ
+IMPORT=ИМПОРТ
+DIV=ДЕЛ
+MOD=ОСТ
+OR=ИЛИ
+FALSE=ЛОЖЬ
+TRUE=ИСТИНА
+IF=ЕСЛИ
+THEN=ТО
+ELSIF=АЕСЛИ
+ELSE=ИНАЧЕ
+WHILE=ПОКА
+DO=ДЕЛАТЬ
+REPEAT=ПОВТОР
+UNTIL=ДО
+
+[universe]
+CHAR=ЛИТЕРА
+INTEGER=ЦЕЛОЕ
+BOOLEAN=БУЛЕВ
+CHR=ЛИТ
+ORD=ОРД
 
 [Out]
 =Вывод
@@ -18,10 +37,10 @@ Char=Литера
 Int=Целое
 
 [errors]
-1=Ожидается MODULE
+1=Ожидается МОДУЛЬ
 2=Ожидается точка с запятой
 
 [risc]
-1=Ожидается MODULE
+1=Ожидается МОДУЛЬ
 2=Ожидается точка с запятой
 

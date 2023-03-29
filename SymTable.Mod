@@ -52,32 +52,32 @@ BEGIN
   U := topScope;
   NEW(U.next);
   U := U.next;
-  U.name := 'BOOLEAN';
+  Lang.FindUniObj('BOOLEAN', U.name);
   U.class := Typ;
   U.type := boolType;
 
   NEW(U.next);
   U := U.next;
-  U.name := 'CHAR';
+  Lang.FindUniObj('CHAR', U.name);
   U.class := Typ;
   U.type := charType;
 
   NEW(U.next);
   U := U.next;
-  U.name := 'INTEGER';
+  Lang.FindUniObj('INTEGER', U.name);
   U.class := Typ;
   U.type := intType;
 
   NEW(U.next);
   U := U.next;
-  U.name := 'ORD';
+  Lang.FindUniObj('ORD', U.name);
   U.class := SFunc;
   U.val := 31;
   U.type := intType;
 
   NEW(U.next);
   U := U.next;
-  U.name := 'CHR';
+  Lang.FindUniObj('CHR', U.name);
   U.class := SFunc;
   U.val := 32;
   U.type := charType;
