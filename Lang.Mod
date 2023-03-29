@@ -3,13 +3,13 @@ IMPORT Strings, Files, Out;
 
 CONST
   (** Symbols **)
+  null   = 0;
   eql    = 1; (** = *)
   lbrak  = 2; (** [ *)
   rbrak  = 3; (** ] *)
   string = 4; (** With no quotes *)
   int    = 5; (** Integer number *)
-  ln     = 6; (** New line *)
-  eot    = 7; (** End of text *)
+  eot    = 6; (** End of text *)
 
   (** Error Codes **)
   expEql     = 1;
@@ -48,7 +48,7 @@ VAR
   ch: CHAR;
   sym: INTEGER;
 
-  error*: BOOLEAN; (* FALSE if ok *)
+  error*: BOOLEAN; (* FALSE if ok, TRUE if not started yet or on error *)
   errPos: INTEGER; (* Position of last error *)
 
   (** Loaded strings **)
@@ -110,7 +110,6 @@ BEGIN
   ELSIF ch = '[' THEN sym := lbrak; Read
   ELSIF ch = ']' THEN sym := rbrak; Read
   ELSIF ch = ']' THEN sym := rbrak; Read
-  ELSIF (ch = 0AX) OR (ch = 0DX) THEN sym := ln; Read
   ELSIF ('0' <= ch) & (ch <= '9') THEN
     ival := 0;
     REPEAT
@@ -137,7 +136,7 @@ END GetSym;
 PROCEDURE GetSymLn;
 BEGIN
   IF ch = 0X THEN sym := eot
-  ELSIF (ch = 0AX) OR (ch = 0DX) THEN sym := ln
+  ELSIF (ch = 0AX) OR (ch = 0DX) THEN sym := null
   ELSE
     len := 0;
     WHILE (ch # 0X) & (ch # 0AX) & (ch # 0DX) DO
@@ -184,7 +183,8 @@ BEGIN
     IF sym = eql THEN GetSymLn ELSE Mark(expEql) END;
     IF sym = string THEN Strings.Copy(sval, m[i].value); GetSym
     ELSE Mark(expString)
-    END
+    END;
+    INC(i)
   END
 END ReadStrSection;
 
@@ -212,15 +212,20 @@ BEGIN
   ReadStrSection(mods[modCount - 1].objs)
 END ReadModuleSection;
 
+PROCEDURE CheckRbrak;
+BEGIN
+  IF sym = rbrak THEN GetSym ELSE Mark(expRbrak) END
+END CheckRbrak;
+
 PROCEDURE ReadFile;
 BEGIN
   modCount := 0;
   WHILE sym = lbrak DO
     GetSym;
     IF sym = string THEN
-      IF sval = 'errors' THEN ReadIntSection(errors)
-      ELSIF sval = 'risc' THEN ReadIntSection(risc)
-      ELSIF sval = 'keywords' THEN ReadStrSection(kw)
+      IF sval = 'errors' THEN GetSym; CheckRbrak; ReadIntSection(errors)
+      ELSIF sval = 'risc' THEN GetSym; CheckRbrak; ReadIntSection(risc)
+      ELSIF sval = 'keywords' THEN GetSym; CheckRbrak; ReadStrSection(kw)
       ELSE ReadModuleSection
       END
     ELSE Mark(expString)
@@ -260,4 +265,52 @@ BEGIN
   END
 RETURN ok END Identify;
 
+PROCEDURE FindKeyword*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR);
+VAR i: INTEGER;
+BEGIN
+  res := ''; i := 0;
+  IF ~error THEN
+    WHILE (i # LEN(kw)) & (kw[i].value # '') & (kw[i].value # s) DO INC(i) END;
+    IF (i # LEN(kw)) & (kw[i].value # '') THEN Strings.Copy(kw[i].key, res) END
+  END
+END FindKeyword;
+
+(** num is Lang-internal number of module M *)
+PROCEDURE FindModule*(s: ARRAY OF CHAR; VAR res: ARRAY OF CHAR;
+    VAR num: INTEGER);
+VAR i: INTEGER;
+BEGIN
+  res := ''; i := 0;
+  WHILE (i # LEN(mods)) & (mods[i].name.value # '') &
+        (mods[i].name.value # s)
+  DO INC(i)
+  END;
+  IF (i # LEN(mods)) & (mods[i].name.value # '') THEN
+    Strings.Copy(mods[i].name.key, res);
+    num := i
+  END
+END FindModule;
+
+(** num is Lang-internal number of module M *)
+PROCEDURE FindModObj*(num: INTEGER; s: ARRAY OF CHAR;
+    VAR res: ARRAY OF CHAR);
+
+  PROCEDURE Find(m: ARRAY OF Pair; s: ARRAY OF CHAR;
+      VAR res: ARRAY OF CHAR);
+  VAR i: INTEGER;
+  BEGIN
+    res := ''; i := 0;
+    WHILE (i # LEN(m)) & (m[i].key # '') & (m[i].key # s) DO INC(i) END;
+    IF (i # LEN(m)) & (m[i].key # '') THEN
+      Strings.Copy(m[i].value, res);
+      num := i
+    END
+  END Find;
+
+BEGIN
+  Find(mods[num].objs, s, res)
+END FindModObj;
+
+BEGIN
+  error := TRUE
 END Lang.

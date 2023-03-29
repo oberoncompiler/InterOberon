@@ -18,7 +18,8 @@ BEGIN
   ok := FALSE;
   IF S.Load(fname) THEN
     S.Get(sym);
-    IF (sym = S.ident) & Lang.Identify(S.id) THEN ok := TRUE END
+    IF (sym = S.ident) & Lang.Identify(S.id) THEN ok := TRUE END;
+    S.Rewind
   END;
   IF ~ ok THEN S.Mark(E.unknownLang) END
 RETURN ok END Load;
@@ -46,7 +47,7 @@ BEGIN
       ELSE S.Mark(E.expIdent)
       END
     END;
-    ST.Import(M, name)
+    ST.Import(M)
   ELSE S.Mark(E.expIdent)
   END
 END Import;
@@ -63,6 +64,7 @@ END ImportList;
 PROCEDURE Type(VAR T: ST.Type);
 VAR p: ST.Object;
 BEGIN
+  T := ST.intType;
   IF sym = S.ident THEN
     p := ST.ThisObject();
     S.Get(sym);

@@ -1,5 +1,5 @@
 MODULE SymTable;
-IMPORT Out, S := Scanner, E := ErrorMsg, Strings, Kernel;
+IMPORT Out, S := Scanner, E := ErrorMsg, Strings, Kernel, Lang;
 
 CONST
   (** Object Classes **)
@@ -153,12 +153,13 @@ BEGIN
   END
 RETURN p END NewObject;
 
-PROCEDURE ImportIn*(M: Object);
+(** num is Lang-internal number of module M *)
+PROCEDURE ImportIn*(M: Object; num: INTEGER);
 VAR p: Object;
 BEGIN
   (* In.Char *)
   NEW(M.dsc); M := M.dsc;
-  M.class := Const; M.name := 'Char'; M.val := 1;
+  M.class := Const; Lang.FindModObj(num, 'Char', M.name); M.val := 1;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of In.Char *)
@@ -167,7 +168,7 @@ BEGIN
 
   (* In.Int *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Int'; M.val := 2;
+  M.class := Const; Lang.FindModObj(num, 'Int', M.name); M.val := 2;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of In.Int *)
@@ -175,12 +176,13 @@ BEGIN
   p.class := Par; p.name := 'i'; p.type := intType
 END ImportIn;
 
-PROCEDURE ImportOut*(M: Object);
+(** num is Lang-internal number of module M *)
+PROCEDURE ImportOut*(M: Object; num: INTEGER);
 VAR p: Object;
 BEGIN
   (* Out.Char *)
   NEW(M.dsc); M := M.dsc;
-  M.class := Const; M.name := 'Char'; M.val := 5;
+  M.class := Const; Lang.FindModObj(num, 'Char', M.name); M.val := 5;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 1; M.type.base := noType;
   (* Parameter of Out.Char *)
@@ -189,7 +191,7 @@ BEGIN
 
   (* Out.Int *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Int'; M.val := 6;
+  M.class := Const; Lang.FindModObj(num, 'Int', M.name); M.val := 6;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 2; M.type.base := noType;
   (* Parameters of Out.Int *)
@@ -200,16 +202,19 @@ BEGIN
 
   (* Out.Ln *)
   NEW(M.next); M := M.next;
-  M.class := Const; M.name := 'Ln'; M.val := 7;
+  M.class := Const;Lang.FindModObj(num, 'Ln', M.name); M.val := 7;
   NEW(M.type); M.type.form := Proc;
   M.type.nofpars := 0; M.type.base := noType
 END ImportOut;
 
-(** Loads symbol data of module to M by name *)
-PROCEDURE Import*(M: Object; name: ARRAY OF CHAR);
+(** Loads symbol data of module to M by M.name *)
+PROCEDURE Import*(M: Object);
+VAR s: ARRAY 32 OF CHAR;
+  num: INTEGER;
 BEGIN
-  IF name = 'In' THEN ImportIn(M)
-  ELSIF name = 'Out' THEN ImportOut(M)
+  Lang.FindModule(M.name, s, num);
+  IF s = 'In' THEN ImportIn(M, num)
+  ELSIF s = 'Out' THEN ImportOut(M, num)
   ELSE S.Mark(E.noModule)
   END
 END Import;

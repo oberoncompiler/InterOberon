@@ -1,7 +1,10 @@
 [keywords]
-begin=НАЧАЛО
 module=МОДУЛЬ
+import=ИМПОРТ
+begin=НАЧАЛО
 end=КОНЕЦ
+var=ПЕРЕМЕННЫЕ
+char=ЛИТЕРА
 
 [Out]
 =Вывод

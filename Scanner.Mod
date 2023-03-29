@@ -80,20 +80,23 @@ BEGIN
   IF ch = 0AX THEN nextLine := TRUE END
 END Read;
 
+PROCEDURE Rewind*;
+BEGIN
+  Files.Set(r, Files.Base(r), 0);
+  line := 1;
+  col := 0;
+  nextLine := FALSE;
+  error := FALSE;
+  errPos := -10;
+  Read
+END Rewind;
+
 PROCEDURE Load*(fname: ARRAY OF CHAR): BOOLEAN;
 VAR F: Files.File;
 BEGIN
   moduleFname := fname;
   F := Files.Old(fname);
-  IF F # NIL THEN
-    Files.Set(r, F, 0);
-    line := 1;
-    col := 0;
-    nextLine := FALSE;
-    error := FALSE;
-    errPos := -10;
-    Read
-  END
+  IF F # NIL THEN Files.Set(r, F, 0); Rewind END
 RETURN F # NIL END Load;
 
 PROCEDURE Mark*(errCode: INTEGER);
@@ -149,6 +152,7 @@ PROCEDURE Get*(VAR sym: INTEGER);
 VAR quote: CHAR;
   marked: BOOLEAN;
   n: INTEGER;
+  kw: ARRAY 32 OF CHAR;
 BEGIN
   REPEAT
     (* Skip whitespaces *)
@@ -213,26 +217,27 @@ BEGIN
         Read
       UNTIL ~(IsLetter(ch) OR ('0' <= ch) & (ch <= '9'));
       id[len] := 0X;
-
-      IF    id = 'module' THEN sym := module
-      ELSIF id = 'end'    THEN sym := end
-      ELSIF id = 'begin'  THEN sym := begin
-      ELSIF id = 'var'    THEN sym := var
-      ELSIF id = 'import' THEN sym := import
-      ELSIF id = 'div'    THEN sym := div
-      ELSIF id = 'mod'    THEN sym := mod
-      ELSIF id = 'or'     THEN sym := or
-      ELSIF id = 'false'  THEN sym := false
-      ELSIF id = 'true'   THEN sym := true
-      ELSIF id = 'if'     THEN sym := if
-      ELSIF id = 'then'   THEN sym := then
-      ELSIF id = 'elsif'  THEN sym := elsif
-      ELSIF id = 'else'   THEN sym := else
-      ELSIF id = 'while'  THEN sym := while
-      ELSIF id = 'do'     THEN sym := do
-      ELSIF id = 'repeat' THEN sym := repeat
-      ELSIF id = 'until'  THEN sym := until
-      ELSE sym := ident
+      Lang.FindKeyword(id, kw);
+      IF    kw = ''       THEN sym := ident
+      ELSIF kw = 'module' THEN sym := module
+      ELSIF kw = 'end'    THEN sym := end
+      ELSIF kw = 'begin'  THEN sym := begin
+      ELSIF kw = 'var'    THEN sym := var
+      ELSIF kw = 'import' THEN sym := import
+      ELSIF kw = 'div'    THEN sym := div
+      ELSIF kw = 'mod'    THEN sym := mod
+      ELSIF kw = 'or'     THEN sym := or
+      ELSIF kw = 'false'  THEN sym := false
+      ELSIF kw = 'true'   THEN sym := true
+      ELSIF kw = 'if'     THEN sym := if
+      ELSIF kw = 'then'   THEN sym := then
+      ELSIF kw = 'elsif'  THEN sym := elsif
+      ELSIF kw = 'else'   THEN sym := else
+      ELSIF kw = 'while'  THEN sym := while
+      ELSIF kw = 'do'     THEN sym := do
+      ELSIF kw = 'repeat' THEN sym := repeat
+      ELSIF kw = 'until'  THEN sym := until
+      ELSE Mark(E.unknownKW)
       END
     ELSE sym := null; Read
     END
