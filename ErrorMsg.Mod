@@ -42,7 +42,7 @@ CONST
   intOverflow*       = 111;
   regOverflow*       = 112;
 
-  stringTodo*        = 200;
+  stringTodo*        = 115;
 
 PROCEDURE Get*(n: INTEGER; VAR s: ARRAY OF CHAR);
 BEGIN

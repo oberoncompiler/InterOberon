@@ -12,15 +12,28 @@ CONST
   eot    = 7; (** End of text *)
 
   (** Error Codes **)
-  expEql    = 1;
-  expLbrak  = 2;
-  expRbrak  = 3;
-  expString = 4;
-  expInt    = 5;
-  unexpEot  = 6;
+  expEql     = 1;
+  expEql2    = 2;
+  expLbrak   = 3;
+  expRbrak   = 4;
+  expString  = 5;
+  expInt     = 6;
+  unexpEot   = 7;
+  rangeError = 8;
 
   (** - **)
   maxInt = 2147483647;
+
+TYPE
+  Pair = RECORD
+    key: ARRAY 10 OF CHAR;
+    value: ARRAY 32 OF CHAR
+  END;
+
+  Module = RECORD
+    name: Pair;
+    objs: ARRAY 5 OF Pair
+  END;
 
 VAR
   curLang*: ARRAY 6 OF CHAR;
@@ -38,14 +51,23 @@ VAR
   error*: BOOLEAN; (* FALSE if ok *)
   errPos: INTEGER; (* Position of last error *)
 
+  (** Loaded strings **)
+  errors: ARRAY 128, 80 OF CHAR; (** error code < 128, error length < 80 *)
+  risc: ARRAY 10, 80 OF CHAR; (** 10 RISC messages, length < 80 *)
+  kw: ARRAY 32 OF Pair; (** 32 keywords *)
+  mods: ARRAY 2 OF Module; (** 2 modules *)
+  modCount: INTEGER; (** Actual length of mods *)
+
 PROCEDURE GetError(code: INTEGER; VAR s: ARRAY OF CHAR);
 BEGIN
-  IF    code = expEql    THEN s := '= expected'
-  ELSIF code = expLbrak  THEN s := '[ expected'
-  ELSIF code = expRbrak  THEN s := '] expected'
-  ELSIF code = expString THEN s := 'String expected'
-  ELSIF code = expInt    THEN s := 'Integer expected'
-  ELSIF code = unexpEot  THEN s := 'Unexpected end of file'
+  IF    code = expEql     THEN s := '= expected'
+  ELSIF code = expEql2    THEN s := 'Expected = and module name in the language'
+  ELSIF code = expLbrak   THEN s := '[ expected'
+  ELSIF code = expRbrak   THEN s := '] expected'
+  ELSIF code = expString  THEN s := 'String expected'
+  ELSIF code = expInt     THEN s := 'Integer expected'
+  ELSIF code = unexpEot   THEN s := 'Unexpected end of file'
+  ELSIF code = rangeError THEN s := 'Index out of range'
   ELSE s := 'Error'
   END
 END GetError;
@@ -112,12 +134,100 @@ BEGIN
   END
 END GetSym;
 
-PROCEDURE ReadFile(): BOOLEAN;
-VAR ok: BOOLEAN;
+PROCEDURE GetSymLn;
 BEGIN
-  ok := FALSE;
-  ok := TRUE;
-RETURN ok END ReadFile;
+  IF ch = 0X THEN sym := eot
+  ELSIF (ch = 0AX) OR (ch = 0DX) THEN sym := ln
+  ELSE
+    len := 0;
+    WHILE (ch # 0X) & (ch # 0AX) & (ch # 0DX) DO
+      IF len < LEN(sval) - 1 THEN sval[len] := ch; INC(len) END;
+      Read
+    END;
+    sval[len] := 0X;
+    sym := string
+  END
+END GetSymLn;
+
+PROCEDURE ClearPairs(VAR pairs: ARRAY OF Pair);
+VAR i: INTEGER;
+BEGIN
+  i := 0;
+  WHILE i # LEN(pairs) DO pairs[i].key[0] := 0X; INC(i) END
+END ClearPairs;
+
+PROCEDURE ReadIntSection(VAR m: ARRAY OF ARRAY OF CHAR);
+VAR n: INTEGER;
+BEGIN
+  FOR n := 0 TO LEN(m) - 1 DO m[n, 0] := 0X END;
+  WHILE sym = int DO
+    n := ival;
+    IF (0 <= n) & (n < LEN(m)) THEN
+      GetSym;
+      IF sym = eql THEN GetSymLn ELSE Mark(expEql) END;
+      IF sym = string THEN Strings.Copy(sval, m[n]); GetSym
+      ELSE Mark(expString)
+      END
+    ELSE Mark(rangeError)
+    END
+  END
+END ReadIntSection;
+
+PROCEDURE ReadStrSection(VAR m: ARRAY OF Pair);
+VAR i: INTEGER;
+BEGIN
+  ClearPairs(m);
+  i := 0;
+  WHILE sym = string DO
+    Strings.Copy(sval, m[i].key);
+    GetSym;
+    IF sym = eql THEN GetSymLn ELSE Mark(expEql) END;
+    IF sym = string THEN Strings.Copy(sval, m[i].value); GetSym
+    ELSE Mark(expString)
+    END
+  END
+END ReadStrSection;
+
+PROCEDURE MakeModuleSection(name: ARRAY OF CHAR);
+BEGIN
+  IF modCount < LEN(mods) THEN
+    Strings.Copy(name, mods[modCount].name.key);
+    mods[modCount].name.value := '';
+    INC(modCount)
+  END
+END MakeModuleSection;
+
+PROCEDURE ReadModuleSection;
+VAR name: ARRAY 64 OF CHAR;
+BEGIN
+  MakeModuleSection(sval);
+  GetSym;
+  IF sym = rbrak THEN GetSym ELSE Mark(expRbrak) END;
+  IF sym = eql THEN GetSymLn ELSE Mark(expEql2) END;
+  IF sym = string THEN
+    Strings.Copy(sval, mods[modCount - 1].name.value);
+    GetSym
+  ELSE Mark(expString)
+  END;
+  ReadStrSection(mods[modCount - 1].objs)
+END ReadModuleSection;
+
+PROCEDURE ReadFile;
+BEGIN
+  modCount := 0;
+  WHILE sym = lbrak DO
+    GetSym;
+    IF sym = string THEN
+      IF sval = 'errors' THEN ReadIntSection(errors)
+      ELSIF sval = 'risc' THEN ReadIntSection(risc)
+      ELSIF sval = 'keywords' THEN ReadStrSection(kw)
+      ELSE ReadModuleSection
+      END
+    ELSE Mark(expString)
+    END
+  END;
+  IF sym # eot THEN Mark(expLbrak) END
+END ReadFile;
 
 PROCEDURE Load*(lang: ARRAY OF CHAR): BOOLEAN;
 VAR F: Files.File;
@@ -135,9 +245,10 @@ BEGIN
     error := FALSE;
     errPos := -10;
     Read;
-    GetSym
+    GetSym;
+    ReadFile
   END
-RETURN (F # NIL) & ReadFile() END Load;
+RETURN (F # NIL) & ~error END Load;
 
 PROCEDURE Identify*(module: ARRAY OF CHAR): BOOLEAN;
 VAR ok: BOOLEAN;
