@@ -1,0 +1,87 @@
+[keywords]
+MODULE=MODULE
+END=END
+BEGIN=BEGIN
+VAR=VAR
+IMPORT=IMPORT
+DIV=DIV
+MOD=MOD
+OR=OR
+FALSE=FALSE
+TRUE=TRUE
+IF=IF
+THEN=THEN
+ELSIF=ELSIF
+ELSE=ELSE
+WHILE=WHILE
+DO=DO
+REPEAT=REPEAT
+UNTIL=UNTIL
+
+[universe]
+CHAR=CHAR
+INTEGER=INTEGER
+BOOLEAN=BOOLEAN
+CHR=CHR
+ORD=ORD
+
+[Out]
+=Out
+Char=Char
+Int=Int
+Ln=Ln
+
+[In]
+=In
+Char=Char
+Int=Int
+
+[errors]
+1=MODULE expected
+2=Semicolon expected
+3=Identifier expected
+4=END expected
+5=Period expected
+6=Colon expected
+7=:= expected
+8=Type expected
+9=Boolean value expected
+10=THEN expected
+11=DO expected
+12=UNTIL expected
+30=( expected
+31=) expected
+32=Statement expected
+40=This is not a value
+41=This is not an integer
+42=Returned value is not used
+43=This is not a procedure
+50=Divisor is not positive
+51=Division by zero
+52=Incorrect var-parameter
+59=Assignment to a constant
+60=Uncompatible types
+61=Undeclared identifier
+62=Identifier already declared
+63=Module does not exist
+64=Procedure parameters expected
+65=Too few parameters
+66=Too many parameters
+67=Comparable only with = and #
+90=Module name mismatch
+91=Failed to identify the language
+110=String too long
+111=Integer range overflow
+112=Register stack overflow
+114=Unknown key word (error in the language file)
+115=String literals not implemented
+
+[risc]
+1=Module
+2=has been compiled.
+3=Compilation failed.
+5=Running virtual machine.
+6=Machine finished with no errors.
+7=Failed to load module.
+8=Machine halted with error code
+
