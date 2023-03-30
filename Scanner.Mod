@@ -31,7 +31,7 @@ CONST
   comma*     = 40;
   colon*     = 41;
   becomes*   = 42; (** := *)
-  rparen*    = 44; (** ) *)
+  rparen*    = 44; (** )  *)
   then*      = 47;
   do*        = 49;
   semicol*   = 52;
