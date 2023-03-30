@@ -128,17 +128,17 @@ BEGIN
 END IncR;
 
 PROCEDURE Load(VAR x: Item);
-VAR op: INTEGER;
+VAR op, addr: INTEGER;
 BEGIN
   IF x.mode # Reg THEN
     IF x.mode = ST.Const THEN
       Put1(Mov, RH, 0, x.a)
     ELSIF x.mode = ST.Var THEN
-      op := Ldr;
+      op := Ldr; addr := x.a;
       IF x.type.size = 1 THEN INC(op) (* BOOLEAN *)
-      ELSE x.a := x.a DIV 4 * 4
+      ELSE addr := addr DIV 4 * 4
       END;
-      Put2(op, RH, MP, x.a);
+      Put2(op, RH, MP, addr);
       cmpNeeded := TRUE;
       IF x.type.size = 2 THEN (* 2-byte CHARs *)
         IF x.a MOD 4 DIV 2 = 0 THEN (* Left half of word*)
