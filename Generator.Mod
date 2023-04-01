@@ -99,9 +99,9 @@ BEGIN
   Put((((40H + a) * 10H + b) * 10H + op) * 10000H + im MOD 10000H)
 END Put1;
 
-PROCEDURE Put2(op, a, b, off: INTEGER);
+PROCEDURE Put2(op, a, b, q, off: INTEGER);
 BEGIN
-  Put(((op * 10H + a) * 10H + b) * 100000H + off MOD 100000H)
+  Put(((op * 10H + a) * 10H + b) * 100000H + off MOD 80000H + LSL(q MOD 2, 19))
 END Put2;
 
 (** Here off is sometimes c *)
@@ -128,26 +128,18 @@ BEGIN
 END IncR;
 
 PROCEDURE Load(VAR x: Item);
-VAR op, addr: INTEGER;
+VAR op, q, addr: INTEGER;
 BEGIN
   IF x.mode # Reg THEN
     IF x.mode = ST.Const THEN
       Put1(Mov, RH, 0, x.a)
     ELSIF x.mode = ST.Var THEN
-      op := Ldr; addr := x.a;
+      op := Ldr; q := 0; addr := x.a;
       IF x.type.size = 1 THEN INC(op) (* BOOLEAN *)
-      ELSE addr := addr DIV 4 * 4
+      ELSIF x.type.size = 2 THEN INC(op); q := 1 (* CHAR *)
       END;
-      Put2(op, RH, MP, addr);
-      cmpNeeded := TRUE;
-      IF x.type.size = 2 THEN (* 2-byte CHARs *)
-        IF x.a MOD 4 DIV 2 = 0 THEN (* Left half of word*)
-          Put1(And, RH, RH, 0FFFFH)
-        ELSE (* Right half of word*)
-          Put1(Ann, RH, RH, 0FFFFH);
-          Put1(Ror, RH, RH, 16)
-        END
-      END
+      Put2(op, RH, MP, q, addr);
+      cmpNeeded := TRUE
     END;
     x.mode := Reg;
     x.r := RH;
@@ -340,15 +332,17 @@ BEGIN
 END IntRel;
 
 PROCEDURE Assign*(VAR x, y: Item);
-VAR op: INTEGER;
+VAR op, q: INTEGER;
 BEGIN
   IF ~ST.TypesCompatible(x.type, y.type) THEN S.Mark(E.incompatible)
   ELSIF x.mode # ST.Var THEN S.Mark(E.assignConst(*?*))
   ELSE (* x -- Var, y -- Const, Var or Reg *)
     Load(y); (* x -- Var, y -- Reg *)
-    op := Str;
-    IF x.type.size = 1 THEN INC(op) END; (* BOOLEAN *)
-    Put2(op, y.r, MP, x.a);
+    op := Str; q := 0;
+    IF    x.type.size = 1 THEN INC(op) (* BOOLEAN *)
+    ELSIF x.type.size = 2 THEN INC(op); q := 1  (* CHAR *)
+    END;
+    Put2(op, y.r, MP, q, x.a);
     DEC(RH)
   END
 END Assign;

@@ -165,27 +165,45 @@ END F01;
 
 (** Memory instructions *)
 PROCEDURE F2(u, v: BOOLEAN; VAR res: INTEGER);
-VAR a, b, off, addr, byte, x, t: INTEGER;
+CONST B2 = 10000H; (* 2 byte offset *)
+VAR a, b, off, addr, addr4, byte, x, t: INTEGER;
+  q, right: BOOLEAN;
 BEGIN
   a := ASR(IR, 24) MOD 10H;
   b := ASR(IR, 20) MOD 10H;
-  off := IR MOD 100000H;
+  q := ODD(ASR(IR, 19));
+  off := IR MOD 80000H;
   addr := R[b] + off;
-  IF v THEN (* Byte-access *)
-    x := mem[addr DIV 4]; (* 4 bytes *)
+  addr4 := addr DIV 4;
+  IF (addr4 < 0) OR (addr4 >= LEN(mem)) THEN
+    res := memOverflow
+  ELSIF v & q THEN (* Two-byte access (for CHARs) *)
+    x := mem[addr4]; (* 4 bytes *)
+    right := ODD(addr DIV 2); (* The right of the two 2-bytes? *)
+    IF u THEN (* Store *)
+      IF right THEN mem[addr4] := x MOD B2 + R[a] MOD B2 * B2
+      ELSE mem[addr4] := x DIV B2 * B2 + R[a] MOD B2
+      END
+    ELSE (* Load *)
+      IF right THEN R[a] := x DIV B2 MOD B2
+      ELSE R[a] := x MOD B2
+      END
+    END
+  ELSIF v THEN (* Byte-access *)
+    x := mem[addr4]; (* 4 bytes *)
     byte := addr MOD 4; (* byte number [0; 3] *)
     IF u THEN (* Store *)
       t := 8 * byte;
-      mem[addr DIV 4] := ORD(ToSet(x) - {t..t + 7} +
+      mem[addr4] := ORD(ToSet(x) - {t..t + 7} +
                              ToSet(LSL(R[a] MOD 100H, t)))
     ELSE (* Load *)
       R[a] := ASR(x, 8 * byte) MOD 100H
     END
   ELSE (* Word-access *)
     IF u THEN (* Store *)
-      mem[addr DIV 4] := R[a]
+      mem[addr4] := R[a]
     ELSE (* Load *)
-      R[a] := mem[addr DIV 4]
+      R[a] := mem[addr4]
     END
   END
 END F2;

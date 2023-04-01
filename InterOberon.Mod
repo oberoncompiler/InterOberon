@@ -28,7 +28,7 @@ BEGIN
       ELSIF res = Risc.cantLoad THEN
         Lang.Write(Lang.cantLoadMod); Out.Ln
       ELSE
-        Lang.Write(Lang.vmHalt);
+        Lang.Write(Lang.vmHalt); Out.Char(' ');
         Out.Int(res, 0); Out.Char('.'); Out.Ln
       END
     ELSE
