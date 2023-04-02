@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>
+Scanner Module Reference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body>
+<header class="header"><div class="inner">
+<h1>Module <span class="module-name">Scanner</span> <span class="subtitle">Reference</span>
+</h1>
+<nav class="module-menu">
+<ul class="modules-index">
+<li><a href="index.html">Get Started</a></li>
+<li><a href="InterOberon.html">InterOberon</a></li>
+<li class="cur"><a href="Scanner.html">Scanner</a></li>
+<li><a href="Parser.html">Parser</a></li>
+<li><a href="SymTable.html">SymTable</a></li>
+<li><a href="Generator.html">Generator</a></li>
+<li><a href="ErrorMsg.html">ErrorMsg</a></li>
+<li><a href="Lang.html">Lang</a></li>
+<li><a href="Risc.html">Risc</a></li>
+</ul>
+</nav>
+</div></header>
+<main class="main"><div class="inner">
+<section class="comment"></section>
+<article class="list-wrap import-list">
+<div class="anchor" id="import"></div>
+<h2 class="heading">Imports</h2>
+  <section class="list-items">
+<span class="import"><span class="name">Files</span></span>, 
+<span class="import"><span class="name">Out</span></span>, 
+<span class="import"><span class="alias">E</span> := <span class="name"><a href="ErrorMsg.html">ErrorMsg</a></span></span>, 
+<span class="import"><span class="name"><a href="Lang.html">Lang</a></span></span>  </section>
+</article>
+<article class="list-wrap constants-list">
+<div class="anchor" id="constants"></div>
+<h2 class="heading">Constants</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="maxInt"></div>
+<article class="object const">  <div class="def">
+    <span class="name">maxInt</span><span class="export">*</span> =
+    <span class="value">2147483647</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="minInt"></div>
+<article class="object const">  <div class="def">
+    <span class="name">minInt</span><span class="export">*</span> =
+    <span class="value">-maxInt - 1</span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Symbols</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">null</td><td class="value">
+0</td><td class="desc">
+<section class="comment"><p>
+Bad character
+</p>
+</section>
+</td></tr>
+<tr><td class="name">times<span class="export">*</span></td><td class="value">
+1</td><td class="desc">
+<section class="comment"><p>
+*
+</p>
+</section>
+</td></tr>
+<tr><td class="name">div<span class="export">*</span></td><td class="value">
+3</td><td class="desc">
+<section class="comment"><p>
+DIV
+</p>
+</section>
+</td></tr>
+<tr><td class="name">mod<span class="export">*</span></td><td class="value">
+4</td><td class="desc">
+<section class="comment"><p>
+MOD
+</p>
+</section>
+</td></tr>
+<tr><td class="name">and<span class="export">*</span></td><td class="value">
+5</td><td class="desc">
+<section class="comment"><p>
+&amp;
+</p>
+</section>
+</td></tr>
+<tr><td class="name">plus<span class="export">*</span></td><td class="value">
+6</td><td class="desc">
+<section class="comment"><p>
++
+</p>
+</section>
+</td></tr>
+<tr><td class="name">minus<span class="export">*</span></td><td class="value">
+7</td><td class="desc">
+<section class="comment"><p>
+-
+</p>
+</section>
+</td></tr>
+<tr><td class="name">or<span class="export">*</span></td><td class="value">
+8</td><td class="desc">
+<section class="comment"><p>
+OR
+</p>
+</section>
+</td></tr>
+<tr><td class="name">eql<span class="export">*</span></td><td class="value">
+9</td><td class="desc">
+<section class="comment"><p>
+=
+</p>
+</section>
+</td></tr>
+<tr><td class="name">neq<span class="export">*</span></td><td class="value">
+10</td><td class="desc">
+<section class="comment"><p>
+#
+</p>
+</section>
+</td></tr>
+<tr><td class="name">lss<span class="export">*</span></td><td class="value">
+11</td><td class="desc">
+<section class="comment"><p>
+&lt;
+</p>
+</section>
+</td></tr>
+<tr><td class="name">leq<span class="export">*</span></td><td class="value">
+12</td><td class="desc">
+<section class="comment"><p>
+&lt;=
+</p>
+</section>
+</td></tr>
+<tr><td class="name">gtr<span class="export">*</span></td><td class="value">
+13</td><td class="desc">
+<section class="comment"><p>
+&gt;
+</p>
+</section>
+</td></tr>
+<tr><td class="name">geq<span class="export">*</span></td><td class="value">
+14</td><td class="desc">
+<section class="comment"><p>
+&gt;=
+</p>
+</section>
+</td></tr>
+<tr><td class="name">period<span class="export">*</span></td><td class="value">
+18</td><td class="desc">
+<section class="comment"><p>
+.
+</p>
+</section>
+</td></tr>
+<tr><td class="name">int<span class="export">*</span></td><td class="value">
+21</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">false<span class="export">*</span></td><td class="value">
+23</td><td class="desc">
+<section class="comment"><p>
+FALSE
+</p>
+</section>
+</td></tr>
+<tr><td class="name">true<span class="export">*</span></td><td class="value">
+24</td><td class="desc">
+<section class="comment"><p>
+TRUE
+</p>
+</section>
+</td></tr>
+<tr><td class="name">string<span class="export">*</span></td><td class="value">
+26</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">not<span class="export">*</span></td><td class="value">
+27</td><td class="desc">
+<section class="comment"><p>
+~
+</p>
+</section>
+</td></tr>
+<tr><td class="name">lparen<span class="export">*</span></td><td class="value">
+28</td><td class="desc">
+<section class="comment"><p>
+(
+</p>
+</section>
+</td></tr>
+<tr><td class="name">ident<span class="export">*</span></td><td class="value">
+31</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">if<span class="export">*</span></td><td class="value">
+32</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">while<span class="export">*</span></td><td class="value">
+34</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">repeat<span class="export">*</span></td><td class="value">
+35</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">comma<span class="export">*</span></td><td class="value">
+40</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">colon<span class="export">*</span></td><td class="value">
+41</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">becomes<span class="export">*</span></td><td class="value">
+42</td><td class="desc">
+<section class="comment"><p>
+:=.
+</p>
+</section>
+</td></tr>
+<tr><td class="name">rparen<span class="export">*</span></td><td class="value">
+44</td><td class="desc">
+<section class="comment"><p>
+)
+</p>
+</section>
+</td></tr>
+<tr><td class="name">then<span class="export">*</span></td><td class="value">
+47</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">do<span class="export">*</span></td><td class="value">
+49</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">semicol<span class="export">*</span></td><td class="value">
+52</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">end<span class="export">*</span></td><td class="value">
+53</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">else<span class="export">*</span></td><td class="value">
+55</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">elsif<span class="export">*</span></td><td class="value">
+56</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">until<span class="export">*</span></td><td class="value">
+57</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">var<span class="export">*</span></td><td class="value">
+65</td><td class="desc">
+<section class="comment"><p>
+VAR
+</p>
+</section>
+</td></tr>
+<tr><td class="name">begin<span class="export">*</span></td><td class="value">
+67</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">import<span class="export">*</span></td><td class="value">
+68</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">module<span class="export">*</span></td><td class="value">
+69</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">eot</td><td class="value">
+70</td><td class="desc">
+<section class="comment"><p>
+End of text
+</p>
+</section>
+</td></tr>
+</tbody></table></div>
+</article>
+  </section>
+</article>
+<article class="list-wrap types-list">
+<div class="anchor" id="types"></div>
+<h2 class="heading">Types</h2>
+  <section class="list-items">
+  <section class="empty-section">This section is empty.</section>
+  </section>
+</article>
+<article class="list-wrap variables-list">
+<div class="anchor" id="variables"></div>
+<h2 class="heading">Variables</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="ch"></div>
+<article class="object var">  <div class="def">
+    <span class="name">ch</span>:
+    <span class="type">
+CHAR</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="col"></div>
+<article class="object var">  <div class="def">
+    <span class="name">col</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="errPos"></div>
+<article class="object var">  <div class="def">
+    <span class="name">errPos</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="error"></div>
+<article class="object var">  <div class="def">
+    <span class="name">error<span class="export">*</span></span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="id"></div>
+<article class="object var">  <div class="def">
+    <span class="name">id<span class="export">*</span></span>:
+    <span class="type">
+ARRAY 64 OF CHAR</span>;
+  </div>
+<section class="comment"><p>
+When sym = ident
+</p>
+</section>
+</article>
+<div class="anchor" id="ival"></div>
+<article class="object var">  <div class="def">
+    <span class="name">ival<span class="export">*</span></span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+When sym = int
+</p>
+</section>
+</article>
+<div class="anchor" id="len"></div>
+<article class="object var">  <div class="def">
+    <span class="name">len<span class="export">*</span></span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+When sym = ident or string
+</p>
+</section>
+</article>
+<div class="anchor" id="line"></div>
+<article class="object var">  <div class="def">
+    <span class="name">line</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="moduleFname"></div>
+<article class="object var">  <div class="def">
+    <span class="name">moduleFname</span>:
+    <span class="type">
+ARRAY 128 OF CHAR</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="nextLine"></div>
+<article class="object var">  <div class="def">
+    <span class="name">nextLine</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Used in Read
+</p>
+</section>
+</article>
+<div class="anchor" id="r"></div>
+<article class="object var">  <div class="def">
+    <span class="name">r</span>:
+    <span class="type">
+Files.Rider</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="sval"></div>
+<article class="object var">  <div class="def">
+    <span class="name">sval<span class="export">*</span></span>:
+    <span class="type">
+ARRAY 256 OF CHAR</span>;
+  </div>
+<section class="comment"><p>
+When sym = string
+</p>
+</section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap procedures-list">
+<div class="anchor" id="procedures"></div>
+<h2 class="heading">Procedures</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="Comment"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Comment</span>;</div>
+<section class="comment"><p>
+Skips a possibly nested comment. Begins on ch = &#39;*&#39; after &#39;(&#39;, ends with a character after &#39;)&#39;.
+</p>
+</section>
+</article>
+<div class="anchor" id="Get"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Get</span><span class="export">*</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">sym</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="IsLetter"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">IsLetter</span><span class="params"> (<span class="param"><span class="name">c</span>: <span class="type">CHAR</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Load"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Load</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">fname</span>: <span class="type">ARRAY OF CHAR</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Mark"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Mark</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">errCode</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Read"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Read</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Rewind"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Rewind</span><span class="export">*</span>;</div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+</div></main><footer class="footer"><div class="inner">
+<p>Generated automatically by Free Oberon Autodoc</p>
+<p class="date">2023-12-02</p>
+</div></footer>
+<style>
+@font-face {
+  font-family: 'customfont';
+  src: url(font.ttf);
+}
+
+body, p, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: customfont, monospace, sans-serif;
+  font-size: 14px;
+  background: #FBC5AA;
+  background: var(--main-bg);
+  color: #12365D;
+  color: var(--main-fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+}
+
+a {
+  color: #872D0C;
+  color: var(--high-bg);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FF0000;
+}
+
+.inner {
+  max-width: 1160px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 0 0;
+  background: #12365D;
+  background: var(--head-bg);
+  color: #93B2D3;
+  color: var(--head2-bg);
+}
+
+.index .header {
+  padding-bottom: 30px;
+}
+
+.header h1 .module-name {
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.header h1 .subtitle {
+  display: block;
+  font-size: 16px;
+  color: #4D89C7;
+  color: var(--head2-fg);
+}
+
+.footer {
+  padding: 50px 0;
+  background: #2D5E90;
+  background: var(--head-bg);
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.footer p {
+  text-align: center;
+}
+
+.footer .date {
+  color: var(--head2-bg);
+  margin-top: 1em;
+}
+
+.main {
+  padding: 20px 0;
+  flex: 1;
+}
+
+h2, h3, h4, h5, h6 {
+  margin: 1.2em 0 0.5em;
+}
+
+.heading {
+  background: #12365D;
+  background: var(--title-bg);
+  color: #FFF;
+  color: var(--title-fg);
+  margin: 20px -20px 15px;
+  width: max-content;
+  min-width: calc(min(250px, 100%));
+  box-sizing: border-box;
+  padding: 6px 60px 6px 40px;
+  text-transform: uppercase;
+  font-size: 16px;
+  box-shadow: 6px 6px 1px var(--box-bg);
+}
+
+.module-menu {
+  padding: 6px 0;
+}
+
+.module-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.module-menu a {
+  display: block;
+  background: var(--head2-fg);
+  color: var(--head-fg);
+  padding: 4px 8px;
+}
+
+.module-menu a:hover {
+  background: var(--head2-bg);
+  color: var(--title-bg);
+}
+
+.group-title {
+  padding: 0 2px;
+  margin: 18px 0 8px;
+}
+
+.ordinal-consts {
+  overflow-x: auto;
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.ordinal-consts table {
+  background: #FFF;
+  background: var(--tab-bg);
+  min-width: 450px;
+  width: 100%;
+}
+
+.ordinal-consts th,
+.ordinal-consts td {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+.ordinal-consts th {
+  text-align: left;
+  font-weight: normal;
+  background: #B91E0C;
+  background: var(--tab-head-bg);
+  border-color: #B91E0C;
+  border-color: var(--tab-head-bg);
+  color: #FFF;
+  color: var(--tab-head-fg);
+}
+
+.ordinal-consts .name {
+  width: 140px;
+}
+
+.ordinal-consts td.name {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.ordinal-consts .value {
+  width: 60px;
+}
+
+.ordinal-consts td.desc {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: var(--box-bg);
+}
+
+.ordinal-consts tr:last-child td.desc {
+  border-color: transparent;
+}
+
+.ordinal-consts .desc .comment {
+  padding: 0;
+}
+
+.object {
+  background: #FFF;
+  background: var(--tab-bg);
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  padding: 2px;
+  margin: 6px 0;
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.object .def {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+}
+
+.object .name,
+.object .record-base {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.const .value {
+  color: #000;
+  color: var(--tab-fg);
+}
+
+.value i {
+  font-style: normal;
+  color: #277FC0;
+  color: var(--high-fg);
+}
+
+.comment {
+  padding: 10px 6px;
+  color: #2D5E90;
+  color: var(--comment-fg);
+}
+
+.group-title:empty,
+.group > .comment:empty,
+.object > .comment:empty {
+  display: none;
+}
+
+.comment code {
+  color: var(--tab-row-fg);
+}
+
+.record-fields .comment {
+  color: #C91E0C;
+  color: var(--tab-row-fg);
+}
+
+.comment .mark {
+  color: #D1702C;
+  color: var(--comment-bg);
+}
+
+.record-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.record-fields .comment {
+  padding: 0;
+}
+
+.export {
+  color: #12365D;
+  color: var(--title-bg);
+}
+
+@media screen and (max-width: 500px) {
+
+}
+
+</style>
+<style> /* Palette */
+:root {
+  --main-bg: #FBC5AA;
+  --main-fg: #12365D;
+  --head-bg: #12365D;
+  --head-fg: #FFF;
+  --head2-bg: #93B2D3;
+  --head2-fg: #3D74AC;
+  --tab-bg: #FFF;
+  --tab-fg: #000;
+  --tab-row-bg: #FFBF44;
+  --tab-row-fg: #B91E0C;
+  --tab-head-bg: #B91E0C;
+  --tab-head-fg: #FFF;
+  --title-bg: #12365D;
+  --title-fg: #FFF;
+  --high-bg: #872D0C;
+  --high-fg: #277FC0;
+  --box-bg: rgba(0, 0, 0, 0.14);
+  --box-fg: #808080;
+  --comment-bg: #D1702C;
+  --comment-fg: #2D5E90;
+}
+</style>
+</body></html>

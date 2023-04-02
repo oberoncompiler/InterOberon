@@ -2,6 +2,7 @@ MODULE Scanner;
 IMPORT Files, Out, E := ErrorMsg, Lang;
 
 CONST
+  (** Symbols **)
   null       = 0;  (** Bad character *)
   times*     = 1;  (** *   *)
   div*       = 3;  (** DIV *)

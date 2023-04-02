@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>
+Lang Module Reference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body>
+<header class="header"><div class="inner">
+<h1>Module <span class="module-name">Lang</span> <span class="subtitle">Reference</span>
+</h1>
+<nav class="module-menu">
+<ul class="modules-index">
+<li><a href="index.html">Get Started</a></li>
+<li><a href="InterOberon.html">InterOberon</a></li>
+<li><a href="Scanner.html">Scanner</a></li>
+<li><a href="Parser.html">Parser</a></li>
+<li><a href="SymTable.html">SymTable</a></li>
+<li><a href="Generator.html">Generator</a></li>
+<li><a href="ErrorMsg.html">ErrorMsg</a></li>
+<li class="cur"><a href="Lang.html">Lang</a></li>
+<li><a href="Risc.html">Risc</a></li>
+</ul>
+</nav>
+</div></header>
+<main class="main"><div class="inner">
+<section class="comment"></section>
+<article class="list-wrap import-list">
+<div class="anchor" id="import"></div>
+<h2 class="heading">Imports</h2>
+  <section class="list-items">
+<span class="import"><span class="name">Strings</span></span>, 
+<span class="import"><span class="name">Files</span></span>, 
+<span class="import"><span class="name">Out</span></span>  </section>
+</article>
+<article class="list-wrap constants-list">
+<div class="anchor" id="constants"></div>
+<h2 class="heading">Constants</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="maxInt"></div>
+<article class="object const">  <div class="def">
+    <span class="name">maxInt</span> =
+    <span class="value">2147483647</span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Symbols</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">null</td><td class="value">
+0</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">eql</td><td class="value">
+1</td><td class="desc">
+<section class="comment"><p>
+=
+</p>
+</section>
+</td></tr>
+<tr><td class="name">lbrak</td><td class="value">
+2</td><td class="desc">
+<section class="comment"><p>
+[
+</p>
+</section>
+</td></tr>
+<tr><td class="name">rbrak</td><td class="value">
+3</td><td class="desc">
+<section class="comment"><p>
+]
+</p>
+</section>
+</td></tr>
+<tr><td class="name">string</td><td class="value">
+4</td><td class="desc">
+<section class="comment"><p>
+With no quotes
+</p>
+</section>
+</td></tr>
+<tr><td class="name">int</td><td class="value">
+5</td><td class="desc">
+<section class="comment"><p>
+Integer number
+</p>
+</section>
+</td></tr>
+<tr><td class="name">eot</td><td class="value">
+6</td><td class="desc">
+<section class="comment"><p>
+End of text
+</p>
+</section>
+</td></tr>
+</tbody></table></div>
+</article>
+<article class="group">
+<h3 class="group-title">Error Codes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">expEql</td><td class="value">
+1</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">expEql2</td><td class="value">
+2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">expLbrak</td><td class="value">
+3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">expRbrak</td><td class="value">
+4</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">expString</td><td class="value">
+5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">expInt</td><td class="value">
+6</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">unexpEot</td><td class="value">
+7</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">rangeError</td><td class="value">
+8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+<article class="group">
+<h3 class="group-title">RISC Message Codes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">compileOk1<span class="export">*</span></td><td class="value">
+1</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">compileOk2<span class="export">*</span></td><td class="value">
+2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">compileFail<span class="export">*</span></td><td class="value">
+3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">vmStarting<span class="export">*</span></td><td class="value">
+5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">vmOk<span class="export">*</span></td><td class="value">
+6</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">cantLoadMod<span class="export">*</span></td><td class="value">
+7</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">vmHalt<span class="export">*</span></td><td class="value">
+8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+  </section>
+</article>
+<article class="list-wrap types-list">
+<div class="anchor" id="types"></div>
+<h2 class="heading">Types</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="Pair"></div>
+<article class="object type">  <div class="def">
+    <span class="name">Pair</span> =
+    <span class="typedef">
+RECORD<span class="record-fields">
+<span class="var">&nbsp; <span class="name">key</span>: <span class="type">ARRAY 10 OF CHAR; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">value</span>: <span class="type">ARRAY 32 OF CHAR &nbsp;</span></span><section class="comment"></section>
+</span>
+ END</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Module"></div>
+<article class="object type">  <div class="def">
+    <span class="name">Module</span> =
+    <span class="typedef">
+RECORD<span class="record-fields">
+<span class="var">&nbsp; <span class="name">name</span>: <span class="type"><a href="#Pair">Pair</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">objs</span>: <span class="type">ARRAY 5 OF <a href="#Pair">Pair</a> &nbsp;</span></span><section class="comment"></section>
+</span>
+ END</span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap variables-list">
+<div class="anchor" id="variables"></div>
+<h2 class="heading">Variables</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="ch"></div>
+<article class="object var">  <div class="def">
+    <span class="name">ch</span>:
+    <span class="type">
+CHAR</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="col"></div>
+<article class="object var">  <div class="def">
+    <span class="name">col</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="curLang"></div>
+<article class="object var">  <div class="def">
+    <span class="name">curLang<span class="export">*</span></span>:
+    <span class="type">
+ARRAY 6 OF CHAR</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="errPos"></div>
+<article class="object var">  <div class="def">
+    <span class="name">errPos</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="error"></div>
+<article class="object var">  <div class="def">
+    <span class="name">error<span class="export">*</span></span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ival"></div>
+<article class="object var">  <div class="def">
+    <span class="name">ival</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+When sym = int
+</p>
+</section>
+</article>
+<div class="anchor" id="len"></div>
+<article class="object var">  <div class="def">
+    <span class="name">len</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+When sym = string
+</p>
+</section>
+</article>
+<div class="anchor" id="line"></div>
+<article class="object var">  <div class="def">
+    <span class="name">line</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="nextLine"></div>
+<article class="object var">  <div class="def">
+    <span class="name">nextLine</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Used in Read
+</p>
+</section>
+</article>
+<div class="anchor" id="r"></div>
+<article class="object var">  <div class="def">
+    <span class="name">r</span>:
+    <span class="type">
+Files.Rider</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="sval"></div>
+<article class="object var">  <div class="def">
+    <span class="name">sval</span>:
+    <span class="type">
+ARRAY 256 OF CHAR</span>;
+  </div>
+<section class="comment"><p>
+When sym = string
+</p>
+</section>
+</article>
+<div class="anchor" id="sym"></div>
+<article class="object var">  <div class="def">
+    <span class="name">sym</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Loaded strings</h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="errors"></div>
+<article class="object var">  <div class="def">
+    <span class="name">errors</span>:
+    <span class="type">
+ARRAY 128 OF ARRAY 80 OF CHAR</span>;
+  </div>
+<section class="comment"><p>
+error code &lt; 128, error length &lt; 80
+</p>
+</section>
+</article>
+<div class="anchor" id="kw"></div>
+<article class="object var">  <div class="def">
+    <span class="name">kw</span>:
+    <span class="type">
+ARRAY 32 OF <a href="#Pair">Pair</a></span>;
+  </div>
+<section class="comment"><p>
+32 keywords like BEGIN
+</p>
+</section>
+</article>
+<div class="anchor" id="modCount"></div>
+<article class="object var">  <div class="def">
+    <span class="name">modCount</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Actual length of mods
+</p>
+</section>
+</article>
+<div class="anchor" id="mods"></div>
+<article class="object var">  <div class="def">
+    <span class="name">mods</span>:
+    <span class="type">
+ARRAY 2 OF <a href="#Module">Module</a></span>;
+  </div>
+<section class="comment"><p>
+2 modules like Out
+</p>
+</section>
+</article>
+<div class="anchor" id="risc"></div>
+<article class="object var">  <div class="def">
+    <span class="name">risc</span>:
+    <span class="type">
+ARRAY 10 OF ARRAY 80 OF CHAR</span>;
+  </div>
+<section class="comment"><p>
+10 RISC messages, length &lt; 80
+</p>
+</section>
+</article>
+<div class="anchor" id="uni"></div>
+<article class="object var">  <div class="def">
+    <span class="name">uni</span>:
+    <span class="type">
+ARRAY 5 OF <a href="#Pair">Pair</a></span>;
+  </div>
+<section class="comment"><p>
+5 universe objects like INTEGER
+</p>
+</section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap procedures-list">
+<div class="anchor" id="procedures"></div>
+<h2 class="heading">Procedures</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="CheckRbrak"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">CheckRbrak</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ClearPairs"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ClearPairs</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">pairs</span>: <span class="type">ARRAY OF <a href="#Pair">Pair</a></span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="FindByKey"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindByKey</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">m</span>: <span class="type">ARRAY OF <a href="#Pair">Pair</a>;
+</span></span><span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="FindByValue"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindByValue</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">m</span>: <span class="type">ARRAY OF <a href="#Pair">Pair</a>;
+</span></span><span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="FindKeyword"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindKeyword</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="FindModObj"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindModObj</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">num</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"><p>
+num is Lang-internal number of module M
+</p>
+</section>
+</article>
+<div class="anchor" id="FindModule"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindModule</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">num</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"><p>
+num is Lang-internal number of module M
+</p>
+</section>
+</article>
+<div class="anchor" id="FindUniObj"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">FindUniObj</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">s</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="GetError"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">GetError</span><span class="params"> (<span class="param"><span class="name">code</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">s</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="GetErrorText"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">GetErrorText</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">n</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">s</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="GetSym"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">GetSym</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="GetSymLn"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">GetSymLn</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Identify"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Identify</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">module</span>: <span class="type">ARRAY OF CHAR</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Load"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Load</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">lang</span>: <span class="type">ARRAY OF CHAR</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="MakeModuleSection"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">MakeModuleSection</span><span class="params"> (<span class="param"><span class="name">name</span>: <span class="type">ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Mark"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Mark</span><span class="params"> (<span class="param"><span class="name">errCode</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Read"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Read</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadFile"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadFile</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadIntSection"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadIntSection</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">m</span>: <span class="type">ARRAY OF ARRAY OF CHAR</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadModuleSection"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadModuleSection</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadStrSection"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadStrSection</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">m</span>: <span class="type">ARRAY OF <a href="#Pair">Pair</a></span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Write"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Write</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">msg</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+</div></main><footer class="footer"><div class="inner">
+<p>Generated automatically by Free Oberon Autodoc</p>
+<p class="date">2023-12-02</p>
+</div></footer>
+<style>
+@font-face {
+  font-family: 'customfont';
+  src: url(font.ttf);
+}
+
+body, p, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: customfont, monospace, sans-serif;
+  font-size: 14px;
+  background: #FBC5AA;
+  background: var(--main-bg);
+  color: #12365D;
+  color: var(--main-fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+}
+
+a {
+  color: #872D0C;
+  color: var(--high-bg);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FF0000;
+}
+
+.inner {
+  max-width: 1160px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 0 0;
+  background: #12365D;
+  background: var(--head-bg);
+  color: #93B2D3;
+  color: var(--head2-bg);
+}
+
+.index .header {
+  padding-bottom: 30px;
+}
+
+.header h1 .module-name {
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.header h1 .subtitle {
+  display: block;
+  font-size: 16px;
+  color: #4D89C7;
+  color: var(--head2-fg);
+}
+
+.footer {
+  padding: 50px 0;
+  background: #2D5E90;
+  background: var(--head-bg);
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.footer p {
+  text-align: center;
+}
+
+.footer .date {
+  color: var(--head2-bg);
+  margin-top: 1em;
+}
+
+.main {
+  padding: 20px 0;
+  flex: 1;
+}
+
+h2, h3, h4, h5, h6 {
+  margin: 1.2em 0 0.5em;
+}
+
+.heading {
+  background: #12365D;
+  background: var(--title-bg);
+  color: #FFF;
+  color: var(--title-fg);
+  margin: 20px -20px 15px;
+  width: max-content;
+  min-width: calc(min(250px, 100%));
+  box-sizing: border-box;
+  padding: 6px 60px 6px 40px;
+  text-transform: uppercase;
+  font-size: 16px;
+  box-shadow: 6px 6px 1px var(--box-bg);
+}
+
+.module-menu {
+  padding: 6px 0;
+}
+
+.module-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.module-menu a {
+  display: block;
+  background: var(--head2-fg);
+  color: var(--head-fg);
+  padding: 4px 8px;
+}
+
+.module-menu a:hover {
+  background: var(--head2-bg);
+  color: var(--title-bg);
+}
+
+.group-title {
+  padding: 0 2px;
+  margin: 18px 0 8px;
+}
+
+.ordinal-consts {
+  overflow-x: auto;
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.ordinal-consts table {
+  background: #FFF;
+  background: var(--tab-bg);
+  min-width: 450px;
+  width: 100%;
+}
+
+.ordinal-consts th,
+.ordinal-consts td {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+.ordinal-consts th {
+  text-align: left;
+  font-weight: normal;
+  background: #B91E0C;
+  background: var(--tab-head-bg);
+  border-color: #B91E0C;
+  border-color: var(--tab-head-bg);
+  color: #FFF;
+  color: var(--tab-head-fg);
+}
+
+.ordinal-consts .name {
+  width: 140px;
+}
+
+.ordinal-consts td.name {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.ordinal-consts .value {
+  width: 60px;
+}
+
+.ordinal-consts td.desc {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: var(--box-bg);
+}
+
+.ordinal-consts tr:last-child td.desc {
+  border-color: transparent;
+}
+
+.ordinal-consts .desc .comment {
+  padding: 0;
+}
+
+.object {
+  background: #FFF;
+  background: var(--tab-bg);
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  padding: 2px;
+  margin: 6px 0;
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.object .def {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+}
+
+.object .name,
+.object .record-base {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.const .value {
+  color: #000;
+  color: var(--tab-fg);
+}
+
+.value i {
+  font-style: normal;
+  color: #277FC0;
+  color: var(--high-fg);
+}
+
+.comment {
+  padding: 10px 6px;
+  color: #2D5E90;
+  color: var(--comment-fg);
+}
+
+.group-title:empty,
+.group > .comment:empty,
+.object > .comment:empty {
+  display: none;
+}
+
+.comment code {
+  color: var(--tab-row-fg);
+}
+
+.record-fields .comment {
+  color: #C91E0C;
+  color: var(--tab-row-fg);
+}
+
+.comment .mark {
+  color: #D1702C;
+  color: var(--comment-bg);
+}
+
+.record-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.record-fields .comment {
+  padding: 0;
+}
+
+.export {
+  color: #12365D;
+  color: var(--title-bg);
+}
+
+@media screen and (max-width: 500px) {
+
+}
+
+</style>
+<style> /* Palette */
+:root {
+  --main-bg: #FBC5AA;
+  --main-fg: #12365D;
+  --head-bg: #12365D;
+  --head-fg: #FFF;
+  --head2-bg: #93B2D3;
+  --head2-fg: #3D74AC;
+  --tab-bg: #FFF;
+  --tab-fg: #000;
+  --tab-row-bg: #FFBF44;
+  --tab-row-fg: #B91E0C;
+  --tab-head-bg: #B91E0C;
+  --tab-head-fg: #FFF;
+  --title-bg: #12365D;
+  --title-fg: #FFF;
+  --high-bg: #872D0C;
+  --high-fg: #277FC0;
+  --box-bg: rgba(0, 0, 0, 0.14);
+  --box-fg: #808080;
+  --comment-bg: #D1702C;
+  --comment-fg: #2D5E90;
+}
+</style>
+</body></html>

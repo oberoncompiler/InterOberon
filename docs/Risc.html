@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>
+Risc Module Reference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body>
+<header class="header"><div class="inner">
+<h1>Module <span class="module-name">Risc</span> <span class="subtitle">Reference</span>
+</h1>
+<nav class="module-menu">
+<ul class="modules-index">
+<li><a href="index.html">Get Started</a></li>
+<li><a href="InterOberon.html">InterOberon</a></li>
+<li><a href="Scanner.html">Scanner</a></li>
+<li><a href="Parser.html">Parser</a></li>
+<li><a href="SymTable.html">SymTable</a></li>
+<li><a href="Generator.html">Generator</a></li>
+<li><a href="ErrorMsg.html">ErrorMsg</a></li>
+<li><a href="Lang.html">Lang</a></li>
+<li class="cur"><a href="Risc.html">Risc</a></li>
+</ul>
+</nav>
+</div></header>
+<main class="main"><div class="inner">
+<section class="comment"></section>
+<article class="list-wrap import-list">
+<div class="anchor" id="import"></div>
+<h2 class="heading">Imports</h2>
+  <section class="list-items">
+<span class="import"><span class="name">In</span></span>, 
+<span class="import"><span class="name">Out</span></span>, 
+<span class="import"><span class="name">Files</span></span>, 
+<span class="import"><span class="name">Strings</span></span>, 
+<span class="import"><span class="name">SYSTEM</span></span>  </section>
+</article>
+<article class="list-wrap constants-list">
+<div class="anchor" id="constants"></div>
+<h2 class="heading">Constants</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="fileMark"></div>
+<article class="object const">  <div class="def">
+    <span class="name">fileMark</span><span class="export">*</span> =
+    <span class="value">ORD(<i>'R'</i>) + 256 * (ORD(<i>'S'</i>) + 256 * (ORD(<i>'C'</i>) + 256 * version))</span>;
+  </div>
+<section class="comment"><p>
+&#39;RSC&#39; + CHR(version) as INTEGER
+</p>
+</section>
+</article>
+<div class="anchor" id="version"></div>
+<article class="object const">  <div class="def">
+    <span class="name">version</span><span class="export">*</span> =
+    <span class="value">1</span>;
+  </div>
+<section class="comment"><p>
+Machine code file version
+</p>
+</section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Error codes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">noError<span class="export">*</span></td><td class="value">
+0</td><td class="desc">
+<section class="comment"><p>
+Negative error codes are from VM, positive are from the program
+</p>
+</section>
+</td></tr>
+<tr><td class="name">divByZero<span class="export">*</span></td><td class="value">
+-8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">badDiv<span class="export">*</span></td><td class="value">
+-7</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">memOverflow<span class="export">*</span></td><td class="value">
+-6</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">noMemory<span class="export">*</span></td><td class="value">
+-5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">badMark<span class="export">*</span></td><td class="value">
+-4</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">cantLoad<span class="export">*</span></td><td class="value">
+-3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">noFile<span class="export">*</span></td><td class="value">
+-2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">unimpl<span class="export">*</span></td><td class="value">
+-1</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+<article class="group">
+<h3 class="group-title">Register Numbers</h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="MP"></div>
+<article class="object const">  <div class="def">
+    <span class="name">MP</span><span class="export">*</span> =
+    <span class="value">13</span>;
+  </div>
+<section class="comment"><p>
+Module Pointer
+</p>
+</section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Machine characteristics</h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="memLen"></div>
+<article class="object const">  <div class="def">
+    <span class="name">memLen</span><span class="export">*</span> =
+    <span class="value">5120</span>;
+  </div>
+<section class="comment"><p>
+Size of RAM in words (4 bytes)
+</p>
+</section>
+</article>
+<div class="anchor" id="regCount"></div>
+<article class="object const">  <div class="def">
+    <span class="name">regCount</span><span class="export">*</span> =
+    <span class="value">16</span>;
+  </div>
+<section class="comment"><p>
+Register count
+</p>
+</section>
+</article>
+<div class="anchor" id="varOffset"></div>
+<article class="object const">  <div class="def">
+    <span class="name">varOffset</span><span class="export">*</span> =
+    <span class="value">memLen DIV 5 * 4 * 4</span>;
+  </div>
+<section class="comment"><p>
+Value of R[MP], in bytes
+</p>
+</section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Register instruction opcodes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">mov</td><td class="value">
+0</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">lsl</td><td class="value">
+1</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">asr</td><td class="value">
+2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">ror</td><td class="value">
+3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">and</td><td class="value">
+4</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">ann</td><td class="value">
+5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">ior</td><td class="value">
+6</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">xor</td><td class="value">
+7</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">add</td><td class="value">
+8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">sub</td><td class="value">
+9</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">mul</td><td class="value">
+10</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">div</td><td class="value">
+11</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">fad</td><td class="value">
+12</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">fsb</td><td class="value">
+13</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">fml</td><td class="value">
+14</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">fdv</td><td class="value">
+15</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+<article class="group">
+<h3 class="group-title">Condition Codes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">MI</td><td class="value">
+0</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">EQ</td><td class="value">
+1</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">CS</td><td class="value">
+2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">VS</td><td class="value">
+3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">LS</td><td class="value">
+4</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">LT</td><td class="value">
+5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">LE</td><td class="value">
+6</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">AL</td><td class="value">
+7</td><td class="desc">
+<section class="comment"><p>
+Always
+</p>
+</section>
+</td></tr>
+<tr><td class="name">PL</td><td class="value">
+8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">NE</td><td class="value">
+9</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">CC</td><td class="value">
+10</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">VC</td><td class="value">
+11</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">HI</td><td class="value">
+12</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">GE</td><td class="value">
+13</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">GT</td><td class="value">
+14</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">NV</td><td class="value">
+15</td><td class="desc">
+<section class="comment"><p>
+Never
+</p>
+</section>
+</td></tr>
+</tbody></table></div>
+</article>
+  </section>
+</article>
+<article class="list-wrap types-list">
+<div class="anchor" id="types"></div>
+<h2 class="heading">Types</h2>
+  <section class="list-items">
+  <section class="empty-section">This section is empty.</section>
+  </section>
+</article>
+<article class="list-wrap variables-list">
+<div class="anchor" id="variables"></div>
+<h2 class="heading">Variables</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="C"></div>
+<article class="object var">  <div class="def">
+    <span class="name">C</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Flags
+</p>
+</section>
+</article>
+<div class="anchor" id="H"></div>
+<article class="object var">  <div class="def">
+    <span class="name">H</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Auxiliary regiser. For MUL and DIV.
+</p>
+</section>
+</article>
+<div class="anchor" id="IR"></div>
+<article class="object var">  <div class="def">
+    <span class="name">IR</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Instruction register. Holds an instruction.
+</p>
+</section>
+</article>
+<div class="anchor" id="N"></div>
+<article class="object var">  <div class="def">
+    <span class="name">N</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Flags
+</p>
+</section>
+</article>
+<div class="anchor" id="PC"></div>
+<article class="object var">  <div class="def">
+    <span class="name">PC</span>:
+    <span class="type">
+INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Program counter (index in mem of next instruction)
+</p>
+</section>
+</article>
+<div class="anchor" id="R"></div>
+<article class="object var">  <div class="def">
+    <span class="name">R</span>:
+    <span class="type">
+ARRAY regCount OF INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Registers
+</p>
+</section>
+</article>
+<div class="anchor" id="V"></div>
+<article class="object var">  <div class="def">
+    <span class="name">V</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Flags
+</p>
+</section>
+</article>
+<div class="anchor" id="Z"></div>
+<article class="object var">  <div class="def">
+    <span class="name">Z</span>:
+    <span class="type">
+BOOLEAN</span>;
+  </div>
+<section class="comment"><p>
+Flags
+</p>
+</section>
+</article>
+<div class="anchor" id="mem"></div>
+<article class="object var">  <div class="def">
+    <span class="name">mem</span>:
+    <span class="type">
+ARRAY memLen OF INTEGER</span>;
+  </div>
+<section class="comment"><p>
+Memory
+</p>
+</section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap procedures-list">
+<div class="anchor" id="procedures"></div>
+<h2 class="heading">Procedures</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="ClearRegisters"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ClearRegisters</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="CondTrue"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">CondTrue</span><span class="params"> (<span class="param"><span class="name">cond</span>: <span class="type">INTEGER</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="DumpMemory"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">DumpMemory</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="F01"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">F01</span><span class="params"> (<span class="param"><span class="name">u</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="name">v</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="name">useIm</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"><p>
+Register instructions (formats F0 and F1). useIm means F1.
+</p>
+</section>
+</article>
+<div class="anchor" id="F2"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">F2</span><span class="params"> (<span class="param"><span class="name">u</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="name">v</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"><p>
+Memory instructions
+</p>
+</section>
+</article>
+<div class="anchor" id="F3"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">F3</span><span class="params"> (<span class="param"><span class="name">u</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="name">v</span>: <span class="type">BOOLEAN;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">res</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">done</span>: <span class="type">BOOLEAN</span></span>)</span>;</div>
+<section class="comment"><p>
+Branch instructions
+</p>
+</section>
+</article>
+<div class="anchor" id="Load"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Load</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">fname</span>: <span class="type">ARRAY OF CHAR;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">err</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="MulHigh"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">MulHigh</span><span class="params"> (<span class="param"><span class="name">x</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="name">y</span>: <span class="type">INTEGER</span></span>): INTEGER</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Read"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Read</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">r</span>: <span class="type">Files.Rider;
+</span></span><span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">x</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadMark"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadMark</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">r</span>: <span class="type">Files.Rider</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ReadMemory"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ReadMemory</span><span class="params"> (<span class="param"><span class="passed by-var">VAR</span>&nbsp;<span class="name">r</span>: <span class="type">Files.Rider</span></span>): BOOLEAN</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Run"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Run</span><span class="export">*</span><span class="params"> (): INTEGER</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="RunFile"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">RunFile</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">modName</span>: <span class="type">ARRAY OF CHAR</span></span>): INTEGER</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Sign"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Sign</span><span class="params"> (<span class="param"><span class="name">x</span>: <span class="type">INTEGER</span></span>): INTEGER</span>;</div>
+<section class="comment"><p>
+Returns -1 if x &lt; 0, or 1 otherwise. Sign(0) = 1.
+</p>
+</section>
+</article>
+<div class="anchor" id="ToReal"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ToReal</span><span class="params"> (<span class="param"><span class="name">x</span>: <span class="type">INTEGER</span></span>): REAL</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ToSet"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ToSet</span><span class="params"> (<span class="param"><span class="name">x</span>: <span class="type">INTEGER</span></span>): SET</span>;</div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+</div></main><footer class="footer"><div class="inner">
+<p>Generated automatically by Free Oberon Autodoc</p>
+<p class="date">2023-12-02</p>
+</div></footer>
+<style>
+@font-face {
+  font-family: 'customfont';
+  src: url(font.ttf);
+}
+
+body, p, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: customfont, monospace, sans-serif;
+  font-size: 14px;
+  background: #FBC5AA;
+  background: var(--main-bg);
+  color: #12365D;
+  color: var(--main-fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+}
+
+a {
+  color: #872D0C;
+  color: var(--high-bg);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FF0000;
+}
+
+.inner {
+  max-width: 1160px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 0 0;
+  background: #12365D;
+  background: var(--head-bg);
+  color: #93B2D3;
+  color: var(--head2-bg);
+}
+
+.index .header {
+  padding-bottom: 30px;
+}
+
+.header h1 .module-name {
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.header h1 .subtitle {
+  display: block;
+  font-size: 16px;
+  color: #4D89C7;
+  color: var(--head2-fg);
+}
+
+.footer {
+  padding: 50px 0;
+  background: #2D5E90;
+  background: var(--head-bg);
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.footer p {
+  text-align: center;
+}
+
+.footer .date {
+  color: var(--head2-bg);
+  margin-top: 1em;
+}
+
+.main {
+  padding: 20px 0;
+  flex: 1;
+}
+
+h2, h3, h4, h5, h6 {
+  margin: 1.2em 0 0.5em;
+}
+
+.heading {
+  background: #12365D;
+  background: var(--title-bg);
+  color: #FFF;
+  color: var(--title-fg);
+  margin: 20px -20px 15px;
+  width: max-content;
+  min-width: calc(min(250px, 100%));
+  box-sizing: border-box;
+  padding: 6px 60px 6px 40px;
+  text-transform: uppercase;
+  font-size: 16px;
+  box-shadow: 6px 6px 1px var(--box-bg);
+}
+
+.module-menu {
+  padding: 6px 0;
+}
+
+.module-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.module-menu a {
+  display: block;
+  background: var(--head2-fg);
+  color: var(--head-fg);
+  padding: 4px 8px;
+}
+
+.module-menu a:hover {
+  background: var(--head2-bg);
+  color: var(--title-bg);
+}
+
+.group-title {
+  padding: 0 2px;
+  margin: 18px 0 8px;
+}
+
+.ordinal-consts {
+  overflow-x: auto;
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.ordinal-consts table {
+  background: #FFF;
+  background: var(--tab-bg);
+  min-width: 450px;
+  width: 100%;
+}
+
+.ordinal-consts th,
+.ordinal-consts td {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+.ordinal-consts th {
+  text-align: left;
+  font-weight: normal;
+  background: #B91E0C;
+  background: var(--tab-head-bg);
+  border-color: #B91E0C;
+  border-color: var(--tab-head-bg);
+  color: #FFF;
+  color: var(--tab-head-fg);
+}
+
+.ordinal-consts .name {
+  width: 140px;
+}
+
+.ordinal-consts td.name {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.ordinal-consts .value {
+  width: 60px;
+}
+
+.ordinal-consts td.desc {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: var(--box-bg);
+}
+
+.ordinal-consts tr:last-child td.desc {
+  border-color: transparent;
+}
+
+.ordinal-consts .desc .comment {
+  padding: 0;
+}
+
+.object {
+  background: #FFF;
+  background: var(--tab-bg);
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  padding: 2px;
+  margin: 6px 0;
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.object .def {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+}
+
+.object .name,
+.object .record-base {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.const .value {
+  color: #000;
+  color: var(--tab-fg);
+}
+
+.value i {
+  font-style: normal;
+  color: #277FC0;
+  color: var(--high-fg);
+}
+
+.comment {
+  padding: 10px 6px;
+  color: #2D5E90;
+  color: var(--comment-fg);
+}
+
+.group-title:empty,
+.group > .comment:empty,
+.object > .comment:empty {
+  display: none;
+}
+
+.comment code {
+  color: var(--tab-row-fg);
+}
+
+.record-fields .comment {
+  color: #C91E0C;
+  color: var(--tab-row-fg);
+}
+
+.comment .mark {
+  color: #D1702C;
+  color: var(--comment-bg);
+}
+
+.record-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.record-fields .comment {
+  padding: 0;
+}
+
+.export {
+  color: #12365D;
+  color: var(--title-bg);
+}
+
+@media screen and (max-width: 500px) {
+
+}
+
+</style>
+<style> /* Palette */
+:root {
+  --main-bg: #FBC5AA;
+  --main-fg: #12365D;
+  --head-bg: #12365D;
+  --head-fg: #FFF;
+  --head2-bg: #93B2D3;
+  --head2-fg: #3D74AC;
+  --tab-bg: #FFF;
+  --tab-fg: #000;
+  --tab-row-bg: #FFBF44;
+  --tab-row-fg: #B91E0C;
+  --tab-head-bg: #B91E0C;
+  --tab-head-fg: #FFF;
+  --title-bg: #12365D;
+  --title-fg: #FFF;
+  --high-bg: #872D0C;
+  --high-fg: #277FC0;
+  --box-bg: rgba(0, 0, 0, 0.14);
+  --box-fg: #808080;
+  --comment-bg: #D1702C;
+  --comment-fg: #2D5E90;
+}
+</style>
+</body></html>

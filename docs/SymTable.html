@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>
+SymTable Module Reference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body>
+<header class="header"><div class="inner">
+<h1>Module <span class="module-name">SymTable</span> <span class="subtitle">Reference</span>
+</h1>
+<nav class="module-menu">
+<ul class="modules-index">
+<li><a href="index.html">Get Started</a></li>
+<li><a href="InterOberon.html">InterOberon</a></li>
+<li><a href="Scanner.html">Scanner</a></li>
+<li><a href="Parser.html">Parser</a></li>
+<li class="cur"><a href="SymTable.html">SymTable</a></li>
+<li><a href="Generator.html">Generator</a></li>
+<li><a href="ErrorMsg.html">ErrorMsg</a></li>
+<li><a href="Lang.html">Lang</a></li>
+<li><a href="Risc.html">Risc</a></li>
+</ul>
+</nav>
+</div></header>
+<main class="main"><div class="inner">
+<section class="comment"></section>
+<article class="list-wrap import-list">
+<div class="anchor" id="import"></div>
+<h2 class="heading">Imports</h2>
+  <section class="list-items">
+<span class="import"><span class="name">Out</span></span>, 
+<span class="import"><span class="alias">S</span> := <span class="name"><a href="Scanner.html">Scanner</a></span></span>, 
+<span class="import"><span class="alias">E</span> := <span class="name"><a href="ErrorMsg.html">ErrorMsg</a></span></span>, 
+<span class="import"><span class="name">Strings</span></span>, 
+<span class="import"><span class="name">Kernel</span></span>, 
+<span class="import"><span class="name"><a href="Lang.html">Lang</a></span></span>  </section>
+</article>
+<article class="list-wrap constants-list">
+<div class="anchor" id="constants"></div>
+<h2 class="heading">Constants</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title">Object Classes</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">Head<span class="export">*</span></td><td class="value">
+0</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">Const<span class="export">*</span></td><td class="value">
+1</td><td class="desc">
+<section class="comment"><p>
+Non-standard procedures also go here
+</p>
+</section>
+</td></tr>
+<tr><td class="name">Var<span class="export">*</span></td><td class="value">
+2</td><td class="desc">
+<section class="comment"><p>
+Variables and value parameters
+</p>
+</section>
+</td></tr>
+<tr><td class="name">Par<span class="export">*</span></td><td class="value">
+3</td><td class="desc">
+<section class="comment"><p>
+Var-parameters
+</p>
+</section>
+</td></tr>
+<tr><td class="name">Typ<span class="export">*</span></td><td class="value">
+5</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">Mod<span class="export">*</span></td><td class="value">
+8</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+<article class="group">
+<h3 class="group-title">Type Forms</h3>
+<section class="comment"></section>
+<div class="ordinal-consts">
+<table>
+<thead><tr>
+<th class="name">Name</th>
+<th class="value">Value</th>
+<th class="desc">Description</th>
+</tr></thead><tbody>
+<tr><td class="name">Bool<span class="export">*</span></td><td class="value">
+2</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">Char<span class="export">*</span></td><td class="value">
+3</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">Int<span class="export">*</span></td><td class="value">
+4</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">SFunc<span class="export">*</span></td><td class="value">
+7</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">NoTyp<span class="export">*</span></td><td class="value">
+9</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+<tr><td class="name">Proc<span class="export">*</span></td><td class="value">
+10</td><td class="desc">
+<section class="comment"></section>
+</td></tr>
+</tbody></table></div>
+</article>
+  </section>
+</article>
+<article class="list-wrap types-list">
+<div class="anchor" id="types"></div>
+<h2 class="heading">Types</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title">Type Forms</h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="Object"></div>
+<article class="object type">  <div class="def">
+    <span class="name">Object</span><span class="export">*</span> =
+    <span class="typedef">
+POINTER TO <a href="#ObjectDesc">ObjectDesc</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Type"></div>
+<article class="object type">  <div class="def">
+    <span class="name">Type</span><span class="export">*</span> =
+    <span class="typedef">
+POINTER TO <a href="#TypeDesc">TypeDesc</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ObjectDesc"></div>
+<article class="object type">  <div class="def">
+    <span class="name">ObjectDesc</span><span class="export">*</span> =
+    <span class="typedef">
+RECORD<span class="record-fields">
+<span class="var">&nbsp; <span class="name">name</span><span class="export">*</span>: <span class="type">ARRAY 64 OF CHAR; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">class</span><span class="export">*</span>: <span class="type">INTEGER; &nbsp;</span></span><section class="comment"><p>
+<span class="mark">(*</span> See Object Classes
+ <span class="mark">*)</span></p>
+</section>
+<span class="var">&nbsp; <span class="name">dsc</span><span class="export">*</span>: <span class="type"><a href="#Object">Object</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">next</span><span class="export">*</span>: <span class="type"><a href="#Object">Object</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">type</span><span class="export">*</span>: <span class="type"><a href="#Type">Type</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">val</span><span class="export">*</span>: <span class="type">INTEGER &nbsp;</span></span><section class="comment"><p>
+<span class="mark">(*</span> Address for variables, number for procedures
+ <span class="mark">*)</span></p>
+</section>
+</span>
+ END</span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="TypeDesc"></div>
+<article class="object type">  <div class="def">
+    <span class="name">TypeDesc</span><span class="export">*</span> =
+    <span class="typedef">
+RECORD<span class="record-fields">
+<span class="var">&nbsp; <span class="name">form</span><span class="export">*</span>: <span class="type">INTEGER; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">nofpars</span><span class="export">*</span>: <span class="type">INTEGER; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">dsc</span><span class="export">*</span>: <span class="type"><a href="#Object">Object</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">base</span><span class="export">*</span>: <span class="type"><a href="#Type">Type</a>; &nbsp;</span></span><section class="comment"></section>
+<span class="var">&nbsp; <span class="name">size</span><span class="export">*</span>: <span class="type">INTEGER &nbsp;</span></span><section class="comment"><p>
+<span class="mark">(*</span> In bytes
+ <span class="mark">*)</span></p>
+</section>
+</span>
+ END</span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap variables-list">
+<div class="anchor" id="variables"></div>
+<h2 class="heading">Variables</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="dummy"></div>
+<article class="object var">  <div class="def">
+    <span class="name">dummy<span class="export">*</span></span>:
+    <span class="type">
+<a href="#Object">Object</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="topScope"></div>
+<article class="object var">  <div class="def">
+    <span class="name">topScope</span>:
+    <span class="type">
+<a href="#Object">Object</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+<article class="group">
+<h3 class="group-title">Standard Types</h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="boolType"></div>
+<article class="object var">  <div class="def">
+    <span class="name">boolType<span class="export">*</span></span>:
+    <span class="type">
+<a href="#Type">Type</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="charType"></div>
+<article class="object var">  <div class="def">
+    <span class="name">charType<span class="export">*</span></span>:
+    <span class="type">
+<a href="#Type">Type</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="intType"></div>
+<article class="object var">  <div class="def">
+    <span class="name">intType<span class="export">*</span></span>:
+    <span class="type">
+<a href="#Type">Type</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="noType"></div>
+<article class="object var">  <div class="def">
+    <span class="name">noType<span class="export">*</span></span>:
+    <span class="type">
+<a href="#Type">Type</a></span>;
+  </div>
+<section class="comment"></section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+<article class="list-wrap procedures-list">
+<div class="anchor" id="procedures"></div>
+<h2 class="heading">Procedures</h2>
+  <section class="list-items">
+<article class="group">
+<h3 class="group-title"></h3>
+<section class="comment"></section>
+<div class="group-content">
+<div class="anchor" id="CloseScope"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">CloseScope</span><span class="export">*</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="CreateType"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">CreateType</span><span class="params"> (<span class="param"><span class="name">form</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="name">size</span>: <span class="type">INTEGER</span></span>): <a href="#Type">Type</a></span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Debug"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Debug</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">scope</span>: <span class="type"><a href="#Object">Object</a>;
+</span></span><span class="param"><span class="name">indent</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="Import"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Import</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">M</span>: <span class="type"><a href="#Object">Object</a></span></span>)</span>;</div>
+<section class="comment"><p>
+Loads symbol data of module to M by M.name.
+</p>
+</section>
+</article>
+<div class="anchor" id="ImportIn"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ImportIn</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">M</span>: <span class="type"><a href="#Object">Object</a>;
+</span></span><span class="param"><span class="name">num</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"><p>
+num is Lang-internal number of module M
+</p>
+</section>
+</article>
+<div class="anchor" id="ImportOut"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ImportOut</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">M</span>: <span class="type"><a href="#Object">Object</a>;
+</span></span><span class="param"><span class="name">num</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"><p>
+num is Lang-internal number of module M
+</p>
+</section>
+</article>
+<div class="anchor" id="Init"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">Init</span><span class="export">*</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="InitUniverse"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">InitUniverse</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="NewObject"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">NewObject</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">class</span>: <span class="type">INTEGER;
+</span></span><span class="param"><span class="name">name</span>: <span class="type">ARRAY OF CHAR</span></span>): <a href="#Object">Object</a></span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="OpenScope"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">OpenScope</span><span class="export">*</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="PrintIndent"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">PrintIndent</span><span class="params"> (<span class="param"><span class="name">n</span>: <span class="type">INTEGER</span></span>)</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ShowDebug"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ShowDebug</span><span class="export">*</span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ThisImport"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ThisImport</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">M</span>: <span class="type"><a href="#Object">Object</a></span></span>): <a href="#Object">Object</a></span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="ThisObject"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">ThisObject</span><span class="export">*</span><span class="params"> (): <a href="#Object">Object</a></span>;</div>
+<section class="comment"></section>
+</article>
+<div class="anchor" id="TypesCompatible"></div>
+<article class="object procedure">
+  <div class="def">
+    PROCEDURE
+    <span class="name">TypesCompatible</span><span class="export">*</span><span class="params"> (<span class="param"><span class="name">t1</span>: <span class="type"><a href="#Type">Type</a>;
+</span></span><span class="param"><span class="name">t2</span>: <span class="type"><a href="#Type">Type</a></span></span>): BOOLEAN</span>;</div>
+<section class="comment"><p>
+Returns TRUE if types t1 and t2 are assignment-compatible (t1 := t2).
+</p>
+</section>
+</article>
+</div>
+</article>
+  </section>
+</article>
+</div></main><footer class="footer"><div class="inner">
+<p>Generated automatically by Free Oberon Autodoc</p>
+<p class="date">2023-12-02</p>
+</div></footer>
+<style>
+@font-face {
+  font-family: 'customfont';
+  src: url(font.ttf);
+}
+
+body, p, h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: customfont, monospace, sans-serif;
+  font-size: 14px;
+  background: #FBC5AA;
+  background: var(--main-bg);
+  color: #12365D;
+  color: var(--main-fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+}
+
+a {
+  color: #872D0C;
+  color: var(--high-bg);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FF0000;
+}
+
+.inner {
+  max-width: 1160px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.header {
+  padding: 30px 0 0;
+  background: #12365D;
+  background: var(--head-bg);
+  color: #93B2D3;
+  color: var(--head2-bg);
+}
+
+.index .header {
+  padding-bottom: 30px;
+}
+
+.header h1 .module-name {
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.header h1 .subtitle {
+  display: block;
+  font-size: 16px;
+  color: #4D89C7;
+  color: var(--head2-fg);
+}
+
+.footer {
+  padding: 50px 0;
+  background: #2D5E90;
+  background: var(--head-bg);
+  color: #FFF;
+  color: var(--head-fg);
+}
+
+.footer p {
+  text-align: center;
+}
+
+.footer .date {
+  color: var(--head2-bg);
+  margin-top: 1em;
+}
+
+.main {
+  padding: 20px 0;
+  flex: 1;
+}
+
+h2, h3, h4, h5, h6 {
+  margin: 1.2em 0 0.5em;
+}
+
+.heading {
+  background: #12365D;
+  background: var(--title-bg);
+  color: #FFF;
+  color: var(--title-fg);
+  margin: 20px -20px 15px;
+  width: max-content;
+  min-width: calc(min(250px, 100%));
+  box-sizing: border-box;
+  padding: 6px 60px 6px 40px;
+  text-transform: uppercase;
+  font-size: 16px;
+  box-shadow: 6px 6px 1px var(--box-bg);
+}
+
+.module-menu {
+  padding: 6px 0;
+}
+
+.module-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.module-menu a {
+  display: block;
+  background: var(--head2-fg);
+  color: var(--head-fg);
+  padding: 4px 8px;
+}
+
+.module-menu a:hover {
+  background: var(--head2-bg);
+  color: var(--title-bg);
+}
+
+.group-title {
+  padding: 0 2px;
+  margin: 18px 0 8px;
+}
+
+.ordinal-consts {
+  overflow-x: auto;
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.ordinal-consts table {
+  background: #FFF;
+  background: var(--tab-bg);
+  min-width: 450px;
+  width: 100%;
+}
+
+.ordinal-consts th,
+.ordinal-consts td {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+.ordinal-consts th {
+  text-align: left;
+  font-weight: normal;
+  background: #B91E0C;
+  background: var(--tab-head-bg);
+  border-color: #B91E0C;
+  border-color: var(--tab-head-bg);
+  color: #FFF;
+  color: var(--tab-head-fg);
+}
+
+.ordinal-consts .name {
+  width: 140px;
+}
+
+.ordinal-consts td.name {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.ordinal-consts .value {
+  width: 60px;
+}
+
+.ordinal-consts td.desc {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: var(--box-bg);
+}
+
+.ordinal-consts tr:last-child td.desc {
+  border-color: transparent;
+}
+
+.ordinal-consts .desc .comment {
+  padding: 0;
+}
+
+.object {
+  background: #FFF;
+  background: var(--tab-bg);
+  border: 1px solid #808080;
+  border-color: var(--box-fg);
+  padding: 2px;
+  margin: 6px 0;
+  box-shadow: 0 1px 3px var(--box-bg);
+}
+
+.object .def {
+  background: #FFBF44;
+  background: var(--tab-row-bg);
+  border: 1px solid var(--box-bg);
+  padding: 2px 5px;
+}
+
+.object .name,
+.object .record-base {
+  color: #B91E0C;
+  color: var(--tab-row-fg);
+}
+
+.const .value {
+  color: #000;
+  color: var(--tab-fg);
+}
+
+.value i {
+  font-style: normal;
+  color: #277FC0;
+  color: var(--high-fg);
+}
+
+.comment {
+  padding: 10px 6px;
+  color: #2D5E90;
+  color: var(--comment-fg);
+}
+
+.group-title:empty,
+.group > .comment:empty,
+.object > .comment:empty {
+  display: none;
+}
+
+.comment code {
+  color: var(--tab-row-fg);
+}
+
+.record-fields .comment {
+  color: #C91E0C;
+  color: var(--tab-row-fg);
+}
+
+.comment .mark {
+  color: #D1702C;
+  color: var(--comment-bg);
+}
+
+.record-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.record-fields .comment {
+  padding: 0;
+}
+
+.export {
+  color: #12365D;
+  color: var(--title-bg);
+}
+
+@media screen and (max-width: 500px) {
+
+}
+
+</style>
+<style> /* Palette */
+:root {
+  --main-bg: #FBC5AA;
+  --main-fg: #12365D;
+  --head-bg: #12365D;
+  --head-fg: #FFF;
+  --head2-bg: #93B2D3;
+  --head2-fg: #3D74AC;
+  --tab-bg: #FFF;
+  --tab-fg: #000;
+  --tab-row-bg: #FFBF44;
+  --tab-row-fg: #B91E0C;
+  --tab-head-bg: #B91E0C;
+  --tab-head-fg: #FFF;
+  --title-bg: #12365D;
+  --title-fg: #FFF;
+  --high-bg: #872D0C;
+  --high-fg: #277FC0;
+  --box-bg: rgba(0, 0, 0, 0.14);
+  --box-fg: #808080;
+  --comment-bg: #D1702C;
+  --comment-fg: #2D5E90;
+}
+</style>
+</body></html>

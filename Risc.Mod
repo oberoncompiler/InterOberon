@@ -300,13 +300,13 @@ BEGIN
     IF ~ODD(ASR(IR, 31)) THEN (* F0, F1 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F0 *)
         F01(u, v, FALSE, res)
-      ELSE (** F1 **)
+      ELSE (* F1 *)
         F01(u, v, TRUE, res)
       END
     ELSE (* F2, F3 *)
       IF ~ODD(ASR(IR, 30)) THEN (* F2 *)
         F2(u, v, res)
-      ELSE (** F3 **)
+      ELSE (* F3 *)
         F3(u, v, res, done)
       END
     END;
