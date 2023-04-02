@@ -1,0 +1,37 @@
+burts = "A" | "Ā" | "B" | "C" | "Č" | ... | "Ž".
+cipars = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9".
+
+identifikators = burts {burts | cipars}.
+kvalident = [identifikators "."] identifikators.
+veselais = cipars {cipars}.
+simboluVirkne = ' " ' litera ' " ' | " ' " litera " ' ".
+tips = kvalident.
+identSaraksts = identifikators {"," identifikators}.
+mainīgoDeklarēšana = identSaraksts ":" tips.
+izteiksme = vienkāršāIzteiksme [attiecība vienkāršāIzteiksme].
+attiecība = "=" | "#" | "<" | "<=" | ">" | ">=".
+vienkāršāIzteiksme = ["+" | "-"] saskaitāmais {saskOperācija saskaitāmais}.
+saskOperācija = "+" | "-" | VAI.
+saskaitāmais = reizinātāis {reizinOperācija reizinātāis}.
+reizinOperācija = "*" | DAL | ATL | "&".
+reizinātāis = veselais | simboluVirkne | PATIESS | APLAMS |
+              kvalident [FaktiskieParameteri] |
+              "(" izteiksme ")" | "~" reizinātāis.
+IzteiksmesSaraksts = izteiksme {"," izteiksme}.
+FaktiskieParameteri = "(" [IzteiksmesSaraksts] ")".
+operators = [piešķiršana | ProcedūrasIzsaukšana | JaOperators |
+            KamērOperators | AtkārtotOperators.
+piešķiršana = identifikators ":=" izteiksme.
+ProcedūrasIzsaukšana = kvalident [FaktiskieParameteri].
+OperatoruSecība = operators {";" operators}.
+JaOperators = JA izteiksme TAD OperatoruSecība
+              {BETJA izteiksme TAD OperatoruSecība}
+              [CITĀDI OperatoruSecība] BEIGAS.
+KamērOperators = KAMĒR izteiksme DARĪT OperatoruSecība
+              {BETJA izteiksme DARĪT OperatoruSecība} BEIGAS.
+AtkārtotOperators = ATKĀRTOT OperatoruSecība LĪDZ izteiksme.
+modulis = MODULIS identifikators ";" [ImportēšanasSaraksts]
+          DeklarēšanasSecība [SĀKUMS OperatoruSecība]
+          BEIGAS ident ".".
+ImportēšanasSaraksts = IMPORTĒ imports {"," imports} ";".
+imports = identifikators [":=" identifikators].
