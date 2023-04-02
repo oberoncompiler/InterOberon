@@ -32,6 +32,6 @@ KamērOperators = KAMĒR izteiksme DARĪT OperatoruSecība
 AtkārtotOperators = ATKĀRTOT OperatoruSecība LĪDZ izteiksme.
 modulis = MODULIS identifikators ";" [ImportēšanasSaraksts]
           DeklarēšanasSecība [SĀKUMS OperatoruSecība]
-          BEIGAS ident ".".
+          BEIGAS identifikators ".".
 ImportēšanasSaraksts = IMPORTĒ imports {"," imports} ";".
 imports = identifikators [":=" identifikators].
