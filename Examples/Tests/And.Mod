@@ -1,4 +1,4 @@
-MODULE Or;
+MODULE And;
 IMPORT Out;
 VAR a, b, x: INTEGER;
 BEGIN
@@ -12,4 +12,4 @@ BEGIN
     a := a + 1
   END;
   Out.Ln
-END Or.
+END And.
